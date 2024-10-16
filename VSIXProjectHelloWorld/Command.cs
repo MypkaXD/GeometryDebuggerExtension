@@ -5,6 +5,7 @@ using System.ComponentModel.Design;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Forms;
 using Task = System.Threading.Tasks.Task;
 
@@ -80,8 +81,6 @@ namespace VSIXProjectHelloWorld
             Instance = new Command(package, commandService);
         }
 
-        private ClassExample classExample;
-
         /// <summary>
         /// This function is the callback used to execute the command when the menu item is clicked.
         /// See the constructor to see how the menu item is associated with this function using
@@ -93,7 +92,10 @@ namespace VSIXProjectHelloWorld
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            ClassExample classExample = new ClassExample();
+            var window = new System.Windows.Window(); // create window
+            var ui = new UserControl1(); // create UI with WPF
+            window.Content = ui; // set content on our ui
+            window.Show(); // show this window
         }
     }
 }

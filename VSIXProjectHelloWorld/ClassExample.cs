@@ -91,7 +91,7 @@ namespace VSIXProjectHelloWorld
 
                 System.Diagnostics.Debug.WriteLine(expression.Type);
 
-                objects.Add(new MyObject() { m_B_IsSelected = false, m_S_Name = localVariable.Name, m_S_Type = localVariable.Type, m_S_Addres = expression.Value});
+                objects.Add(new MyObject() { m_B_IsSelected = false, m_S_Name = localVariable.Name, m_S_Type = localVariable.Type, m_S_Addres = expression.Value, m_S_Source="LocalFrame"});
             }
 
             ui.dgObjects.ItemsSource = objects;
