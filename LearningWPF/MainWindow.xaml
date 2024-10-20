@@ -4,38 +4,63 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:wpf="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
         xmlns:local="clr-namespace:LearningWPF"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid Margin="10">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-        </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Grid.Column="0">
-            <Button>Button1</Button>
-            <Button>Button2</Button>
-            <Button>Button3</Button>
+    <DockPanel Background="LightGreen">
+        <Border Name="ControlHostElement"
+  Width="200"
+  Height="200"
+  HorizontalAlignment="Right"
+  VerticalAlignment="Top"
+  BorderBrush="LightGray"
+  BorderThickness="3"
+  DockPanel.Dock="Right"/>
+        <StackPanel>
+            <Label HorizontalAlignment="Center"
+      Margin="0,10,0,0"
+      FontSize="14"
+      FontWeight="Bold">Control the Control</Label>
+            <TextBlock Margin="10,10,10,10" >Selected Text: <TextBlock  Name="selectedText"/></TextBlock>
+            <TextBlock Margin="10,10,10,10" >Number of Items: <TextBlock  Name="numItems"/></TextBlock>
+
+            <Line X1="0" X2="200"
+      Stroke="LightYellow"
+      StrokeThickness="2"
+      HorizontalAlignment="Center"
+      Margin="0,20,0,0"/>
+
+            <Label HorizontalAlignment="Center"
+      Margin="10,10,10,10">Append an Item to the List</Label>
+            <StackPanel Orientation="Horizontal">
+                <Label HorizontalAlignment="Left"
+        Margin="10,10,10,10">Item Text</Label>
+                <TextBox HorizontalAlignment="Left"
+        Name="txtAppend"
+        Width="200"
+        Margin="10,10,10,10" />
+            </StackPanel>
+
+            <Button HorizontalAlignment="Left"
+      Click="AppendText"
+      Width="75"
+      Margin="10,10,10,10">Append</Button>
+
+            <Line X1="0" X2="200"
+      Stroke="LightYellow"
+      StrokeThickness="2"
+      HorizontalAlignment="Center"
+      Margin="0,20,0,0"/>
+
+            <Label HorizontalAlignment="Center"
+      Margin="10,10,10,10">Delete the Selected Item</Label>
+
+            <Button Click="DeleteText"
+      Width="125"
+      Margin="10,10,10,10"
+      HorizontalAlignment="Left">Delete</Button>
         </StackPanel>
-        <DataGrid Grid.Row="1" Grid.Column="0" Name="dgObjects" HorizontalAlignment="Left" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
-            <DataGrid.Columns>
-                <DataGridCheckBoxColumn Width="Auto" Header="IsSelected" Binding="{Binding m_B_IsSelected}"></DataGridCheckBoxColumn>
-                <DataGridTemplateColumn Width="Auto" Header="Color">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <xctk:ColorPicker ShowDropDownButton="False" UsingAlphaChannel="False" SelectedColor="{Binding m_C_Color}"></xctk:ColorPicker>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTextColumn Width="*" IsReadOnly="True" Header="Name" Binding="{Binding m_S_Name}"></DataGridTextColumn>
-                <DataGridTextColumn Width="*" IsReadOnly="True" Header="Type" Binding="{Binding m_S_Type}"></DataGridTextColumn>
-                <DataGridTextColumn Width="*" IsReadOnly="True" Header="Addres" Binding="{Binding m_S_Addres}"></DataGridTextColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-    </Grid>
+    </DockPanel>
 </Window>

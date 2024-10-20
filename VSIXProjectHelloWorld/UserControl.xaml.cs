@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,6 +21,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace VSIXProjectHelloWorld
 {
@@ -36,10 +38,42 @@ namespace VSIXProjectHelloWorld
         public string message { get; set; }
         public bool isSet = false;
 
+        double alpha = 0.0d;
+        int[] maj;
+        int[] mino;
+
+        [DllImport("C:\\Users\\MypkaXD\\source\\repos\\LearningWPF\\x64\\Debug\\GLutility.dll")] public static extern int GetGLMinor();
+        [DllImport("C:\\Users\\MypkaXD\\source\\repos\\LearningWPF\\x64\\Debug\\GLutility.dll")] public static extern int GetGLMajor();
+        [DllImport("C:\\Users\\MypkaXD\\source\\repos\\LearningWPF\\x64\\Debug\\GLutility.dll")] public static extern int Get3();
+        [DllImport("C:\\Users\\MypkaXD\\source\\repos\\LearningWPF\\x64\\Debug\\GLutility.dll")] public static extern void GetGLver();
+        [DllImport("C:\\Users\\MypkaXD\\source\\repos\\LearningWPF\\x64\\Debug\\GLutility.dll")] public static extern void drawTriangles();
+
         public UserControl1()
         {
             InitializeComponent();
+            openGLControl.MouseLeftButtonUp += new MouseButtonEventHandler(_myCustomUserControl_MouseLeftButtonUp);
+
             initComponentOfDTE();
+            UpdateAllData();
+
+            maj = new int[1];
+            mino = new int[1];
+            maj[0] = -1;
+            mino[0] = -1;
+            int a = 4;
+        }
+
+        void _myCustomUserControl_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            alpha += 0.3d;
+
+            OpenGL gl = openGLControl.OpenGL;
+
+            int major = GetGLMajor();
+            int minor = Get3();// GLMinor();
+            GetGLver();
+            textBox.Content = "alpha =" + alpha.ToString() + " GL: " + major.ToString() + ":" + minor.ToString();
+            e.Handled = true;
         }
 
         private void initComponentOfDTE()
@@ -53,14 +87,18 @@ namespace VSIXProjectHelloWorld
                 m_DE_events.OnEnterBreakMode += OnEnterBreakMode; // subscribe on Enter Break mode or press f10 or press f5
             }
         }
-        private void OnEnterBreakMode(dbgEventReason reason, ref dbgExecutionAction action)
+        private void UpdateAllData()
         {
             m_OBC_Objects = new ObservableCollection<MyObject>();
 
-            //UpdateDataFromLocalFrame();
+            UpdateDataFromLocalFrame();
             UpdateDataFromWatchList();
 
             dgObjects.ItemsSource = m_OBC_Objects; // set our data for show on ui in DataGrid
+        }
+        private void OnEnterBreakMode(dbgEventReason reason, ref dbgExecutionAction action)
+        {
+            UpdateAllData();
         }
         private void UpdateDataFromLocalFrame()
         {
@@ -132,7 +170,6 @@ namespace VSIXProjectHelloWorld
             }
             else
                 return;
-
         }
 
         void PrintAutomationElement(AutomationElement element)
@@ -156,19 +193,10 @@ namespace VSIXProjectHelloWorld
         {
             txtbEnterExpressionText = txtbEnterExpression.Text;
         }
-        double alpha = 0.0d;
 
         private void OpenGLControl_OpenGLDraw(object sender, RoutedEventArgs args)
         {
-            alpha += 0.07;
-            OpenGL gl = openGLControl.OpenGL;
-            gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
-            gl.Begin(OpenGL.GL_TRIANGLES);
-            gl.Color(0f, 1f, 0f);
-            gl.Vertex(-Math.Cos(alpha), -1f);
-            gl.Vertex(0f, 1f);
-            gl.Vertex(Math.Cos(alpha), -1f);
-            gl.End();
+            drawTriangles();
         }
 
 

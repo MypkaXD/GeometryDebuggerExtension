@@ -36,7 +36,7 @@
                 <DataGridTemplateColumn Width="Auto" Header="Color">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            
+
                             <!--<xctk:ColorPicker x:Name="ColorPickerControl" ShowDropDownButton="False" UsingAlphaChannel="False" SelectedColor="{Binding m_C_Color}"></xctk:ColorPicker>-->
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -44,9 +44,13 @@
                 <DataGridTextColumn Width="*" IsReadOnly="True" Header="Name" Binding="{Binding m_S_Name}"></DataGridTextColumn>
                 <DataGridTextColumn Width="*" IsReadOnly="True" Header="Type" Binding="{Binding m_S_Type}"></DataGridTextColumn>
                 <DataGridTextColumn Width="*" IsReadOnly="True" Header="Addres" Binding="{Binding m_S_Addres}"></DataGridTextColumn>
+                <DataGridTextColumn Width="*" IsReadOnly="True" Header="Source" Binding="{Binding m_S_Source}"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <wpf:OpenGLControl Grid.Column="2" Grid.RowSpan="2" x:Name="openGLControl" OpenGLDraw="OpenGLControl_OpenGLDraw" OpenGLInitialized="OpenGLControl_OpenGLInitialized" 
+        <wpf:OpenGLControl RenderContextType="FBO" Grid.Column="2" Grid.RowSpan="2" x:Name="openGLControl" OpenGLDraw="OpenGLControl_OpenGLDraw" OpenGLInitialized="OpenGLControl_OpenGLInitialized" 
                                DrawFPS="True" Resized="OpenGLControl_Resized" />
+        <Label Grid.Row="0" Grid.Column="2" x:Name="textBox">
+            <TextBox>trololo</TextBox>
+        </Label>
     </Grid>
 </UserControl>
