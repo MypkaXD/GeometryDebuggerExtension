@@ -3,6 +3,7 @@
 #include <winuser.h>
 #include <GL/glew.h>
 #include <GL/wglew.h>
+#include <fstream>
 
 /*
 Начнем разбор с создания окна для Win32. (https://learn.microsoft.com/en-us/windows/win32/learnwin32/creating-a-window)
@@ -29,7 +30,7 @@ typedef struct tagWNDCLASSA {
 
 Нам нужно задать следующие элементы структуры:
 
-1) lpfnWndProc - указатель на функцию, опеределенную приложением, называемой оконной процедурой 
+1) lpfnWndProc - УКАЗАТЕЛЬ на функцию (это важно, при написании класса будут свои проблемы), опеределенную приложением, называемой оконной процедурой 
 	(window procedure / window proc)
 
 	Найдем информацию о этой оконной процедуре 
@@ -48,7 +49,6 @@ typedef struct tagWNDCLASSA {
 3) lpszClassName - стока, идентифицирующая класс окна.
 
 */
-
 /*
 Сообщения, поступающие в окно (https://learn.microsoft.com/en-us/windows/win32/learnwin32/window-messages):
 
@@ -91,48 +91,388 @@ typedef struct tagWNDCLASSA {
 	Такой цикл никогда не закончится, поэтому, если я хочу выйти из него, мне необходимо
 		выполнить PostQuitMessage(0);
 	Эта функция помещает сообщение WM_QUIT в очередь.
+	При этом она заставляет вернуть ноль функцию GetMessage, поэтому цикл можно переделать
+	следующим образом:
+	MSG msg = { };
+	while (GetMessage(&msg, NULL, 0, 0) > 0)
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	При этом сообщение WM_QUIT не нужно обрабатывать в оконной процедуре
+
+	Есть два типа сообщений, это "Posting" сообщения и "Sending" сообщения, 
+	где "Posting" сначала отправляются в очередь, потом через цикл в GetMessage и 
+	DispatchMessage
+	где "Sending" минуют очередь и напрямую ОС вызвает оконную процедуру.
+
+	
+
+Управление состоянием приложения (https://learn.microsoft.com/en-us/windows/win32/learnwin32/managing-application-state-)
+
+		Для отслеживания состояний окна можно использовать глобальные переменные, но что делать если окон 
+	много.
+		Функция CreateWindowEx предоставляет способ передачи любой структуры данных в окно, т.е., как я понял,
+	мы можем создать какую-то рандомную стркутуру и отправить её в эту функцию, которая создает окно, 
+	тем самым мы привяжем к этому окну структуру.
+		Когда эта функция вызывется, она отправляет следующие сообщения в вашу оконную процедуру (в след. 
+	порядке):
+		WM_NCCREATE
+		WM_CREATE
+	НО ЭТО НЕ ЕДИНСТВЕННЫЕ сообщения, отправляемые во время этой функции, остальные, просто, можно проигнорировать
+		Эти два сообщения отправляются до того, как окно становится видимым.
+		Последний парамер CreateWindowEx - указатель типа void*. Поэтому в этом параметре можно 
+	передать любое значение указателя. При этом при обработке этих сообщений оконной процедурой,
+	мы можем вытащить эту структуру.
+
+	Рассмотрим пример, пусть наша стрктура состояний окна имеет следующий вид:
+		struct StateInfo {
+			// ... (struct members not shown)
+		};
+
+		Передадим указатль на эту структуру при вызове CreateWindowEx в конечном параметре void*
+		
+			StateInfo *pState = new (std::nothrow) StateInfo;
+
+			if (pState == NULL)
+			{
+				return 0;
+			}
+
+			// Initialize the structure members (not shown).
+
+			HWND hwnd = CreateWindowEx(
+				0,                              // Optional window styles.
+				CLASS_NAME,                     // Window class
+				L"Learn to Program Windows",    // Window text
+				WS_OVERLAPPEDWINDOW,            // Window style
+
+				// Size and position
+				CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+
+				NULL,       // Parent window
+				NULL,       // Menu
+				hInstance,  // Instance handle
+				pState      // Additional application data
+				);
+
+	При получении этих двух сообщений lParam - указатель на стркутуру CREATESTRUCT, в которой
+	есть указатель на нашу стрктуру (см фото https://learn.microsoft.com/en-us/windows/win32/learnwin32/images/appstate01.png)
+
+	Извлечение:
+		CREATESTRUCT *pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+		pState = reinterpret_cast<StateInfo*>(pCreate->lpCreateParams);
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pState);
+
+		Целью этого последнего вызова функции является сохранение указателя StateInfo в данных 
+	экземпляра для окна. После того, как вы это сделаете, вы всегда сможете получить указатель 
+	обратно из окна, вызвав GetWindowLongPtr :
+
+	LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	StateInfo *pState = reinterpret_cast<StateInfo*>(ptr);
+
+	Для класса удобно сделать следующее:
+		inline StateInfo* GetAppState(HWND hwnd)
+		{
+			LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+			StateInfo *pState = reinterpret_cast<StateInfo*>(ptr);
+			return pState;
+		}
 
 */
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	return;
-}
+#include <iostream>
+#include <windows.h>
+#include <GL/glew.h>
+#include <GL/wglew.h>
 
-int main() {
+#define DLL_EXPORT extern "C" __declspec(dllexport)
 
-		// Register the window class.
-	const wchar_t CLASS_NAME[]  = L"Sample Window Class";
+std::ofstream of("C:\\out.txt");
 
-	WNDCLASS wc = { };
+HGLRC m_hGLRC;
+HDC m_hdc;
 
-	wc.lpfnWndProc   = WindowProc;
-	wc.hInstance     = hInstance;
-	wc.lpszClassName = CLASS_NAME;
+float angle = 45.0f;
 
-	RegisterClass(&wc);
-
-	// Create the window.
-
-	HWND hwnd = CreateWindowEx(
-		0,                              // Optional window styles.
-		CLASS_NAME,                     // Window class
-		L"Learn to Program Windows",    // Window text
-		WS_OVERLAPPEDWINDOW,            // Window style
-
-		// Size and position
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-
-		NULL,       // Parent window    
-		NULL,       // Menu
-		hInstance,  // Instance handle
-		NULL        // Additional application data
-		);
-
-	if (hwnd == NULL)
+LRESULT CALLBACK FalseWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
+	
+	switch (uMsg)
 	{
-		return 0;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:
+		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 
-	ShowWindow(hwnd);
+	return 0;
+}
+HGLRC CreateFalseRenderingContext(HDC hDC)
+{
+	PIXELFORMATDESCRIPTOR pfd;
+
+	// Choose a stub pixel format in order to get access to wgl functions.
+	::SetPixelFormat(
+		hDC,   // Device context.
+		1,     // Index that identifies the pixel format to set. The various pixel formats supported by a device context are identified by one-based indexes.
+		&pfd); // [out] Pointer to a PIXELFORMATDESCRIPTOR structure that contains the logical pixel format specification.
+
+	// Create a fiction OpenGL rendering context.
+	HGLRC hGLRC = wglCreateContext(hDC);
+
+	wglMakeCurrent(hDC, hGLRC);
+
+	return hGLRC;
+}
+void initGlewLibrary() {
+
+	static bool isInit = false;
+
+	if (isInit)
+		return;
+
+	isInit = true;
+	HINSTANCE hInst = GetModuleHandle(NULL);
+
+	// Create a struct describing window class.
+	WNDCLASSEX wcex;
+	wcex.cbSize = sizeof(WNDCLASSEX);                                 // struct size
+	wcex.style = CS_OWNDC; // CS_HREDRAW | CS_VREDRAW |                  // window style
+	wcex.lpfnWndProc = FalseWndProc;                                       // pointer to window function WndProc
+	wcex.cbClsExtra = 0;                                                  // shared memory
+	wcex.cbWndExtra = 0;                                                  // number of additional bytes
+	wcex.hInstance = hInst;                                              // current application's handle
+	wcex.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(IDI_APPLICATION));  // icon handle
+	wcex.hCursor = LoadCursor(NULL, IDC_CROSS);                        // cursor handle
+	wcex.hbrBackground = (HBRUSH)(COLOR_MENU + 1);                             // background brush's handle
+	wcex.lpszMenuName = NULL;                                               // pointer to a string - menu name
+	wcex.lpszClassName = L"FalseWindow";                                       // pointer to a string - window class name
+	wcex.hIconSm = LoadIcon(hInst, MAKEINTRESOURCE(IDI_APPLICATION));  // small icon's handle
+
+	// Register window class for consequtive calls of CreateWindow or CreateWindowEx.
+	RegisterClassEx(&wcex);
+
+	// Create a FICTION window based on the previously registered window class.
+	HWND hWnd = CreateWindow(L"FalseWindow",                  // window class name
+		L"FalseWindow",                  // window title
+		WS_OVERLAPPEDWINDOW,           // window type
+		CW_USEDEFAULT, CW_USEDEFAULT,  // window's start position (x, y)
+		100,                           // window's  width in pixels
+		100,                           // window's  height in pixels
+		NULL,                          // parent window
+		NULL,                          // menu handle
+		hInst,                         // application handle
+		NULL);
+
+	of << "SECOND" << hWnd << "\n";
+
+	HDC hDC = GetDC(hWnd);
+
+	// Create a fiction rendering context.
+	HGLRC tempOpenGLContext = CreateFalseRenderingContext(hDC);
+
+	glewInit();
+
+	DestroyWindow(hWnd);
+
+	MSG msg = { 0 };
+	while (msg.message != WM_QUIT)
+	{
+		while (GetMessage(&msg, NULL, 0, 0))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+
+	wglMakeCurrent(NULL, NULL);          // remove the temporary context from being active
+	wglDeleteContext(tempOpenGLContext); // delete the temporary OpenGL context
+
+}
+void SetPixelFormat(HDC deviceContext, HWND m_hwnd)
+{
+	// Pixel format attributes array.
+	int pixAttribs[] =
+	{
+		WGL_SUPPORT_OPENGL_ARB,   GL_TRUE,                   // nonzero value means "support OpenGL"
+		WGL_DRAW_TO_WINDOW_ARB,   GL_TRUE,                   // true if the pixel format can be used with a window
+		WGL_ACCELERATION_ARB,     WGL_FULL_ACCELERATION_ARB, // hardware acceleration through ICD driver
+		WGL_DOUBLE_BUFFER_ARB,    GL_TRUE,                   // nonzero value means "double buffering"
+		WGL_SAMPLE_BUFFERS_ARB,   GL_TRUE,                   // support multisampling
+		WGL_PIXEL_TYPE_ARB,       WGL_TYPE_RGBA_ARB,         // color mode (either WGL_TYPE_RGBA_ARB or WGL_TYPE_COLORINDEX_ARB)
+		WGL_COLOR_BITS_ARB,       32,                        // bits number in the color buffer for R, G and B channels
+		WGL_DEPTH_BITS_ARB,       24,                        // bits number in the depth buffer
+		WGL_STENCIL_BITS_ARB,     8,                         // bits number in the stencil buffer
+		WGL_SAMPLES_ARB,          8,                         // multisampling factor
+		0                                                    // "end of array" symbol
+	};
+
+	m_hdc = GetDC(m_hwnd);
+
+	int numFormats = 0;
+	int pixelFormat = -1;
+
+	// Find the most relevant pixel format for the specified attributes.
+	wglChoosePixelFormatARB(
+		deviceContext,       // device context
+		&pixAttribs[0],      // list of integer attributes
+		NULL,                // list of float attributes
+		1,                   // the maximum number of pixel formats to be obtained
+		&pixelFormat,        // [out] pointer to the array of pixel formats
+		(UINT*)&numFormats); // the number of appropriate pixel formats found
+
+	// Set pixel format for the window device context.
+	PIXELFORMATDESCRIPTOR pfd;
+	::SetPixelFormat(
+		deviceContext,
+		pixelFormat,
+		&pfd);
+}
+void CreateRenderingContext(HDC deviceContext)
+{
+	// Create OpenGL rendering context.
+	m_hGLRC = wglCreateContextAttribsARB(
+		deviceContext,
+		0, NULL);
+
+	// Make the OpenGL rendering context current.
+	wglMakeCurrent(deviceContext, m_hGLRC);
+}
+
+void deleteContext() {
+	wglMakeCurrent(NULL, NULL);          // remove the temporary context from being active
+	wglDeleteContext(m_hGLRC); // delete the temporary OpenGL context
+}
+
+DLL_EXPORT LRESULT CALLBACK HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch (uMsg)
+	{
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+
+	case WM_PAINT:
+	{
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST); // Включаем буфер глубины
+
+		glLoadIdentity();
+
+		//glPushMatrix();  // Сохранение текущей матрицы
+
+		// Вращение куба вокруг осей
+		glRotatef(angle, 0.0f, 1.0f, 0.0f);  // Вращение вокруг оси X
+		glRotatef(angle, 1.0f, 0.0f, 0.0f);  // Вращение вокруг оси X
+		glRotatef(angle, 0.0f, 0.0f, 1.0f);  // Вращение вокруг оси X
+
+		glBegin(GL_QUADS);
+
+		// Передняя грань
+		glColor3f(1.0f, 0.0f, 0.0f); // Красная
+		glVertex3f(-0.5f, -0.5f, 0.5f);
+		glVertex3f(0.5f, -0.5f, 0.5f);
+		glVertex3f(0.5f, 0.5f, 0.5f);
+		glVertex3f(-0.5f, 0.5f, 0.5f);
+
+		// Задняя грань
+		glColor3f(0.0f, 1.0f, 0.0f); // Зелёная
+		glVertex3f(-0.5f, -0.5f, -0.5f);
+		glVertex3f(-0.5f, 0.5f, -0.5f);
+		glVertex3f(0.5f, 0.5f, -0.5f);
+		glVertex3f(0.5f, -0.5f, -0.5f);
+
+		// Верхняя грань
+		glColor3f(0.0f, 0.0f, 1.0f); // Синяя
+		glVertex3f(-0.5f, 0.5f, -0.5f);
+		glVertex3f(-0.5f, 0.5f, 0.5f);
+		glVertex3f(0.5f, 0.5f, 0.5f);
+		glVertex3f(0.5f, 0.5f, -0.5f);
+
+		// Нижняя грань
+		glColor3f(1.0f, 1.0f, 0.0f); // Жёлтая
+		glVertex3f(-0.5f, -0.5f, -0.5f);
+		glVertex3f(0.5f, -0.5f, -0.5f);
+		glVertex3f(0.5f, -0.5f, 0.5f);
+		glVertex3f(-0.5f, -0.5f, 0.5f);
+
+		// Правая грань
+		glColor3f(1.0f, 0.0f, 1.0f); // Фиолетовая
+		glVertex3f(0.5f, -0.5f, -0.5f);
+		glVertex3f(0.5f, 0.5f, -0.5f);
+		glVertex3f(0.5f, 0.5f, 0.5f);
+		glVertex3f(0.5f, -0.5f, 0.5f);
+
+		// Левая грань
+		glColor3f(0.0f, 1.0f, 1.0f); // Голубая
+		glVertex3f(-0.5f, -0.5f, -0.5f);
+		glVertex3f(-0.5f, -0.5f, 0.5f);
+		glVertex3f(-0.5f, 0.5f, 0.5f);
+		glVertex3f(-0.5f, 0.5f, -0.5f);
+
+		glEnd();
+
+		//glPopMatrix();  // Восстановление предыдущей матрицы
+
+		// Меняем буферы (для двойной буферизации)
+		SwapBuffers(m_hdc);
+
+		angle += 0.01;
+
+		//InvalidateRect(m_hwnd, NULL, TRUE); // Пометить всё окно для перерисовки
+	}
+	return 0;
+
+	default:
+		return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	}
+	return TRUE;
+}
+DLL_EXPORT HWND createOpenGLWindow(PCWSTR lpWindowName, DWORD dwStyle, DWORD dwExStyle = 0, int x = CW_USEDEFAULT, int y = CW_USEDEFAULT, int nWidth = CW_USEDEFAULT, int nHeight = CW_USEDEFAULT, HWND hWndParent = 0, HMENU hMenu = 0) {
+
+	initGlewLibrary();
+
+	WNDCLASS wc = { 0 };
+
+	wc.lpfnWndProc = HandleMessage;
+	wc.hInstance = GetModuleHandle(NULL);
+	wc.lpszClassName = L"OpenGLWindow";
+	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+
+	if (!RegisterClass(&wc)) {
+		DWORD errorCode = GetLastError();
+		of << "RegisterClass failed with error: " << errorCode << "\n";
+		return NULL; // или выбросьте исключение
+	}
+
+	HWND m_hwnd = CreateWindowEx(
+		dwExStyle, L"OpenGLWindow", lpWindowName, dwStyle, x, y,
+		nWidth, nHeight, hWndParent, hMenu, GetModuleHandle(NULL), NULL);
+
+	if (m_hwnd == NULL)
+	{
+		DWORD errorCode = GetLastError();
+		// Здесь можно обработать ошибку, например, вывести сообщение
+		of << "ERROR: " << errorCode << "\n";
+	}
+
+	of << "MAIN" << m_hwnd << "\n";
+	of << "PARENT" << hWndParent << "\n";
+	of.close();
+
+	SetPixelFormat(GetDC(m_hwnd), m_hwnd);
+	CreateRenderingContext(GetDC(m_hwnd));
+
+	return m_hwnd;
+}
+DLL_EXPORT void destroyOpenGLWindow(HWND hwnd) {
+	
+	PostQuitMessage(0);
+
+	DestroyWindow(hwnd);
+
+	wglMakeCurrent(NULL, NULL);          // remove the temporary context from being active
+	wglDeleteContext(m_hGLRC); // delete the temporary OpenGL context
 }

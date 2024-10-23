@@ -20,12 +20,24 @@ namespace LearningWPF
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-
+    /// 
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
         }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Создание нашего OpenGL Hwnd 'контроля'...
+            ControlHost host = new ControlHost(450, 800);
+
+            // ... и присоединяем его к контейнеру:
+            ControlHostElement.Child = host;
+        }
+
     }
+
+
 }
