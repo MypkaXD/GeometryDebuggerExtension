@@ -30,8 +30,11 @@ namespace LearningWPF
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+
             // Создание нашего OpenGL Hwnd 'контроля'...
-            ControlHost host = new ControlHost(450, 800);
+            ControlHost host = new ControlHost(this.ActualWidth/2, this.Height);
+
+            Console.WriteLine(this.ActualWidth / 2 + " " + this.Height);
 
             // ... и присоединяем его к контейнеру:
             ControlHostElement.Child = host;

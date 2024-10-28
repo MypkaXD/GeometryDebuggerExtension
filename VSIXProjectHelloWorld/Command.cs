@@ -93,7 +93,7 @@ namespace VSIXProjectHelloWorld
             ThreadHelper.ThrowIfNotOnUIThread();
 
             var window = new System.Windows.Window(); // create window
-            var ui = new UserControl1(); // create UI with WPF
+            var ui = new GeometryDebugger(); // create UI with WPF
             window.Content = ui; // set content on our ui
             window.Show(); // show this window
         }

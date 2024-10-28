@@ -4,6 +4,14 @@
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <fstream>
+#include <thread>
+#include <GL/glew.h>
+#include <GL/wglew.h>
+#include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#define GLFW_EXPOSE_NATIVE_WGL
+#define GLFW_NATIVE_INCLUDE_NONE
+#include <GLFW/glfw3native.h>
 
 /*
 Начнем разбор с создания окна для Win32. (https://learn.microsoft.com/en-us/windows/win32/learnwin32/creating-a-window)
@@ -286,8 +294,8 @@ void initGlewLibrary() {
 		}
 	}
 
-	wglMakeCurrent(NULL, NULL);          // remove the temporary context from being active
-	wglDeleteContext(tempOpenGLContext); // delete the temporary OpenGL context
+	wglMakeCurrent(NULL, NULL);
+	wglDeleteContext(tempOpenGLContext);
 
 }
 void SetPixelFormat(HDC deviceContext, HWND m_hwnd)
@@ -321,6 +329,10 @@ void SetPixelFormat(HDC deviceContext, HWND m_hwnd)
 		1,                   // the maximum number of pixel formats to be obtained
 		&pixelFormat,        // [out] pointer to the array of pixel formats
 		(UINT*)&numFormats); // the number of appropriate pixel formats found
+	std::ofstream off("C:\\out.txt");
+	off << "NUMFORMATS: " << numFormats;
+	off << "NUMFORMATS&: " << numFormats;
+	off.close();
 
 	// Set pixel format for the window device context.
 	PIXELFORMATDESCRIPTOR pfd;
@@ -331,12 +343,10 @@ void SetPixelFormat(HDC deviceContext, HWND m_hwnd)
 }
 void CreateRenderingContext(HDC deviceContext)
 {
-	// Create OpenGL rendering context.
 	m_hGLRC = wglCreateContextAttribsARB(
 		deviceContext,
 		0, NULL);
 
-	// Make the OpenGL rendering context current.
 	wglMakeCurrent(deviceContext, m_hGLRC);
 }
 
@@ -345,23 +355,12 @@ void deleteContext() {
 	wglDeleteContext(m_hGLRC); // delete the temporary OpenGL context
 }
 
-DLL_EXPORT LRESULT CALLBACK HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	switch (uMsg)
-	{
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return 0;
-
-	case WM_PAINT:
-	{
+void redraw() {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST); // Включаем буфер глубины
 
 		glLoadIdentity();
-
-		//glPushMatrix();  // Сохранение текущей матрицы
 
 		// Вращение куба вокруг осей
 		glRotatef(angle, 0.0f, 1.0f, 0.0f);  // Вращение вокруг оси X
@@ -414,21 +413,57 @@ DLL_EXPORT LRESULT CALLBACK HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, L
 
 		glEnd();
 
-		//glPopMatrix();  // Восстановление предыдущей матрицы
-
 		// Меняем буферы (для двойной буферизации)
 		SwapBuffers(m_hdc);
 
-		angle += 0.01;
+		angle += 10;
+}
 
+DLL_EXPORT LRESULT CALLBACK HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+
+	std::ofstream ofStream("C:\\out.txt", std::ios::app);
+	static bool isNeedRerawing = true;
+
+	switch (uMsg)
+	{
+	case WM_CREATE:
+	{
+		redraw();
+		return 0;
+	}
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+	case WM_PAINT:
+	{
+		return 0;
 		//InvalidateRect(m_hwnd, NULL, TRUE); // Пометить всё окно для перерисовки
 	}
-	return 0;
+	case WM_SIZE:
+	{
+		int width = LOWORD(lParam);  // Ширина окна
+		int height = HIWORD(lParam); // Высота окна
+		const float ar = (float)width / (float)height; 
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glViewport(0, 0, width, height);
 
+		redraw();
+
+		return 0;
+	}
+	case WM_LBUTTONDOWN:
+	{
+		redraw();
+		ofStream << "LCM" << "\n";
+		ofStream.close();
+		return 0;
+	}
 	default:
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
-	return TRUE;
+	return 0;
 }
 DLL_EXPORT HWND createOpenGLWindow(PCWSTR lpWindowName, DWORD dwStyle, DWORD dwExStyle = 0, int x = CW_USEDEFAULT, int y = CW_USEDEFAULT, int nWidth = CW_USEDEFAULT, int nHeight = CW_USEDEFAULT, HWND hWndParent = 0, HMENU hMenu = 0) {
 
@@ -444,7 +479,7 @@ DLL_EXPORT HWND createOpenGLWindow(PCWSTR lpWindowName, DWORD dwStyle, DWORD dwE
 	if (!RegisterClass(&wc)) {
 		DWORD errorCode = GetLastError();
 		of << "RegisterClass failed with error: " << errorCode << "\n";
-		return NULL; // или выбросьте исключение
+		return NULL;
 	}
 
 	HWND m_hwnd = CreateWindowEx(
@@ -454,7 +489,6 @@ DLL_EXPORT HWND createOpenGLWindow(PCWSTR lpWindowName, DWORD dwStyle, DWORD dwE
 	if (m_hwnd == NULL)
 	{
 		DWORD errorCode = GetLastError();
-		// Здесь можно обработать ошибку, например, вывести сообщение
 		of << "ERROR: " << errorCode << "\n";
 	}
 
@@ -467,12 +501,156 @@ DLL_EXPORT HWND createOpenGLWindow(PCWSTR lpWindowName, DWORD dwStyle, DWORD dwE
 
 	return m_hwnd;
 }
+
+DLL_EXPORT void getMessages() {
+	MSG msg = { 0 };
+	while (msg.message != WM_QUIT)
+	{
+		while (GetMessage(&msg, NULL, 0, 0))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+}
+
 DLL_EXPORT void destroyOpenGLWindow(HWND hwnd) {
 	
 	PostQuitMessage(0);
 
 	DestroyWindow(hwnd);
 
-	wglMakeCurrent(NULL, NULL);          // remove the temporary context from being active
-	wglDeleteContext(m_hGLRC); // delete the temporary OpenGL context
+	wglMakeCurrent(NULL, NULL);
+	wglDeleteContext(m_hGLRC);
+}
+
+static void glfw_error_callback(int error, const char* description)
+{
+	std::cerr << "Glfw Error " << error << ": " << description << '\n' << std::flush;
+}
+
+GLFWwindow* window = nullptr;
+HWND native = 0;
+
+DLL_EXPORT HWND getNative()
+{
+	return native;
+}
+
+DLL_EXPORT bool glfwWindow(HWND _hWndParent = 0)
+{
+	std::thread th([](HWND hWndParent) {
+		glfwSetErrorCallback(glfw_error_callback);
+
+		if (hWndParent) {
+			of << "creating child window\n";
+			glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+			glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+		}
+		else
+			of << "creating regular window\n";
+
+
+		if (!glfwInit()) {
+			of << "interface::init: ERROR: failed init glfw\n";
+			return false;
+		}
+		const char* glsl_version = "#version 150";
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+		//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
+
+
+		window = glfwCreateWindow(800, 600, "3D geometry viewer", NULL, NULL);
+		if (window == NULL) {
+			of << "interface::init: ERROR: failed to create glfw window\n";
+
+			return false;
+		}
+		if (hWndParent)
+		{
+			glfwSetWindowAttrib(window, GLFW_DECORATED, false);
+			native = glfwGetWin32Window(window);
+			SetParent(native, hWndParent);
+			long style = GetWindowLong(native, GWL_STYLE);
+			style &= ~WS_POPUP;
+			style |= WS_CHILDWINDOW;
+			SetWindowLong(native, GWL_STYLE, style);
+			ShowWindow(native, SW_SHOW);
+		}
+
+		glfwMakeContextCurrent(window);
+		glfwSwapInterval(1);
+		while (!glfwWindowShouldClose(window)) {
+			glfwWaitEvents();
+			of << "Event!\n";
+			//glfwPollEvents();
+			//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			
+			glClearColor((float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, 1.f);
+			glEnable(GL_DEPTH_TEST); // Включаем буфер глубины
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glLoadIdentity();
+
+			// Вращение куба вокруг осей
+			glRotatef(angle, 0.0f, 1.0f, 0.0f);  // Вращение вокруг оси X
+			glRotatef(angle, 1.0f, 0.0f, 0.0f);  // Вращение вокруг оси X
+			glRotatef(angle, 0.0f, 0.0f, 1.0f);  // Вращение вокруг оси X
+
+			glBegin(GL_QUADS);
+
+			// Передняя грань
+			glColor3f(1.0f, 0.0f, 0.0f); // Красная
+			glVertex3f(-0.5f, -0.5f, 0.5f);
+			glVertex3f(0.5f, -0.5f, 0.5f);
+			glVertex3f(0.5f, 0.5f, 0.5f);
+			glVertex3f(-0.5f, 0.5f, 0.5f);
+
+			// Задняя грань
+			glColor3f(0.0f, 1.0f, 0.0f); // Зелёная
+			glVertex3f(-0.5f, -0.5f, -0.5f);
+			glVertex3f(-0.5f, 0.5f, -0.5f);
+			glVertex3f(0.5f, 0.5f, -0.5f);
+			glVertex3f(0.5f, -0.5f, -0.5f);
+
+			// Верхняя грань
+			glColor3f(0.0f, 0.0f, 1.0f); // Синяя
+			glVertex3f(-0.5f, 0.5f, -0.5f);
+			glVertex3f(-0.5f, 0.5f, 0.5f);
+			glVertex3f(0.5f, 0.5f, 0.5f);
+			glVertex3f(0.5f, 0.5f, -0.5f);
+
+			// Нижняя грань
+			glColor3f(1.0f, 1.0f, 0.0f); // Жёлтая
+			glVertex3f(-0.5f, -0.5f, -0.5f);
+			glVertex3f(0.5f, -0.5f, -0.5f);
+			glVertex3f(0.5f, -0.5f, 0.5f);
+			glVertex3f(-0.5f, -0.5f, 0.5f);
+
+			// Правая грань
+			glColor3f(1.0f, 0.0f, 1.0f); // Фиолетовая
+			glVertex3f(0.5f, -0.5f, -0.5f);
+			glVertex3f(0.5f, 0.5f, -0.5f);
+			glVertex3f(0.5f, 0.5f, 0.5f);
+			glVertex3f(0.5f, -0.5f, 0.5f);
+
+			// Левая грань
+			glColor3f(0.0f, 1.0f, 1.0f); // Голубая
+			glVertex3f(-0.5f, -0.5f, -0.5f);
+			glVertex3f(-0.5f, -0.5f, 0.5f);
+			glVertex3f(-0.5f, 0.5f, 0.5f);
+			glVertex3f(-0.5f, 0.5f, -0.5f);
+
+			glEnd();
+
+			angle += 10;
+			glfwSwapBuffers(window);
+			glFlush();
+		}
+		}, _hWndParent);
+	th.detach();
+	Sleep(1333);
+	return true;
 }

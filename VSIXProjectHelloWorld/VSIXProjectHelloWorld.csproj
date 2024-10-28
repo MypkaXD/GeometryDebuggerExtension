@@ -55,12 +55,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Utils\DebuggerGetterVariables.cs" />
+    <Compile Include="UI\AddMenu.xaml.cs">
+      <DependentUpon>AddMenu.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ClassExample.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UserControl.xaml.cs">
-      <DependentUpon>UserControl.xaml</DependentUpon>
+    <Compile Include="UI\GeometryDebugger.xaml.cs">
+      <DependentUpon>GeometryDebugger.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils\Util.cs" />
+    <Compile Include="Utils\Variable.cs" />
     <Compile Include="VSIXProjectHelloWorldPackage.cs" />
     <Compile Include="VSIXProjectHelloWorldPackage1.cs">
       <AutoGen>True</AutoGen>
@@ -108,7 +114,11 @@
     <Content Include="Resources\Command.png" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="UserControl.xaml">
+    <Page Include="UI\AddMenu.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\GeometryDebugger.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

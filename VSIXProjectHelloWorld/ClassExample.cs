@@ -14,6 +14,7 @@ using System.Windows;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Windows.Automation;
+using VSIXProjectHelloWorld.Utils;
 
 namespace VSIXProjectHelloWorld
 {
@@ -24,7 +25,7 @@ namespace VSIXProjectHelloWorld
         public bool isSet = false;
         public DTE m_DTE_Dte;
         public EnvDTE.DebuggerEvents m_DE_events;
-        public UserControl1 ui;
+        public GeometryDebugger ui;
 
         public ClassExample()
         {
@@ -78,7 +79,7 @@ namespace VSIXProjectHelloWorld
         {
             message = "";
 
-            ObservableCollection<MyObject> objects = new ObservableCollection<MyObject>();
+            ObservableCollection<Variable> objects = new ObservableCollection<Variable>();
 
             EnvDTE80.DTE2 dte2 = (EnvDTE80.DTE2)m_DTE_Dte;
             EnvDTE90.Debugger3 debugger = (EnvDTE90.Debugger3)dte2.Debugger;
@@ -91,7 +92,7 @@ namespace VSIXProjectHelloWorld
 
                 System.Diagnostics.Debug.WriteLine(expression.Type);
 
-                objects.Add(new MyObject() { m_B_IsSelected = false, m_S_Name = localVariable.Name, m_S_Type = localVariable.Type, m_S_Addres = expression.Value, m_S_Source="LocalFrame"});
+                objects.Add(new Variable() { m_B_IsSelected = false, m_S_Name = localVariable.Name, m_S_Type = localVariable.Type, m_S_Addres = expression.Value, m_S_Source="LocalFrame"});
             }
 
             ui.dgObjects.ItemsSource = objects;
@@ -163,7 +164,7 @@ namespace VSIXProjectHelloWorld
         private void init()
         {
             var window = new System.Windows.Window();
-            ui = new UserControl1();
+            ui = new GeometryDebugger();
             window.Content = ui;
             window.Show();
 

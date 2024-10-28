@@ -10,14 +10,18 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="1080" Width="1920"
         Loaded="Window_Loaded">
-    <DockPanel Background="LightGreen">
-        <Border Name="ControlHostElement"
-    Width="800"
-    Height="800"
-    HorizontalAlignment="Right"
-    VerticalAlignment="Top"
-    BorderBrush="LightGray"
-    BorderThickness="3"
-    DockPanel.Dock="Right"/>
-    </DockPanel>
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="5"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <GridSplitter Grid.Column="1" Grid.RowSpan="2" Width="5" HorizontalAlignment="Stretch" />
+        <Border Name="ControlHostElement" Grid.Column="3" Grid.RowSpan="2">
+        </Border>
+    </Grid>
 </Window>
