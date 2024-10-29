@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -12,6 +13,7 @@ using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -24,7 +26,7 @@ namespace VSIXProjectHelloWorld
     /// <summary>
     /// Interaction logic for AddMenu.xaml
     /// </summary>
-    public partial class AddMenu : UserControl
+    public partial class AddMenu : System.Windows.Controls.UserControl
     {
 
         private ObservableCollection<Variable> m_OBOV_variablseFromCurrentStackFrame = new ObservableCollection<Variable>();
@@ -34,22 +36,15 @@ namespace VSIXProjectHelloWorld
         private ObservableCollection<Variable> m_OBOV_Variables = new ObservableCollection<Variable>();
 
         private DebuggerGetterVariables m_DGV_debugger;
-        private EnvDTE.DebuggerEvents m_DE_events;
 
         public AddMenu(DebuggerGetterVariables debugger)
         {
             InitializeComponent();
 
             m_DGV_debugger = debugger;
-
-            if (m_DGV_debugger.GetDTE() != null)
-            {
-                m_DE_events = m_DGV_debugger.GetDTE().Events.DebuggerEvents;
-                m_DE_events.OnEnterBreakMode += OnEnterBreakMode; // subscribe on Enter Break mode or press f10 or press f5
-            }
         }
 
-        private void OnEnterBreakMode(dbgEventReason reason, ref dbgExecutionAction action)
+        public void BreakModDetected()
         {
             UpdateDataFromCurrentStackFrame();
             UpdateDataFromWatchList();
@@ -103,7 +98,7 @@ namespace VSIXProjectHelloWorld
         }
         private void ButtonMyselfAdded_Click(object sender, RoutedEventArgs e)
         {
-            Variable variable = m_DGV_debugger.GetElemetFromExpression(this.TextForExpression.Text);
+            Variable variable = m_DGV_debugger.GetElemetFromExpression(MySelfAddedVariables.Text);
 
             if (variable != null)
                 m_OBOV_variablseFromMyselfAdded.Add(variable);
@@ -113,7 +108,7 @@ namespace VSIXProjectHelloWorld
             UpdateData();
         }
 
-        private void ButtonImport_Click(object sender, RoutedEventArgs e)
+        private void SetOnlyAddedVariable()
         {
             m_OBOV_Variables = new ObservableCollection<Variable>();
 
@@ -126,11 +121,54 @@ namespace VSIXProjectHelloWorld
                     m_OBOV_Variables.Add(variable);
                 }
             }
+        }
+
+        private void ButtonImport_Click(object sender, RoutedEventArgs e)
+        {
+            SetOnlyAddedVariable();
             System.Windows.Window.GetWindow(this).Close();
         }
         public ObservableCollection<Variable> GetVariables()
         {
+            SetOnlyAddedVariable();
             return m_OBOV_Variables;
+        }
+
+        private void Loaded(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void ColorDisplay_Click(object sender, RoutedEventArgs e)
+        {
+
+            System.Windows.Controls.Button button = sender as System.Windows.Controls.Button;
+
+            System.Windows.Media.Brush brush = button.Background;
+            System.Windows.Media.Color color = (brush as SolidColorBrush).Color;
+
+
+            ColorPicker colorPicker = new ColorPicker();
+            // Create a new window to host the color picker
+            System.Windows.Window pickerWindow = new System.Windows.Window
+            {
+                Title = "Pick a Color",
+                Content = colorPicker,
+                SizeToContent = SizeToContent.WidthAndHeight,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
+            // Set the current color values
+            colorPicker.RedSlider.Value = color.R;
+            colorPicker.GreenSlider.Value = color.G;
+            colorPicker.BlueSlider.Value = color.B;
+            
+            // Show the color picker window
+            pickerWindow.ShowDialog();
+
+            color.R = (byte)colorPicker.RedSlider.Value;
+            color.G = (byte)colorPicker.GreenSlider.Value;
+            color.B = (byte)colorPicker.BlueSlider.Value;
+
+            button.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
         }
     }
 }

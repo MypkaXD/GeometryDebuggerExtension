@@ -25,11 +25,10 @@
         <DataGrid Grid.Row="1" Grid.Column="0" Name="dgObjects" HorizontalAlignment="Left" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Width="Auto" Header="IsSelected" Binding="{Binding m_B_IsSelected}"></DataGridCheckBoxColumn>
-                <DataGridTemplateColumn Width="Auto" Header="Color">
+                <DataGridTemplateColumn Width="50" Header="Color">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-
-                            <!--<xctk:ColorPicker x:Name="ColorPickerControl" ShowDropDownButton="False" UsingAlphaChannel="False" SelectedColor="{Binding m_C_Color}"></xctk:ColorPicker>-->
+                            <Button x:Name="ColorDisplay" Background="{Binding m_C_Color}" Width="50" Height="Auto" Click="ColorDisplay_Click"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

@@ -18,7 +18,7 @@ namespace VSIXProjectHelloWorld.Utils
         private bool isAdded;
         private bool isSelected;
 
-        private Color color;
+        private SolidColorBrush color;
 
         public string m_S_Type
         {
@@ -94,7 +94,7 @@ namespace VSIXProjectHelloWorld.Utils
             }
         }
 
-        public Color m_C_Color
+        public SolidColorBrush m_C_Color
         {
             get => this.color;
             set

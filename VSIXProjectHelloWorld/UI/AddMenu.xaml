@@ -15,6 +15,7 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+            <TextBox Name="MySelfAddedVariables" Width="100"></TextBox>
             <CheckBox Name="WL" Click="ButtonWatchList_Click" IsChecked="False">
                 <CheckBox.Template>
                     <ControlTemplate TargetType="CheckBox">
@@ -53,13 +54,21 @@
                     </ControlTemplate>
                 </CheckBox.Template>
             </CheckBox>
-            <Button Content="Add variables from TextBox" Click="ButtonMyselfAdded_Click"></Button>
-            <Button Content="Import" Click="ButtonImport_Click"></Button>
-            <TextBox x:Name="TextForExpression" Text="Enter expression which want to add in Table" TextWrapping="Wrap"/>
+            <Button Click="ButtonImport_Click" Background="White">
+                <Image Width="32" Height="32" Source="C:\\dev\\Source\\GeomDebugger\\images\\export.png"/>
+            </Button>
+            <Button Content="Add variables from TextBox" Click="ButtonMyselfAdded_Click" Loaded="Loaded"></Button>
         </StackPanel>
         <DataGrid Grid.Row="1" Grid.Column="0" Name="dgAddVariables" HorizontalAlignment="Left" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Width="Auto" Header="IsAdded" Binding="{Binding m_B_IsAdded}"></DataGridCheckBoxColumn>
+                <DataGridTemplateColumn Width="50" Header="Color">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button x:Name="ColorDisplay" Background="{Binding m_C_Color}" Width="50" Height="Auto" Click="ColorDisplay_Click"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Width="*" IsReadOnly="True" Header="Name" Binding="{Binding m_S_Name}"></DataGridTextColumn>
                 <DataGridTextColumn Width="*" IsReadOnly="True" Header="Type" Binding="{Binding m_S_Type}"></DataGridTextColumn>
                 <DataGridTextColumn Width="*" IsReadOnly="True" Header="Addres" Binding="{Binding m_S_Addres}"></DataGridTextColumn>
