@@ -42,6 +42,8 @@ namespace VSIXProjectHelloWorld
 
                 EnvDTE.Expression expression = m_DTE_Dte.Debugger.GetExpression("&(" + localVariable.Name + ")", true, 1); // get addres of variable
 
+                System.Diagnostics.Debug.WriteLine(localVariable.Type.GetHashCode());
+
                 if (expression.IsValidValue)
                 {
                     Variable currentVariable = new Variable()

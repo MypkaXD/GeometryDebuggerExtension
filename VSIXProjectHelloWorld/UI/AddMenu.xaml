@@ -60,6 +60,12 @@
             <Button Content="Add variables from TextBox" Click="ButtonMyselfAdded_Click" Loaded="Loaded"></Button>
         </StackPanel>
         <DataGrid Grid.Row="1" Grid.Column="0" Name="dgAddVariables" HorizontalAlignment="Left" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Select" Click="MenuItemAddForImport_Click"/>
+                    <MenuItem Header="Unselect" Click="MenuItemAddForIsntImport_Click"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Width="Auto" Header="IsAdded" Binding="{Binding m_B_IsAdded}"></DataGridCheckBoxColumn>
                 <DataGridTemplateColumn Width="50" Header="Color">

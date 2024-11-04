@@ -170,5 +170,43 @@ namespace VSIXProjectHelloWorld
 
             button.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
         }
+
+        private void MenuItemAddForIsntImport_Click(object sender, RoutedEventArgs e)
+        {
+            if (dgAddVariables.SelectedItems.Count == 0)
+                return;
+
+            foreach (var item in dgAddVariables.SelectedItems)
+            {
+                if (item is Variable dataItem)
+                {
+                    if (dataItem.m_B_IsAdded)
+                    {
+                        dataItem.m_B_IsAdded = false;
+                    }
+                }
+            }
+
+            dgAddVariables.Items.Refresh();
+        }
+
+        private void MenuItemAddForImport_Click(object sender, RoutedEventArgs e)
+        {
+            if (dgAddVariables.SelectedItems.Count == 0)
+                return;
+
+            foreach (var item in dgAddVariables.SelectedItems)
+            {
+                if (item is Variable dataItem)
+                {
+                    if (!dataItem.m_B_IsAdded)
+                    {
+                        dataItem.m_B_IsAdded = true;
+                    }
+                }
+            }
+
+            dgAddVariables.Items.Refresh();
+        }
     }
 }

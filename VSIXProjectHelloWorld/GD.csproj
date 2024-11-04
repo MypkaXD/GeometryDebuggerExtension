@@ -58,16 +58,17 @@
     <Compile Include="UI\ColorPicker.xaml.cs">
       <DependentUpon>ColorPicker.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils\ControlHost.cs" />
     <Compile Include="Utils\DebuggerGetterVariables.cs" />
     <Compile Include="UI\AddMenu.xaml.cs">
       <DependentUpon>AddMenu.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ClassExample.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\GeometryDebugger.xaml.cs">
       <DependentUpon>GeometryDebugger.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils\SharedMemory.cs" />
     <Compile Include="Utils\Util.cs" />
     <Compile Include="Utils\Variable.cs" />
     <Compile Include="VSIXProjectHelloWorldPackage.cs" />

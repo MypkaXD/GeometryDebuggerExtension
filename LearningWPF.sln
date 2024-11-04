@@ -7,13 +7,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LearningWPF", "LearningWPF\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyExtension", "MyExtension\MyExtension\MyExtension.csproj", "{8C633BF6-07EC-4A40-BDB5-F37CCF91939F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSIXProjectHelloWorld", "VSIXProjectHelloWorld\VSIXProjectHelloWorld.csproj", "{89B1145F-C03C-4E1B-9F48-19A0C6AC27E4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GD", "VSIXProjectHelloWorld\GD.csproj", "{89B1145F-C03C-4E1B-9F48-19A0C6AC27E4}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLutility", "GLutility\GLutility.vcxproj", "{EB6EC3F4-0AA8-47C5-8C84-49178070565E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ContextOpenGL", "ContextOpenGL\ContextOpenGL.vcxproj", "{4AC669F7-246F-4509-AA6E-2EC3123A546E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLLearning", "OpenGLLearning\OpenGLLearning.vcxproj", "{71DAC1F6-1BC7-41E7-A880-1624CF0743CF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReadMemoryMappedFile", "ReadMemoryMappedFile\ReadMemoryMappedFile.vcxproj", "{FD40DEAE-7749-4C0A-89FE-548C071A3664}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -149,6 +151,26 @@ Global
 		{71DAC1F6-1BC7-41E7-A880-1624CF0743CF}.Release|x64.Build.0 = Release|x64
 		{71DAC1F6-1BC7-41E7-A880-1624CF0743CF}.Release|x86.ActiveCfg = Release|Win32
 		{71DAC1F6-1BC7-41E7-A880-1624CF0743CF}.Release|x86.Build.0 = Release|Win32
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Debug|Any CPU.Build.0 = Debug|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Debug|ARM.ActiveCfg = Debug|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Debug|ARM.Build.0 = Debug|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Debug|arm64.ActiveCfg = Debug|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Debug|arm64.Build.0 = Debug|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Debug|x64.ActiveCfg = Debug|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Debug|x64.Build.0 = Debug|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Debug|x86.ActiveCfg = Debug|Win32
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Debug|x86.Build.0 = Debug|Win32
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Release|Any CPU.ActiveCfg = Release|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Release|Any CPU.Build.0 = Release|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Release|ARM.ActiveCfg = Release|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Release|ARM.Build.0 = Release|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Release|arm64.ActiveCfg = Release|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Release|arm64.Build.0 = Release|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Release|x64.ActiveCfg = Release|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Release|x64.Build.0 = Release|x64
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Release|x86.ActiveCfg = Release|Win32
+		{FD40DEAE-7749-4C0A-89FE-548C071A3664}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

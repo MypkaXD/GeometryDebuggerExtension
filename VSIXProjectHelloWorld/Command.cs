@@ -88,13 +88,22 @@ namespace VSIXProjectHelloWorld
         /// </summary>
         /// <param name="sender">Event sender.</param>
         /// <param name="e">Event args.</param>
+
+        private bool isInit = false;
+        private System.Windows.Window window;
+        private GeometryDebugger geometryDebugger;
+
         private void Execute(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-
-            var window = new System.Windows.Window(); // create window
-            var ui = new GeometryDebugger(); // create UI with WPF
-            window.Content = ui; // set content on our ui
+            
+            window = new System.Windows.Window();
+            if (isInit == false)
+            {
+                geometryDebugger = new GeometryDebugger(); // create UI with WPF
+                isInit = true;
+            }
+            window.Content = geometryDebugger; // set content on our ui
             window.Show(); // show this window
         }
     }

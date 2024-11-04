@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="VSIXProjectHelloWorld.3630d7d9-9949-4ff5-929c-0d607e464a32" Version="1.0" Language="en-US" Publisher="Company" />
+        <Identity Id="VSIXProjectHelloWorld.3630d7d9-9949-4ff5-929c-0d607e464a32" Version="1.0" Language="en-US" Publisher="Me" />
         <DisplayName>VSIXProjectHelloWorld</DisplayName>
-        <Description>Empty VSIX Project.</Description>
+        <Description xml:space="preserve">GD</Description>
     </Metadata>
     <Installation>
         <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 18.0)">
-          <ProductArchitecture>amd64</ProductArchitecture>
+            <ProductArchitecture>amd64</ProductArchitecture>
         </InstallationTarget>
     </Installation>
     <Dependencies>
