@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <typeinfo>
+#include "boost/type_index.hpp"
 
 std::string nameOfMemorySection = "VariablesMemory";
 std::string message = "";
@@ -192,13 +193,22 @@ void serialize(Vertex* value, std::string name) {
 	std::cout << (value->getZ()) << std::endl;
 }
 
+void serialize(std::vector<Variable>* value, std::string name) {
+
+	std::cout << "Vector of Variable" << std::endl;
+}
+
 template<typename T>
 void RegisterType(const Variable& o) {
 	int hashCode = typeid(T).hash_code();
-	std::string type = typeid(T).name();
-	std::cout << "Type: " << type << std::endl;
+	std::string typeIdName = typeid(T).name();
+	std::string typeName = boost::typeindex::type_id<T>().pretty_name();
+	std::string type2 = boost::typeindex::type_id_with_cvr<T>().pretty_name();
+	std::cout << "TypeId: " << typeIdName << std::endl;
+	std::cout << "Type1: " << typeName << std::endl;
+	std::cout << "Type2: " << type2 << std::endl;
 	std::cout << "HashCode: " << hashCode << std::endl;
-	if (type == o.m_S_Type) {
+	if (typeName == o.m_S_Type) {
 		T* ptr = static_cast<T*>(o.m_S_Addres);
 		serialize(ptr, o.m_S_Name);
 	}
@@ -211,6 +221,7 @@ std::string SerializeObjects(const std::vector<Variable>& objects) {
 		RegisterType<int>(o);
 		RegisterType<std::string>(o);
 		RegisterType<Vertex>(o);
+		RegisterType<std::vector<Variable>>(o);
 
 	}
 
@@ -238,6 +249,11 @@ int main() {
 	int a = 5;
 	Vertex local = Vertex(1, 12, 3);
 
+	int b = 4;
+	int b1 = 4;
+	int b2 = 4;
+	int b3 = 4;
+	
 	Serialize();
 
 	return 0;

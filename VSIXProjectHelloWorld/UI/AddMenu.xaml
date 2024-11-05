@@ -6,6 +6,9 @@
              xmlns:local="clr-namespace:VSIXProjectHelloWorld"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="600">
+    <UserControl.Resources>
+        <local:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -64,14 +67,19 @@
                 <ContextMenu>
                     <MenuItem Header="Select" Click="MenuItemAddForImport_Click"/>
                     <MenuItem Header="Unselect" Click="MenuItemAddForIsntImport_Click"/>
+                    <MenuItem Header="Delete" Click="MenuItemDelete_Click"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Width="Auto" Header="IsAdded" Binding="{Binding m_B_IsAdded}"></DataGridCheckBoxColumn>
+                <DataGridCheckBoxColumn Width="Auto" Header="IsAdded" Binding="{Binding m_B_IsAdded, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></DataGridCheckBoxColumn>
                 <DataGridTemplateColumn Width="50" Header="Color">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button x:Name="ColorDisplay" Background="{Binding m_C_Color}" Width="50" Height="Auto" Click="ColorDisplay_Click"/>
+                            <Button x:Name="ColorDisplay" 
+                    Background="{Binding m_C_Color, Converter={StaticResource ColorToBrushConverter}}" 
+                    Width="50" 
+                    Height="Auto" 
+                    Click="ColorDisplay_Click"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

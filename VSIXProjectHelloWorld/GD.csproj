@@ -58,6 +58,7 @@
     <Compile Include="UI\ColorPicker.xaml.cs">
       <DependentUpon>ColorPicker.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils\ColorToBrushConverter .cs" />
     <Compile Include="Utils\ControlHost.cs" />
     <Compile Include="Utils\DebuggerGetterVariables.cs" />
     <Compile Include="UI\AddMenu.xaml.cs">

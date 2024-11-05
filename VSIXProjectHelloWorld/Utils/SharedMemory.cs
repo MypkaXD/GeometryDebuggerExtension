@@ -18,58 +18,20 @@ namespace VSIXProjectHelloWorld.Utils
         private const string m_S_MemoryFileName = "VariablesMemory"; // Общее имя памяти
         private MemoryMappedFile m_MMF_mmf;
         private string m_S_message = "";
+        private DTE m_DTE;
 
-        public SharedMemory(ObservableCollection<Variable> variables, IntPtr addressOfFunc, int processID)
-        {
-            m_S_message = "";
-
-            for (int i = 0; i < variables.Count; ++i)
-            {
-                if (variables[i].m_B_IsSelected)
-                {
-                    m_S_message += $"{variables[i].m_S_Name}|{variables[i].m_S_Type}|{variables[i].m_S_Addres}|{variables[i].m_C_Color.Color.R}|{variables[i].m_C_Color.Color.G}|{variables[i].m_C_Color.Color.B}";
-                    if (i < variables.Count - 1)
-                        m_S_message += "|";
-                }
-            }
-
-            if (m_S_message.Length > 0)
-                WriteToMemory();
-
-            IntPtr hHandle = OpenProcess(ProcessAccessFlags.All, false, processID);
-            IntPtr createThreadRes = CreateRemoteThread(hHandle, IntPtr.Zero, 0, addressOfFunc, IntPtr.Zero, 0, out createThreadRes);
-            CloseHandle(hHandle);
-
-            DTE dte = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SDTE)) as EnvDTE.DTE;
-
-            //Заморозить
-            var currentThread = dte.Debugger.CurrentThread;
-            currentThread.Freeze();
-
-            //континью
-            dte.Debugger.Go(false);
-
-            //Serialize functionDelegate = Marshal.GetDelegateForFunctionPointer<Serialize>(addressOfFunc);
-
-        }
-        // Импорт сторонних функций
         [DllImport("kernel32.dll")]
         static extern IntPtr CreateRemoteThread(IntPtr hProcess,
         IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress,
         IntPtr lpParameter, uint dwCreationFlags, out IntPtr lpThreadId);
 
         [DllImport("kernel32.dll")]
-        public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+        private static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, int dwProcessId);
         [DllImport("kernel32.dll")]
-        public static extern bool CloseHandle(IntPtr hObject);
-
-        [DllImport("GeomViewShell.dll")]
-        public static extern void InitGeomView(string b);
-        [DllImport("GeomViewShell.dll")]
-        public static extern void ReloadGeomView();
+        private static extern bool CloseHandle(IntPtr hObject);
 
         [Flags]
-        public enum ProcessAccessFlags : uint
+        private enum ProcessAccessFlags : uint
         {
             Terminate = 0x00000001,
             CreateThread = 0x00000002,
@@ -81,6 +43,57 @@ namespace VSIXProjectHelloWorld.Utils
             QueryInformation = 0x00000400,
             Synchronize = 0x00100000,
             All = 0x001F0FFF
+        }
+
+        public SharedMemory(ObservableCollection<Variable> variables, DTE dTE)
+        {
+            m_S_message = "";
+            m_DTE = dTE;
+
+            for (int i = 0; i < variables.Count; ++i)
+            {
+                if (variables[i].m_B_IsSelected)
+                {
+                    m_S_message += $"{variables[i].m_S_Name}|{variables[i].m_S_Type}|{variables[i].m_S_Addres}|{variables[i].m_C_Color.m_i_R}|{variables[i].m_C_Color.m_i_G}|{variables[i].m_C_Color.m_i_B}";
+                    if (i < variables.Count - 1)
+                        m_S_message += "|";
+                }
+            }
+
+            if (m_S_message.Length > 0)
+                WriteToMemory();
+
+            SerializeObjects();
+            //WaitAnswer();
+        }
+
+        private void WaitAnswer()
+        {
+            while (true)
+            {
+
+            }
+        }
+
+        private void SerializeObjects()
+        {
+            int processID = 0;
+            foreach (EnvDTE.Process proc in m_DTE.Debugger.DebuggedProcesses)
+                processID = proc.ProcessID;
+
+            var expr = m_DTE.Debugger.GetExpression("&Serialize");
+            IntPtr addressOfFunc = (IntPtr)(ulong)new System.ComponentModel.UInt64Converter().ConvertFromString(expr.Value.Split(' ').First());
+
+            IntPtr hHandle = OpenProcess(ProcessAccessFlags.All, false, processID);
+            IntPtr createThreadRes = CreateRemoteThread(hHandle, IntPtr.Zero, 0, addressOfFunc, IntPtr.Zero, 0, out createThreadRes);
+            CloseHandle(hHandle);
+
+            //Заморозить
+            var currentThread = m_DTE.Debugger.CurrentThread;
+            currentThread.Freeze();
+
+            //континью
+            m_DTE.Debugger.Go(false);
         }
 
         private string ReadFromMemory()

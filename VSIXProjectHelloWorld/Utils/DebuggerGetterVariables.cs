@@ -54,8 +54,8 @@ namespace VSIXProjectHelloWorld
                         m_S_Source = "LocalStackFrame",
                         m_S_Type = localVariable.Type,
                         m_S_Addres = expression.Value.Split(' ')[0],
-                        m_C_Color = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 255))
-                };
+                        m_C_Color = new Utils.Color(255, 0, 0)
+                    };
 
                     variables.Add(currentVariable);
                 }
@@ -101,8 +101,8 @@ namespace VSIXProjectHelloWorld
                         m_S_Source = "WatchWindow",
                         m_S_Type = expressionForTypeAndName.Type,
                         m_S_Addres = expressionForAddress.Value.Split(' ')[0],
-                        m_C_Color = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 255, 0))
-                };
+                        m_C_Color = new Utils.Color(0, 255, 0)
+                    };
 
                     variables.Add(variable);
                 }
@@ -135,13 +135,13 @@ namespace VSIXProjectHelloWorld
             {
                 Variable variable = new Variable()
                 {
-                    m_B_IsAdded = false,
+                    m_B_IsAdded = true,
                     m_B_IsSelected = false,
                     m_S_Name = expressionForTypeAndName.Name,
                     m_S_Source = "AddedMySelf",
                     m_S_Type = expressionForTypeAndName.Type,
                     m_S_Addres = expressionForAddress.Value.Split(' ')[0],
-                    m_C_Color = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0))
+                    m_C_Color = new Utils.Color(0, 0, 255)
             };
 
                 return variable;

@@ -46,10 +46,37 @@ namespace VSIXProjectHelloWorld
 
         public void BreakModDetected()
         {
+            ObservableCollection<Variable> variables = new ObservableCollection<Variable>(m_OBOV_Variables);
+
             UpdateDataFromCurrentStackFrame();
             UpdateDataFromWatchList();
+            UpdateDataFromMySelf();
 
-            UpdateData();
+            m_OBOV_Variables = new ObservableCollection<Variable>(
+                m_OBOV_variablesFromWathList
+                .Union(m_OBOV_variablseFromCurrentStackFrame)
+                .Union(m_OBOV_variablseFromMyselfAdded));
+
+            foreach (var variable in variables)
+            {
+                foreach (var variableInTable in m_OBOV_Variables)
+                {
+                    if (variableInTable.m_S_Addres == variable.m_S_Addres &&
+                        variableInTable.m_S_Name == variable.m_S_Name &&
+                        variableInTable.m_S_Type == variable.m_S_Type &&
+                        variableInTable.m_S_Source == variable.m_S_Source)
+                    {
+                        variableInTable.m_C_Color = variable.m_C_Color;
+                        variableInTable.m_B_IsAdded = variable.m_B_IsAdded;
+                        variableInTable.m_B_IsSelected = variable.m_B_IsSelected;
+                        break;
+                    }
+                }
+            }
+
+            dgAddVariables.ItemsSource = m_OBOV_Variables;
+            SetOnlyAddedVariable();
+
         }
 
         private void UpdateData()
@@ -85,6 +112,28 @@ namespace VSIXProjectHelloWorld
                 m_OBOV_variablesFromWathList = new ObservableCollection<Variable>();
             }
         }
+        private void UpdateDataFromMySelf()
+        {
+            ObservableCollection<Variable> variables = new ObservableCollection<Variable>();
+
+            foreach(var variable in m_OBOV_variablseFromMyselfAdded)
+            {
+                Variable currentVariable = m_DGV_debugger.GetElemetFromExpression(variable.m_S_Name);
+
+                if (currentVariable != null)
+                {
+                    currentVariable.m_B_IsAdded = variable.m_B_IsAdded;
+                    currentVariable.m_B_IsSelected = variable.m_B_IsSelected;
+                    currentVariable.m_C_Color = variable.m_C_Color;
+
+                    variables.Add(currentVariable);
+                }
+                else
+                    continue;
+            }
+
+            m_OBOV_variablseFromMyselfAdded = new ObservableCollection<Variable>(variables);
+        }
 
         private void ButtonCurrentStackFrame_Click(object sender, RoutedEventArgs e)
         {
@@ -112,9 +161,12 @@ namespace VSIXProjectHelloWorld
         {
             m_OBOV_Variables = new ObservableCollection<Variable>();
 
-            foreach (var variable in m_OBOV_variablesFromWathList
+            ObservableCollection<Variable> temp = new ObservableCollection<Variable>(
+                m_OBOV_variablesFromWathList
                 .Union(m_OBOV_variablseFromCurrentStackFrame)
-                .Union(m_OBOV_variablseFromMyselfAdded))
+                .Union(m_OBOV_variablseFromMyselfAdded));
+
+            foreach (var variable in temp)
             {
                 if (variable.m_B_IsAdded)
                 {
@@ -125,7 +177,6 @@ namespace VSIXProjectHelloWorld
 
         private void ButtonImport_Click(object sender, RoutedEventArgs e)
         {
-            SetOnlyAddedVariable();
             System.Windows.Window.GetWindow(this).Close();
         }
         public ObservableCollection<Variable> GetVariables()
@@ -140,36 +191,42 @@ namespace VSIXProjectHelloWorld
 
         private void ColorDisplay_Click(object sender, RoutedEventArgs e)
         {
-
             System.Windows.Controls.Button button = sender as System.Windows.Controls.Button;
+            Variable variable = button.DataContext as Variable;
 
-            System.Windows.Media.Brush brush = button.Background;
-            System.Windows.Media.Color color = (brush as SolidColorBrush).Color;
-
-
-            ColorPicker colorPicker = new ColorPicker();
-            // Create a new window to host the color picker
-            System.Windows.Window pickerWindow = new System.Windows.Window
+            if (button != null && variable != null)
             {
-                Title = "Pick a Color",
-                Content = colorPicker,
-                SizeToContent = SizeToContent.WidthAndHeight,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
-            };
-            // Set the current color values
-            colorPicker.RedSlider.Value = color.R;
-            colorPicker.GreenSlider.Value = color.G;
-            colorPicker.BlueSlider.Value = color.B;
-            
-            // Show the color picker window
-            pickerWindow.ShowDialog();
+                ColorPicker colorPicker = new ColorPicker();
+                System.Windows.Window pickerWindow = new System.Windows.Window
+                {
+                    Title = "Pick a Color",
+                    Content = colorPicker,
+                    SizeToContent = SizeToContent.WidthAndHeight,
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen
+                };
 
-            color.R = (byte)colorPicker.RedSlider.Value;
-            color.G = (byte)colorPicker.GreenSlider.Value;
-            color.B = (byte)colorPicker.BlueSlider.Value;
+                // Set the current color values
+                colorPicker.RedSlider.Value = variable.m_C_Color.m_i_R;
+                colorPicker.GreenSlider.Value = variable.m_C_Color.m_i_G;
+                colorPicker.BlueSlider.Value = variable.m_C_Color.m_i_B;
 
-            button.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(color.R, color.G, color.B));
+                pickerWindow.ShowDialog();
+
+                // Update Variable's color
+                variable.m_C_Color = new Utils.Color(
+                    (int)colorPicker.RedSlider.Value,
+                    (int)colorPicker.GreenSlider.Value,
+                    (int)colorPicker.BlueSlider.Value
+                );
+
+                // Update the button background
+                button.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(
+                    (byte)variable.m_C_Color.m_i_R,
+                    (byte)variable.m_C_Color.m_i_G,
+                    (byte)variable.m_C_Color.m_i_B));
+            }
         }
+
 
         private void MenuItemAddForIsntImport_Click(object sender, RoutedEventArgs e)
         {
@@ -207,6 +264,41 @@ namespace VSIXProjectHelloWorld
             }
 
             dgAddVariables.Items.Refresh();
+        }
+
+        private void MenuItemDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (dgAddVariables.SelectedItems.Count == 0)
+                return;
+
+            foreach (var item in dgAddVariables.SelectedItems)
+            {
+                if (item is Variable dataItem)
+                {
+                    switch (dataItem.m_S_Source)
+                    {
+                        case "LocalStackFrame":
+                            {
+                                m_OBOV_variablseFromCurrentStackFrame.Remove(dataItem);
+                                break;
+                            }
+                        case "AddedMySelf":
+                            {
+                                m_OBOV_variablseFromMyselfAdded.Remove(dataItem);
+                                break;
+                            }
+                        case "WatchWindow":
+                            {
+                                m_OBOV_variablesFromWathList.Remove(dataItem);
+                                break;
+                            }
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            UpdateData();
         }
     }
 }

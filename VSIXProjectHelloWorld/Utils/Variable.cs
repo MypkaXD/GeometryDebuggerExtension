@@ -18,7 +18,7 @@ namespace VSIXProjectHelloWorld.Utils
         private bool isAdded;
         private bool isSelected;
 
-        private SolidColorBrush color;
+        private Color color;
 
         public string m_S_Type
         {
@@ -94,7 +94,7 @@ namespace VSIXProjectHelloWorld.Utils
             }
         }
 
-        public SolidColorBrush m_C_Color
+        public Color m_C_Color
         {
             get => this.color;
             set
@@ -113,6 +113,32 @@ namespace VSIXProjectHelloWorld.Utils
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public struct Color
+    {
+        public int m_i_R { get; set; }
+        public int m_i_G { get; set; }
+        public int m_i_B { get; set; }
+
+        public Color(int r, int g, int b)
+        {
+            m_i_R = r;
+            m_i_G = g;
+            m_i_B = b;
+        }
+
+        public static bool operator !=(Color colorFirst, Color colorSecond)
+        {
+            return !(colorFirst == colorSecond);
+        }
+
+        public static bool operator ==(Color colorFirst, Color colorSecond)
+        {
+            return (colorFirst.m_i_R == colorSecond.m_i_R &&
+                colorFirst.m_i_G ==  colorSecond.m_i_G &&
+                colorFirst.m_i_B ==  colorSecond.m_i_B);
         }
     }
 }
