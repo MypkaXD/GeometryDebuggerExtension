@@ -130,6 +130,10 @@
   <ItemGroup>
     <ClCompile Include="ReadMemoryMappedFile.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Circle.h" />
+    <ClInclude Include="Vector.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

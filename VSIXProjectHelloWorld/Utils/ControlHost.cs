@@ -20,6 +20,10 @@ namespace VSIXProjectHelloWorld.Utils
             CallingConvention = CallingConvention.Cdecl)]
         public static extern void destroyGLtoolWindow(IntPtr hwnd);
 
+        [DllImport("C:\\Users\\MypkaXD\\Desktop\\wpfOpenGL\\x64\\Release\\GLtool.dll",
+            CallingConvention = CallingConvention.Cdecl)]
+        public static extern void reload();
+
         int hostHeight, hostWidth;
 
         internal const int
@@ -46,6 +50,11 @@ namespace VSIXProjectHelloWorld.Utils
         protected override void DestroyWindowCore(HandleRef hwnd)
         {
             destroyGLtoolWindow(hwnd.Handle);
+        }
+
+        public void reloadGeomView()
+        {
+            reload();
         }
     }
 }

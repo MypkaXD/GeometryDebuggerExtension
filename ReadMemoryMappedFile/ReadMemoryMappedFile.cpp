@@ -6,67 +6,64 @@
 #include <sstream>
 #include <typeinfo>
 #include "boost/type_index.hpp"
+#include <fstream>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <tuple>
+
+#include "Vector.h"
+#include "Circle.h"
+
 
 std::string nameOfMemorySection = "VariablesMemory";
 std::string message = "";
-
-class Vertex {
-private:
-	double m_x;
-	double m_y;
-	double m_z;
-public:
-	Vertex() {
-		m_x = 0;
-		m_y = 0;
-		m_z = 0;
-	}
-	Vertex(double x, double y, double z) :
-		m_x(x), m_y(y), m_z(z) {
-
-	}
-
-	double getX() {
-		return m_x;
-	}
-	double getY() {
-		return m_y;
-	}double getZ() {
-		return m_z;
-	}
-};
+std::string buffer = "";
 
 void readMemoryMappedFile() {
 	HANDLE handle;
 	char* ptr = nullptr;
 	int msgSize = 0;
 	message = "";
+	buffer = "";
 
 	while (true)
 	{
+		// Открытие MMF
 		handle = OpenFileMappingW(FILE_READ_ACCESS, false, L"VariablesMemory");
 
 		if (handle == NULL)
+		{
 			std::cout << "CreateFileMapping error: \n" << GetLastError();
+		}
 		else
 		{
-			msgSize = *(int*)MapViewOfFile(handle, FILE_MAP_READ, 0, 0, sizeof(int)); std::cout << "opened mapped file with handle " << handle << ", mapped view to " << (void*)ptr << '\n';
+			// Получаем размер сообщения (первый int в MMF)
+			msgSize = *(int*)MapViewOfFile(handle, FILE_MAP_READ, 0, 0, sizeof(int));
+			std::cout << "opened mapped file with handle " << handle << ", mapped view to " << (void*)ptr << '\n';
+
+			// Отображаем память для чтения
 			ptr = (char*)MapViewOfFile(handle, FILE_MAP_READ, 0, 0, msgSize * 2);
-			ptr += sizeof(int);
+			ptr += sizeof(int);  // Пропускаем первый int (размер сообщения)
+
 			if (msgSize != 0) break;
 		}
-		std::cout << "error with read from memory \n";
-		Sleep(1000);
+
+		std::cout << "error with reading from memory \n";
+		Sleep(1000);  // Повторная попытка через 1 секунду
 	}
 
-	std::cout << "there are " << msgSize << " letters\n";
-	std::cout << "the message is: ";
+	std::cout << "There are " << msgSize << " letters\n";
+	std::cout << "The message is: ";
+
+	// Чтение и вывод сообщения
 	for (int i = 0; i < 2 * msgSize; i += 2)
 	{
 		message += ptr[i];
 	}
-	std::cout << '\n';
+	std::cout << message << '\n';
 }
+
 
 void printMessage() {
 	std::cout << "MESSAGE IS: " << std::endl;
@@ -79,13 +76,13 @@ public:
 	void* m_S_Addres;
 	std::string m_S_Name;
 	std::string m_S_Type;
-	float m_I_R;
-	float m_I_G;
-	float m_I_B;
+	int m_I_R;
+	int m_I_G;
+	int m_I_B;
 
 
 	Variable(std::string name, std::string type,
-		void* addres, float r, float g, float b) :
+		void* addres, int r, int g, int b) :
 		m_S_Name(name), m_S_Type(type), m_S_Addres(addres),
 		m_I_R(r), m_I_G(g), m_I_B(b)
 	{
@@ -166,7 +163,7 @@ void parser() {
 			B = std::stoi(message.substr(i, pos - i));
 			i += message.substr(i, pos - i).size();
 
-			m_VOV_Variables.push_back(Variable(name, type, addres, (float)R / 255.0f, (float)G / 255.0f, (float)B / 255.0f));
+			m_VOV_Variables.push_back(Variable(name, type, addres, R, G, B));
 
 			states = statesOfGettingVariables::GET_NAME;
 			break;
@@ -178,54 +175,103 @@ void parser() {
 
 }
 
-void serialize(const std::string* value, std::string name) {
-	std::cout << "STRING" << std::endl;
-}
-void serialize(const int* value, std::string name) {
-	std::cout << "INT" << std::endl;
-	std::cout << *value << std::endl;
-}
-void serialize(Vertex* value, std::string name) {
-
-	std::cout << "VERTEX" << std::endl;
-	std::cout << (value->getX()) << std::endl;
-	std::cout << (value->getY()) << std::endl;
-	std::cout << (value->getZ()) << std::endl;
-}
-
-void serialize(std::vector<Variable>* value, std::string name) {
-
-	std::cout << "Vector of Variable" << std::endl;
-}
 
 template<typename T>
 void RegisterType(const Variable& o) {
-	int hashCode = typeid(T).hash_code();
+
 	std::string typeIdName = typeid(T).name();
-	std::string typeName = boost::typeindex::type_id<T>().pretty_name();
-	std::string type2 = boost::typeindex::type_id_with_cvr<T>().pretty_name();
-	std::cout << "TypeId: " << typeIdName << std::endl;
-	std::cout << "Type1: " << typeName << std::endl;
-	std::cout << "Type2: " << type2 << std::endl;
-	std::cout << "HashCode: " << hashCode << std::endl;
-	if (typeName == o.m_S_Type) {
+
+	while (typeIdName.find("class") != std::string::npos) {
+
+		size_t pos = typeIdName.find("class");
+		size_t offset = std::string("class").size();
+		typeIdName.erase(pos, offset);
+	}
+
+	while (typeIdName.find("struct") != std::string::npos) {
+
+		size_t pos = typeIdName.find("struct");
+		size_t offset = std::string("struct").size();
+		typeIdName.erase(pos, offset);
+	}
+
+	while (typeIdName.find(" ") != std::string::npos) {
+
+		size_t pos = typeIdName.find(" ");
+		size_t offset = std::string(" ").size();
+		typeIdName.erase(pos, offset);
+	}
+
+	std::cout << typeIdName << std::endl;
+
+	if (typeIdName == o.m_S_Type) {
 		T* ptr = static_cast<T*>(o.m_S_Addres);
-		serialize(ptr, o.m_S_Name);
+		buffer += serialize(ptr, o.m_S_Type, o.m_S_Name, o.m_I_R, o.m_I_G, o.m_I_B);
 	}
 }
 
+
 std::string SerializeObjects(const std::vector<Variable>& objects) {
-	std::string buffer;
 
 	for (const auto& o : objects) {
-		RegisterType<int>(o);
-		RegisterType<std::string>(o);
-		RegisterType<Vertex>(o);
-		RegisterType<std::vector<Variable>>(o);
-
+		RegisterType<Vector>(o);
+		RegisterType<Circle>(o);
 	}
 
+	std::cout << buffer << std::endl;
+
 	return buffer;
+}
+
+std::string mmfName = "ReadyPath";
+
+void writeMemoryMappedFile() {
+
+	std::string path = "true";
+
+	std::cout << path << std::endl;
+
+	size_t dataSize = path.size() + 1;
+
+	// Создаем или открываем MMF
+	HANDLE hMapFile = CreateFileMapping(
+		INVALID_HANDLE_VALUE,    // использование файла подкачки
+		NULL,                 // безопасность по умолчанию
+		PAGE_READWRITE,          // доступ для чтения и записи
+		0,                       // максимальный размер (старшее слово)
+		static_cast<DWORD>(dataSize), // максимальный размер (младшее слово)
+		L"VariablesMemory"
+	);
+
+	if (hMapFile == nullptr) {
+		std::cerr << "Не удалось создать MMF. Код ошибки: " << GetLastError() << std::endl;
+		return;
+	}
+
+	// Спроецируем представление в адресное пространство процесса
+	LPVOID pBuf = MapViewOfFile(
+		hMapFile,          // дескриптор MMF
+		FILE_MAP_ALL_ACCESS, // доступ для чтения и записи
+		0,
+		0,
+		dataSize
+	);
+
+	if (pBuf == NULL) {
+		std::cerr << "Не удалось спроецировать представление. Код ошибки: " << GetLastError() << std::endl;
+		CloseHandle(hMapFile);
+		return;
+	}
+
+	// Копируем строку в проецированную память
+	memcpy(pBuf, path.c_str(), dataSize);
+
+	// Освобождаем ресурсы
+	UnmapViewOfFile(pBuf);
+	CloseHandle(hMapFile);
+
+	std::cout << "SUCCESS" << std::endl;
+
 }
 
 void Serialize() {
@@ -238,22 +284,45 @@ void Serialize() {
 	}
 
 	SerializeObjects(m_VOV_Variables);
+	std::cout << "END SER" << std::endl;
+	std::fstream file;
+	file.open("C:\\Users\\MypkaXD\\source\\repos\\LearningWPF\\ReadMemoryMappedFile\\out.txt", std::ios::out);
+	if (file.is_open()) {
+		file << buffer;
+	}
+	file.close();
+	writeMemoryMappedFile();
+
 }
 
 
-Vertex Global = Vertex(3, 4, 1);
+
+Vector Global = Vector(3, 4, 1);
 int globalInt = 1000;
 
 int main() {
 
 	int a = 5;
-	Vertex local = Vertex(1, 12, 3);
+	Circle circle = Circle(5, Vector(0, 0, 0), Vector(0, 0, 1));
+	Vector local = Vector(5, 0, 0);
+
+	Circle circle2 = Circle(15, Vector(0, 0, 0), Vector(0, 1, 1));
+	Circle circle3 = Circle(10, Vector(0, 0, 0), Vector(1, 1, 1));
+
+	double step = 1;
+
+	while (true) {
+		circle.setRadius(circle.getRadius() + step);
+		circle2.setRadius(circle.getRadius() - step);
+		circle3.setRadius(circle.getRadius() + step);
+		step += 0.5;
+	}
 
 	int b = 4;
 	int b1 = 4;
 	int b2 = 4;
 	int b3 = 4;
-	
+
 	Serialize();
 
 	return 0;

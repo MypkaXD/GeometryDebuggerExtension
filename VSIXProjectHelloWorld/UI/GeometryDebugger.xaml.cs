@@ -43,6 +43,8 @@ namespace VSIXProjectHelloWorld
         private AddMenu addMenu;
         private System.Windows.Window addWindow;
         private EnvDTE.DebuggerEvents m_DE_events;
+        private ControlHost host;
+        private Dictionary<string, bool> m_L_Paths;
 
         private void InitDebuggerComponent()
         {
@@ -75,6 +77,7 @@ namespace VSIXProjectHelloWorld
             InitDebuggerComponent();
 
             addMenu = new AddMenu(m_DGV_debugger);
+            m_L_Paths = new Dictionary<string, bool>();
 
             InitAddWindowComponent();
         }
@@ -99,6 +102,13 @@ namespace VSIXProjectHelloWorld
         private void OnWindowClosing(object sender, CancelEventArgs e)
         {
             m_OBOV_Variables = addMenu.GetVariables();
+
+            foreach (var variable in m_OBOV_Variables)
+            {
+                if (!m_L_Paths.ContainsKey(variable.m_S_Type + "_" + variable.m_S_Name))
+                    m_L_Paths.Add(variable.m_S_Type + "_" + variable.m_S_Name, false);
+                else continue;
+            }
 
             dgObjects.ItemsSource = m_OBOV_Variables;
         }
@@ -143,7 +153,7 @@ namespace VSIXProjectHelloWorld
         private void GeometryDebuggerLoaded(object sender, RoutedEventArgs e)
         {
             // Создание нашего OpenGL Hwnd 'контроля'...
-            ControlHost host = new ControlHost(450, 800);
+            host = new ControlHost(450, 800);
 
             // ... и присоединяем его к контейнеру:
             if (ControlHostElement.Child == null)
@@ -152,7 +162,15 @@ namespace VSIXProjectHelloWorld
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            SharedMemory sharedMemory = new SharedMemory(m_OBOV_Variables, m_DGV_debugger.GetDTE());
+
+            foreach (var path in m_L_Paths)
+            {
+                System.Diagnostics.Debug.WriteLine("KEY: " + path.Key + " BOOL: " + path.Value);
+            }
+
+            //m_DE_events.OnEnterBreakMode -= OnEnterBreakMode; // subscribe on Enter Break mode or press f10 or press f5
+            //SharedMemory sharedMemory = new SharedMemory(m_OBOV_Variables, m_DGV_debugger.GetDTE(), host);
+            //m_DE_events.OnEnterBreakMode += OnEnterBreakMode; // subscribe on Enter Break mode or press f10 or press f5
         }
         private void OnEnterBreakMode(dbgEventReason reason, ref dbgExecutionAction action)
         {
@@ -173,6 +191,7 @@ namespace VSIXProjectHelloWorld
                     if (dataItem.m_B_IsSelected)
                     {
                         dataItem.m_B_IsSelected = false;
+                        m_L_Paths[dataItem.m_S_Type + "_" + dataItem.m_S_Name] = false;
                     }
                 }
             }
@@ -192,6 +211,7 @@ namespace VSIXProjectHelloWorld
                     if (!dataItem.m_B_IsSelected)
                     {
                         dataItem.m_B_IsSelected = true;
+                        m_L_Paths[dataItem.m_S_Type + "_" + dataItem.m_S_Name] = true;
                     }
                 }
             }
@@ -210,10 +230,10 @@ namespace VSIXProjectHelloWorld
                 {
                     dataItem.m_B_IsAdded = false;
                     dataItem.m_B_IsSelected = false;
+                    m_L_Paths.Remove(dataItem.m_S_Type + "_" + dataItem.m_S_Name);
                 }
             }
 
-            
             ObservableCollection<Variable> variables = new ObservableCollection<Variable>();
 
             foreach (var variable in m_OBOV_Variables)

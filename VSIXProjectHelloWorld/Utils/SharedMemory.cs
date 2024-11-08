@@ -4,12 +4,14 @@ using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace VSIXProjectHelloWorld.Utils
 {
@@ -45,7 +47,7 @@ namespace VSIXProjectHelloWorld.Utils
             All = 0x001F0FFF
         }
 
-        public SharedMemory(ObservableCollection<Variable> variables, DTE dTE)
+        public SharedMemory(ObservableCollection<Variable> variables, DTE dTE, ControlHost host)
         {
             m_S_message = "";
             m_DTE = dTE;
@@ -63,20 +65,6 @@ namespace VSIXProjectHelloWorld.Utils
             if (m_S_message.Length > 0)
                 WriteToMemory();
 
-            SerializeObjects();
-            //WaitAnswer();
-        }
-
-        private void WaitAnswer()
-        {
-            while (true)
-            {
-
-            }
-        }
-
-        private void SerializeObjects()
-        {
             int processID = 0;
             foreach (EnvDTE.Process proc in m_DTE.Debugger.DebuggedProcesses)
                 processID = proc.ProcessID;
@@ -94,31 +82,98 @@ namespace VSIXProjectHelloWorld.Utils
 
             //континью
             m_DTE.Debugger.Go(false);
-        }
 
-        private string ReadFromMemory()
-        {
-            // Открываем отображённый файл памяти с именем "MySharedMemory"
-            using (MemoryMappedFile mmf = MemoryMappedFile.OpenExisting(m_S_MemoryFileName))
+            WaitAnswer();
+
+            try
             {
-                // Определяем область доступа для чтения данных
-                using (MemoryMappedViewAccessor reader = mmf.CreateViewAccessor(0, 0)) // 0, 0 - означает чтение всей области памяти
+                //размораживаем мейн поток
+                m_DTE.Debugger.Break();
+                if (currentThread != null)
                 {
-                    // Читаем размер сообщения (первые 4 байта)
-                    int messageSize = reader.ReadInt32(0);
-
-                    // Создаем массив байтов для хранения сообщения
-                    byte[] messageBytes = new byte[messageSize];
-
-                    // Читаем само сообщение начиная с 4-го байта
-                    reader.ReadArray(4, messageBytes, 0, messageSize);
-
-                    // Преобразуем байты обратно в строку
-                    string message = Encoding.UTF8.GetString(messageBytes);
-
-                    return message;
+                    currentThread.Thaw();
+                    m_DTE.Debugger.CurrentThread = currentThread;
                 }
             }
+            catch (Exception e)
+            {
+                MessageBox.Show("the process was break by closing window");
+            }
+
+            host.reloadGeomView();
+        }
+
+        private void WaitAnswer()
+        {
+            string mmfName = "SharedMemory";
+            int retryCount = 0;
+            int maxRetries = 60; // максимальное количество попыток (например, 1 минута)
+
+            while (retryCount < maxRetries)
+            {
+                try
+                {
+                    using (MemoryMappedFile mmf = MemoryMappedFile.OpenExisting(m_S_MemoryFileName))
+                    {
+                        using (MemoryMappedViewStream stream = mmf.CreateViewStream())
+                        {
+                            // Проверяем первый байт, чтобы узнать, есть ли данные
+                            int firstByte = stream.ReadByte();
+
+                            // Если первый байт пустой (0), продолжаем ожидание
+                            if (firstByte == 0)
+                            {
+                                retryCount++;
+                                System.Threading.Thread.Sleep(1000); // Пауза 1 секунда перед повторной проверкой
+                                continue;
+                            }
+
+                            // Считываем данные до нуль-терминатора
+                            StringBuilder result = new StringBuilder();
+                            result.Append((char)firstByte); // добавляем первый байт
+
+                            int b;
+                            while ((b = stream.ReadByte()) > 0) // Чтение до '\0'
+                            {
+                                result.Append((char)b);
+                            }
+
+                            // Выводим результат и завершаем цикл ожидания
+                            System.Diagnostics.Debug.WriteLine("Прочитано из MMF: " + result.ToString());
+                            
+                            if (result.ToString() != "true")
+                            {
+                                continue;
+                            }
+                            else
+                                break;
+                        }
+                    }
+                }
+                catch (FileNotFoundException)
+                {
+                    System.Diagnostics.Debug.WriteLine("MemoryMappedFile не найден.");
+                    retryCount++;
+                    System.Threading.Thread.Sleep(1000);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Произошла ошибка: " + ex.Message);
+                    retryCount++;
+                    System.Threading.Thread.Sleep(1000);
+                }
+            }
+
+            if (retryCount >= maxRetries)
+            {
+                System.Diagnostics.Debug.WriteLine("Превышено максимальное количество попыток.");
+            }
+        }
+
+
+        private void SerializeObjects()
+        {
+            
         }
 
         private void WriteToMemory()
@@ -139,6 +194,8 @@ namespace VSIXProjectHelloWorld.Utils
                 // Записываем само сообщение начиная с 4 байта
                 writer.WriteArray<char>(4, message, 0, size);
             }
+
+            System.Diagnostics.Debug.WriteLine(message);
         }
     }
 }
