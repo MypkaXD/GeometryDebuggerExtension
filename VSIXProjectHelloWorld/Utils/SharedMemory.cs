@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
+using System.Diagnostics;
 
 namespace VSIXProjectHelloWorld.Utils
 {
@@ -51,8 +52,6 @@ namespace VSIXProjectHelloWorld.Utils
         {
             if (variables.Count > 0)
             {
-
-
                 m_S_message = "";
                 m_DTE = dTE;
 
@@ -70,40 +69,56 @@ namespace VSIXProjectHelloWorld.Utils
                 {
                     WriteToMemory();
 
-                    int processID = 0;
-                    foreach (EnvDTE.Process proc in m_DTE.Debugger.DebuggedProcesses)
-                        processID = proc.ProcessID;
+                    //int processID = 0;
+                    //foreach (EnvDTE.Process proc in m_DTE.Debugger.DebuggedProcesses)
+                    //    processID = proc.ProcessID;
 
-                    var expr = m_DTE.Debugger.GetExpression("&Serialize");
-                    IntPtr addressOfFunc = (IntPtr)(ulong)new System.ComponentModel.UInt64Converter().ConvertFromString(expr.Value.Split(' ').First());
+                    //var expr = m_DTE.Debugger.GetExpression("&Serialize");
+                    m_DTE.Debugger.GetExpression("Serialize()", true, 1);
+                    //IntPtr addressOfFunc = (IntPtr)(ulong)new System.ComponentModel.UInt64Converter().ConvertFromString(expr.Value.Split(' ').First());
 
-                    IntPtr hHandle = OpenProcess(ProcessAccessFlags.All, false, processID);
-                    IntPtr createThreadRes = CreateRemoteThread(hHandle, IntPtr.Zero, 0, addressOfFunc, IntPtr.Zero, 0, out createThreadRes);
-                    CloseHandle(hHandle);
+                    //IntPtr hHandle = OpenProcess(ProcessAccessFlags.All, false, processID);
+                    //IntPtr createThreadRes = CreateRemoteThread(hHandle, IntPtr.Zero, 0, addressOfFunc, IntPtr.Zero, 0, out createThreadRes);
+                    //CloseHandle(hHandle);
 
-                    //Заморозить
-                    var currentThread = m_DTE.Debugger.CurrentThread;
-                    currentThread.Freeze();
+                    ////Заморозить
+                    //var currentThread = m_DTE.Debugger.CurrentThread;
+                    //currentThread.Freeze();
 
-                    //континью
-                    m_DTE.Debugger.Go(false);
+                    //Task.Delay(1000);
+
+                    //if (m_DTE.Debugger.CurrentMode == EnvDTE.dbgDebugMode.dbgBreakMode)
+                    //{
+                    //    try
+                    //    {
+                    //        m_DTE.Debugger.Go(false); // Продолжить выполнение с игнорированием точек останова
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
+                    //        MessageBox.Show($"Ошибка при выполнении Go: {ex.Message}");
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    // Либо дождитесь, пока отладчик перейдёт в BreakMode, либо выполните другое действие.
+                    //}
 
                     WaitAnswer();
 
-                    try
-                    {
-                        //размораживаем мейн поток
-                        m_DTE.Debugger.Break();
-                        if (currentThread != null)
-                        {
-                            currentThread.Thaw();
-                            m_DTE.Debugger.CurrentThread = currentThread;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        MessageBox.Show("the process was break by closing window");
-                    }
+                    //try
+                    //{
+                    //    //размораживаем мейн поток
+                    //    m_DTE.Debugger.Break();
+                    //    if (currentThread != null)
+                    //    {
+                    //        currentThread.Thaw();
+                    //        m_DTE.Debugger.CurrentThread = currentThread;
+                    //    }
+                    //}
+                    //catch (Exception e)
+                    //{
+                    //    MessageBox.Show("the process was break by closing window");
+                    //}
 
                 }
             }

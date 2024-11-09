@@ -134,21 +134,12 @@ namespace VSIXProjectHelloWorld
                     bool isSerialized = m_L_Paths[variable.m_S_Type + "_" + variable.m_S_Name].Item2; // есть ли информация о этой переменной в файле pathOfVariable
                     bool isSelected = variable.m_B_IsSelected;
 
-                    if (isSelected) // если переменная выбрана для отрисовки
-                    {
-                        if (isSerialized) // если переменная уже сериализована
-                            m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(isSelected, isSerialized); // то мы просто меням свойство
-                        else // если переменная не была сериализована
-                        {
-                            draw();
-                            m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(isSelected, true);
-                        }
-                    }
-                    else // если переменная убрана с отрисовки
-                        m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(false, isSerialized); // мы говорим, что она больше не isSelected и сохраняем её сериализацию
-                                                                                                // (на случай, если он уже сериализировал эту переменную)
+                    m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(isSelected, isSerialized);                                                                           // (на случай, если он уже сериализировал эту переменную)
+                    
+                    draw();
                 }
             }
+
         }
 
         private void btnOpenAddMenu_Click(object sender, RoutedEventArgs e)
@@ -229,14 +220,17 @@ namespace VSIXProjectHelloWorld
                     int G = (int)colorPicker.GreenSlider.Value;
                     int B = (int)colorPicker.BlueSlider.Value;
 
-                    if (variable.m_C_Color.m_i_R != R &&
-                        variable.m_C_Color.m_i_G != G &&
+                    if (variable.m_C_Color.m_i_R != R ||
+                        variable.m_C_Color.m_i_G != G ||
                         variable.m_C_Color.m_i_B != B) // если цвет изменился (пользователь поменял значение слайдеров), кроме того, если цвет поменялся
                                                        // то мы должны изменить и отрисовку при условии, что элемент выбран или (?сериализован?)
                                                        // пока что пусть будет только что он выбран isSelected
                     {
+
                         // Передаем эти цвета в variable.m_C_Color
+                        variable.PropertyChanged -= Variable_PropertyChanged;
                         variable.m_C_Color = new Utils.Color(R, G, B);
+                        variable.PropertyChanged += Variable_PropertyChanged;
 
                         // Обновляем цвет кнопки
                         button.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb((byte)R, (byte)G, (byte)B));
@@ -248,7 +242,6 @@ namespace VSIXProjectHelloWorld
                         {
                             m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(true, false);
                             draw();
-                            m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(true, true);
                         }
                         else // если он не выбран, то мы просто его помечаем, как неIsSelected и неIsSerialized
                         {
@@ -260,24 +253,6 @@ namespace VSIXProjectHelloWorld
                 }
             }
         }
-
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            //m_DE_events.OnEnterBreakMode -= OnEnterBreakMode; // subscribe on Enter Break mode or press f10 or press f5
-            //SharedMemory sharedMemory = new SharedMemory(m_OBOV_Variables, m_DGV_debugger.GetDTE());
-            //m_DE_events.OnEnterBreakMode += OnEnterBreakMode; // subscribe on Enter Break mode or press f10 or press f5
-
-            //List<Tuple<string, bool>> files = new List<Tuple<string, bool>>();
-
-            //foreach (var path in m_L_Paths)
-            //{
-            //    files.Add(Tuple.Create(path.Key, path.Value.Item1));
-            //}
-
-            //host.reloadGeomView(files);
-        }
-
         private void draw()
         {
             /*
@@ -290,11 +265,8 @@ namespace VSIXProjectHelloWorld
              * если пришел true - то отображаем
             */
 
-            m_DE_events.OnEnterBreakMode -= OnEnterBreakMode; // отписываемся от входа в дебаг мод, может отрицательно влиять на результат
-                                                              // будут пропадать элементы из таблицы
-            
-            List<Variable> variables = new List<Variable>(); // переменные, которые мы хотим заново сериализовать
-            List<Tuple<string, bool>> filesForVisibility = new List<Tuple<string, bool>>();
+            List<Tuple<string, bool>> files = new List<Tuple<string, bool>>();
+            List<Variable> variables = new List<Variable>();
 
             foreach (var variable in m_OBOV_Variables)
             {
@@ -305,26 +277,35 @@ namespace VSIXProjectHelloWorld
 
                 if (isSerialized) // если переменная уже сериализована (то есть данные о ней записаны в файл)
                 {
-                    if (isSelected) // если переменная выбрана для показа (isSelected)
-                        filesForVisibility.Add(Tuple.Create(pathOfVariable, true));
-                    else
-                        filesForVisibility.Add(Tuple.Create(pathOfVariable, false));
+                    host.visibilityGeomView(pathOfVariable, isSelected); // если переменная выбрана для показа (isSelected)
+                    files.Add(Tuple.Create(pathOfVariable, false));
                 }
                 else // если переменная несериализована (данных о ней нет в файле или их необходимо обновить)
                 {
                     if (isSelected)
+                    {
+                        files.Add(Tuple.Create(pathOfVariable, true));
                         variables.Add(variable);
-                    else
+                    }
+                    else // в данном случае переменная неIsSelected и неIsSerialized => эту переменную не надо отрисовывать и что-то вообще с ней делать
                         continue;
                 }
             }
 
-            SharedMemory sharedMemory = new SharedMemory(variables, m_DGV_debugger.GetDTE());
-            
-            m_DE_events.OnEnterBreakMode += OnEnterBreakMode; // подписываемся на вход в дебаг мод обратно
+            if (variables.Count != 0)
+            {
+                m_DE_events.OnEnterBreakMode -= OnEnterBreakMode; // отписываемся от входа в дебаг мод, может отрицательно влиять на результат
+                                                                  // будут пропадать элементы из таблицы
+                SharedMemory sharedMemory = new SharedMemory(variables, m_DGV_debugger.GetDTE()); // сюда мы отдаем только те переменные, которые выбраны и их надо пересериализировать
+                m_DE_events.OnEnterBreakMode += OnEnterBreakMode; // подписываемся на вход в дебаг мод обратно
 
-            host.reloadGeomView(files);
+                foreach (var file in files)
+                    m_L_Paths[file.Item1] = new Tuple<bool, bool>(m_L_Paths[file.Item1].Item1, true);
+
+                host.reloadGeomView(files);
+            }
         }
+
 
         private void OnEnterBreakMode(dbgEventReason reason, ref dbgExecutionAction action) // срабатывает при f5, f10, f11
         {
@@ -337,7 +318,7 @@ namespace VSIXProjectHelloWorld
              * isSelected - оставить таким, каким было
             */
 
-            Dictionary<string, Tuple<bool, bool>> tempPaths = new Dictionary<string, Tuple<bool, bool>>();
+            Dictionary<string, Tuple<bool, bool>> tempPaths = new Dictionary<string, Tuple<bool, bool>>(m_L_Paths);
             m_L_Paths.Clear();
 
             foreach (var variable in m_OBOV_Variables)
@@ -380,12 +361,10 @@ namespace VSIXProjectHelloWorld
                              */
                             string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
                             bool isSerialized = m_L_Paths[pathOfVariable].Item2;
+                            variable.PropertyChanged -= Variable_PropertyChanged;
                             variable.m_B_IsSelected = false;
-
-                            if (isSerialized) // если он уже просериализирована (файл с его геометрией уже записан)
-                                m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(false, true);
-                            else // если он не просериализирован
-                                m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(false, false);
+                            variable.PropertyChanged += Variable_PropertyChanged;
+                            m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(false, isSerialized);
                         }
                     }
                 }
@@ -412,14 +391,13 @@ namespace VSIXProjectHelloWorld
                             /*
                              * Тут мы должны проверить два случая, является переменная isSerialized или нет 
                              */
+
                             string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
                             bool isSerialized = m_L_Paths[pathOfVariable].Item2;
+                            variable.PropertyChanged -= Variable_PropertyChanged;
                             variable.m_B_IsSelected = true;
-
-                            if (isSerialized) // если он уже просериализирована (файл с его геометрией уже записан)
-                                m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(true, true);
-                            else // если он не просериализирован
-                                m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(true, false);
+                            variable.PropertyChanged += Variable_PropertyChanged;
+                            m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(true, isSerialized);
                         }
                     }
                 }

@@ -34,13 +34,13 @@ void readMemoryMappedFile() {
 
 		if (handle == NULL)
 		{
-			std::cout << "CreateFileMapping error: \n" << GetLastError();
+			//std::cout << "CreateFileMapping error: \n" << GetLastError();
 		}
 		else
 		{
 			// Получаем размер сообщения (первый int в MMF)
 			msgSize = *(int*)MapViewOfFile(handle, FILE_MAP_READ, 0, 0, sizeof(int));
-			std::cout << "opened mapped file with handle " << handle << ", mapped view to " << (void*)ptr << '\n';
+			//std::cout << "opened mapped file with handle " << handle << ", mapped view to " << (void*)ptr << '\n';
 
 			// Отображаем память для чтения
 			ptr = (char*)MapViewOfFile(handle, FILE_MAP_READ, 0, 0, msgSize * 2);
@@ -49,25 +49,25 @@ void readMemoryMappedFile() {
 			if (msgSize != 0) break;
 		}
 
-		std::cout << "error with reading from memory \n";
+		//std::cout << "error with reading from memory \n";
 		Sleep(1000);  // Повторная попытка через 1 секунду
 	}
 
-	std::cout << "There are " << msgSize << " letters\n";
-	std::cout << "The message is: ";
+	//std::cout << "There are " << msgSize << " letters\n";
+	//std::cout << "The message is: ";
 
 	// Чтение и вывод сообщения
 	for (int i = 0; i < 2 * msgSize; i += 2)
 	{
 		message += ptr[i];
 	}
-	std::cout << message << '\n';
+	//std::cout << message << '\n';
 }
 
 
 void printMessage() {
-	std::cout << "MESSAGE IS: " << std::endl;
-	std::cout << message << std::endl;
+	//std::cout << "MESSAGE IS: " << std::endl;
+	//std::cout << message << std::endl;
 }
 
 class Variable {
@@ -202,7 +202,7 @@ void RegisterType(const Variable& o) {
 		typeIdName.erase(pos, offset);
 	}
 
-	std::cout << typeIdName << std::endl;
+	//std::cout << typeIdName << std::endl;
 
 	if (typeIdName == o.m_S_Type) {
 		T* ptr = static_cast<T*>(o.m_S_Addres);
@@ -218,7 +218,7 @@ std::string SerializeObjects(const std::vector<Variable>& objects) {
 		RegisterType<Circle>(o);
 	}
 
-	std::cout << buffer << std::endl;
+	//std::cout << buffer << std::endl;
 
 	return buffer;
 }
@@ -229,7 +229,7 @@ void writeMemoryMappedFile() {
 
 	std::string path = "true";
 
-	std::cout << path << std::endl;
+	//std::cout << path << std::endl;
 
 	size_t dataSize = path.size() + 1;
 
@@ -270,7 +270,7 @@ void writeMemoryMappedFile() {
 	UnmapViewOfFile(pBuf);
 	CloseHandle(hMapFile);
 
-	std::cout << "SUCCESS" << std::endl;
+	//std::cout << "SUCCESS" << std::endl;
 
 }
 
@@ -283,9 +283,11 @@ void Serialize() {
 		std::cout << "NAME: " << m_VOV_Variables[i].m_S_Name << " TYPE: " << m_VOV_Variables[i].m_S_Type << " ADDRESS: " << m_VOV_Variables[i].m_S_Addres << std::endl;
 	}
 
+	std::cout << "before serialize" << std::endl;
 	SerializeObjects(m_VOV_Variables);
-	std::cout << "END SER" << std::endl;
+	std::cout << "before write" << std::endl;
 	writeMemoryMappedFile();
+	std::cout << "END write" << std::endl;
 
 }
 

@@ -31,6 +31,8 @@ namespace VSIXProjectHelloWorld.Utils
 
         [DllImport("C:\\Users\\MypkaXD\\Desktop\\wpfOpenGL\\x64\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern void reload(ref StringArrayData data);
+        [DllImport("C:\\Users\\MypkaXD\\Desktop\\wpfOpenGL\\x64\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void visibilities(ref StringArrayData data);
 
         int hostHeight, hostWidth;
 
@@ -58,6 +60,32 @@ namespace VSIXProjectHelloWorld.Utils
         protected override void DestroyWindowCore(HandleRef hwnd)
         {
             destroyGLtoolWindow(hwnd.Handle);
+        }
+
+        public void visibilityGeomView(string path, bool isVisible)
+        {
+            IntPtr[] stringPtrs = new IntPtr[1];
+            bool[] bools = new bool[1];
+
+            stringPtrs[0] = Marshal.StringToHGlobalAnsi("C:\\Users\\MypkaXD\\source\\repos\\LearningWPF\\ReadMemoryMappedFile\\" + path + ".txt");
+            bools[0] = isVisible;
+
+            // Создаем и заполняем структуру
+            StringArrayData data = new StringArrayData
+            {
+                Count = 1,
+                StringArray = Marshal.UnsafeAddrOfPinnedArrayElement(stringPtrs, 0),
+                BoolArray = Marshal.UnsafeAddrOfPinnedArrayElement(bools, 0)
+            };
+
+            // Передаем структуру в C++
+            visibilities(ref data);
+
+            // Освобождаем память
+            foreach (IntPtr ptr in stringPtrs)
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
         }
 
         public void reloadGeomView(List<Tuple<string, bool>> files)
