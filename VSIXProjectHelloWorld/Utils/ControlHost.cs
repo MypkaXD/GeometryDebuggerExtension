@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,14 @@ using System.Windows.Interop;
 
 namespace VSIXProjectHelloWorld.Utils
 {
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct StringArrayData
+    {
+        public int Count;
+        public IntPtr StringArray; // Указатель на массив строк
+        public IntPtr BoolArray; // Указатель на массив булевых значений
+    }
     public class ControlHost : HwndHost
     {
         [DllImport("C:\\Users\\MypkaXD\\Desktop\\wpfOpenGL\\x64\\Release\\GLtool.dll",
@@ -20,9 +29,8 @@ namespace VSIXProjectHelloWorld.Utils
             CallingConvention = CallingConvention.Cdecl)]
         public static extern void destroyGLtoolWindow(IntPtr hwnd);
 
-        [DllImport("C:\\Users\\MypkaXD\\Desktop\\wpfOpenGL\\x64\\Release\\GLtool.dll",
-            CallingConvention = CallingConvention.Cdecl)]
-        public static extern void reload();
+        [DllImport("C:\\Users\\MypkaXD\\Desktop\\wpfOpenGL\\x64\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void reload(ref StringArrayData data);
 
         int hostHeight, hostWidth;
 
@@ -52,9 +60,34 @@ namespace VSIXProjectHelloWorld.Utils
             destroyGLtoolWindow(hwnd.Handle);
         }
 
-        public void reloadGeomView()
+        public void reloadGeomView(List<Tuple<string, bool>> files)
         {
-            reload();
+            // Создаем массив указателей на строки
+            IntPtr[] stringPtrs = new IntPtr[files.Count];
+            bool[] bools = new bool[files.Count];
+
+            for (int i = 0; i < files.Count; i++)
+            {
+                stringPtrs[i] = Marshal.StringToHGlobalAnsi("C:\\Users\\MypkaXD\\source\\repos\\LearningWPF\\ReadMemoryMappedFile\\" + files[i].Item1 + ".txt");
+                bools[i] = files[i].Item2;
+            }
+
+            // Создаем и заполняем структуру
+            StringArrayData data = new StringArrayData
+            {
+                Count = files.Count,
+                StringArray = Marshal.UnsafeAddrOfPinnedArrayElement(stringPtrs, 0),
+                BoolArray = Marshal.UnsafeAddrOfPinnedArrayElement(bools, 0)
+            };
+
+            // Передаем структуру в C++
+            reload(ref data);
+
+            // Освобождаем память
+            foreach (IntPtr ptr in stringPtrs)
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
         }
     }
 }

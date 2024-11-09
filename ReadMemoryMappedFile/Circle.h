@@ -41,7 +41,7 @@ public:
     }
 };
 
-std::string serialize(Circle* value, std::string typeName, std::string variableName, int r, int g, int b) {
+void serialize(Circle* value, std::string typeName, std::string variableName, int r, int g, int b) {
     std::string path = typeName + "_" + variableName + ".txt";
     std::string data = "";
     int countOfCircle = 50;
@@ -83,5 +83,10 @@ std::string serialize(Circle* value, std::string typeName, std::string variableN
         std::to_string(std::get<2>(coords[0])) + ")";
     data += "(" + std::to_string(r) + "," + std::to_string(g) + "," + std::to_string(b) + ")\n";
 
-    return data;
+    std::fstream file;
+    file.open(path, std::ios::out);
+    if (file.is_open()) {
+        file << data;
+    }
+    file.close();
 }

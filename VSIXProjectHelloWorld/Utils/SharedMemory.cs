@@ -47,60 +47,66 @@ namespace VSIXProjectHelloWorld.Utils
             All = 0x001F0FFF
         }
 
-        public SharedMemory(ObservableCollection<Variable> variables, DTE dTE, ControlHost host)
+        public SharedMemory(List<Variable> variables, DTE dTE)
         {
-            m_S_message = "";
-            m_DTE = dTE;
-
-            for (int i = 0; i < variables.Count; ++i)
+            if (variables.Count > 0)
             {
-                if (variables[i].m_B_IsSelected)
+
+
+                m_S_message = "";
+                m_DTE = dTE;
+
+                for (int i = 0; i < variables.Count; ++i)
                 {
-                    m_S_message += $"{variables[i].m_S_Name}|{variables[i].m_S_Type}|{variables[i].m_S_Addres}|{variables[i].m_C_Color.m_i_R}|{variables[i].m_C_Color.m_i_G}|{variables[i].m_C_Color.m_i_B}";
-                    if (i < variables.Count - 1)
-                        m_S_message += "|";
+                    if (variables[i].m_B_IsSelected)
+                    {
+                        m_S_message += $"{variables[i].m_S_Name}|{variables[i].m_S_Type}|{variables[i].m_S_Addres}|{variables[i].m_C_Color.m_i_R}|{variables[i].m_C_Color.m_i_G}|{variables[i].m_C_Color.m_i_B}";
+                        if (i < variables.Count - 1)
+                            m_S_message += "|";
+                    }
+                }
+
+                if (m_S_message.Length > 0)
+                {
+                    WriteToMemory();
+
+                    int processID = 0;
+                    foreach (EnvDTE.Process proc in m_DTE.Debugger.DebuggedProcesses)
+                        processID = proc.ProcessID;
+
+                    var expr = m_DTE.Debugger.GetExpression("&Serialize");
+                    IntPtr addressOfFunc = (IntPtr)(ulong)new System.ComponentModel.UInt64Converter().ConvertFromString(expr.Value.Split(' ').First());
+
+                    IntPtr hHandle = OpenProcess(ProcessAccessFlags.All, false, processID);
+                    IntPtr createThreadRes = CreateRemoteThread(hHandle, IntPtr.Zero, 0, addressOfFunc, IntPtr.Zero, 0, out createThreadRes);
+                    CloseHandle(hHandle);
+
+                    //Заморозить
+                    var currentThread = m_DTE.Debugger.CurrentThread;
+                    currentThread.Freeze();
+
+                    //континью
+                    m_DTE.Debugger.Go(false);
+
+                    WaitAnswer();
+
+                    try
+                    {
+                        //размораживаем мейн поток
+                        m_DTE.Debugger.Break();
+                        if (currentThread != null)
+                        {
+                            currentThread.Thaw();
+                            m_DTE.Debugger.CurrentThread = currentThread;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show("the process was break by closing window");
+                    }
+
                 }
             }
-
-            if (m_S_message.Length > 0)
-                WriteToMemory();
-
-            int processID = 0;
-            foreach (EnvDTE.Process proc in m_DTE.Debugger.DebuggedProcesses)
-                processID = proc.ProcessID;
-
-            var expr = m_DTE.Debugger.GetExpression("&Serialize");
-            IntPtr addressOfFunc = (IntPtr)(ulong)new System.ComponentModel.UInt64Converter().ConvertFromString(expr.Value.Split(' ').First());
-
-            IntPtr hHandle = OpenProcess(ProcessAccessFlags.All, false, processID);
-            IntPtr createThreadRes = CreateRemoteThread(hHandle, IntPtr.Zero, 0, addressOfFunc, IntPtr.Zero, 0, out createThreadRes);
-            CloseHandle(hHandle);
-
-            //Заморозить
-            var currentThread = m_DTE.Debugger.CurrentThread;
-            currentThread.Freeze();
-
-            //континью
-            m_DTE.Debugger.Go(false);
-
-            WaitAnswer();
-
-            try
-            {
-                //размораживаем мейн поток
-                m_DTE.Debugger.Break();
-                if (currentThread != null)
-                {
-                    currentThread.Thaw();
-                    m_DTE.Debugger.CurrentThread = currentThread;
-                }
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("the process was break by closing window");
-            }
-
-            host.reloadGeomView();
         }
 
         private void WaitAnswer()

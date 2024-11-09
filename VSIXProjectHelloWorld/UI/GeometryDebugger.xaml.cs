@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using EnvDTE80;
 using Microsoft.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Newtonsoft.Json.Linq;
 using SharpGL;
@@ -35,7 +36,6 @@ namespace VSIXProjectHelloWorld
     /// </summary>
     public partial class GeometryDebugger : System.Windows.Controls.UserControl
     {
-        private ObservableCollection<Variable> m_OBOV_Variables;
         private string message { get; set; }
         private bool isSet = false;
 
@@ -44,11 +44,51 @@ namespace VSIXProjectHelloWorld
         private System.Windows.Window addWindow;
         private EnvDTE.DebuggerEvents m_DE_events;
         private ControlHost host;
-        private Dictionary<string, bool> m_L_Paths;
+        private Dictionary<string, Tuple<bool, bool>> m_L_Paths;
 
+        private ObservableCollection<Variable> _m_OBOV_Variables;
+        public ObservableCollection<Variable> m_OBOV_Variables
+        {
+            get => _m_OBOV_Variables;
+            set
+            {
+                if (_m_OBOV_Variables != null)
+                {
+                    // Отписываемся от событий старой коллекции
+                    _m_OBOV_Variables.CollectionChanged -= Variables_CollectionChanged;
+                    foreach (var variable in _m_OBOV_Variables)
+                        variable.PropertyChanged -= Variable_PropertyChanged;
+                }
+
+                // Устанавливаем новую коллекцию
+                _m_OBOV_Variables = value;
+
+                if (_m_OBOV_Variables != null)
+                {
+                    // Подписываемся на события новой коллекции
+                    _m_OBOV_Variables.CollectionChanged += Variables_CollectionChanged;
+                    foreach (var variable in _m_OBOV_Variables)
+                        variable.PropertyChanged += Variable_PropertyChanged;
+                }
+            }
+        }
+
+        public GeometryDebugger()
+        {
+            InitializeComponent();
+            InitDebuggerComponent();
+
+            addMenu = new AddMenu(m_DGV_debugger);
+            m_L_Paths = new Dictionary<string, Tuple<bool, bool>>();
+            m_OBOV_Variables = new ObservableCollection<Variable>();
+
+
+            InitAddWindowComponent();
+        }
         private void InitDebuggerComponent()
         {
             m_DGV_debugger = new DebuggerGetterVariables();
+            ThreadHelper.ThrowIfNotOnUIThread();
 
             if (m_DGV_debugger.GetDTE() != null)
             {
@@ -68,19 +108,49 @@ namespace VSIXProjectHelloWorld
                 WindowStartupLocation = WindowStartupLocation.CenterScreen
             };
 
-            addWindow.Closing += OnWindowClosing;
+            addWindow.Closing += OnAddWindowClosing;
         }
-
-        public GeometryDebugger()
+        private void GeometryDebuggerLoaded(object sender, RoutedEventArgs e)
         {
-            InitializeComponent();
-            InitDebuggerComponent();
-
-            addMenu = new AddMenu(m_DGV_debugger);
-            m_L_Paths = new Dictionary<string, bool>();
-
-            InitAddWindowComponent();
+            host = new ControlHost(450, 800);
+            if (ControlHostElement.Child == null)
+                ControlHostElement.Child = host;
         }
+        private void Variables_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("SADASDAS");
+        }
+        private void Variable_PropertyChanged(object sender, PropertyChangedEventArgs e) // срабатывает, если какой-то элемент в таблице изменил своё свойство (пример, CheckBox на m_B_IsSelected)
+        {
+            var variable = sender as Variable;
+
+            if (variable != null)
+            {
+                // Здесь можно обработать изменения конкретных свойств
+                if (e.PropertyName == nameof(variable.m_B_IsSelected)) // если изменение - CheckBox на m_B_IsSelected
+                {
+
+                    string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+                    bool isSerialized = m_L_Paths[variable.m_S_Type + "_" + variable.m_S_Name].Item2; // есть ли информация о этой переменной в файле pathOfVariable
+                    bool isSelected = variable.m_B_IsSelected;
+
+                    if (isSelected) // если переменная выбрана для отрисовки
+                    {
+                        if (isSerialized) // если переменная уже сериализована
+                            m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(isSelected, isSerialized); // то мы просто меням свойство
+                        else // если переменная не была сериализована
+                        {
+                            draw();
+                            m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(isSelected, true);
+                        }
+                    }
+                    else // если переменная убрана с отрисовки
+                        m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(false, isSerialized); // мы говорим, что она больше не isSelected и сохраняем её сериализацию
+                                                                                                // (на случай, если он уже сериализировал эту переменную)
+                }
+            }
+        }
+
         private void btnOpenAddMenu_Click(object sender, RoutedEventArgs e)
         {
             if (m_DGV_debugger.IsDebugMode())
@@ -99,152 +169,306 @@ namespace VSIXProjectHelloWorld
                 System.Windows.MessageBox.Show("ERROR: You need to start Debug mode.");
             }
         }
-        private void OnWindowClosing(object sender, CancelEventArgs e)
+        private void OnAddWindowClosing(object sender, CancelEventArgs e)
         {
-            m_OBOV_Variables = addMenu.GetVariables();
+            m_OBOV_Variables = addMenu.GetVariables(); // получаем список всех переменных, которые пришли из окна AddVariables (их отличительное
+                                                       // свойство в том, что они все isAdded
 
-            foreach (var variable in m_OBOV_Variables)
+            Dictionary<string, Tuple<bool, bool>> tempPaths = new Dictionary<string, Tuple<bool, bool>>(m_L_Paths); // сохраняем старый список переменных, которые уже были до этого
+            m_L_Paths.Clear(); // очищаем исходные данные
+
+            foreach (var variable in m_OBOV_Variables) // проходимся по каждой переменной в m_OBOV_Variables
             {
-                if (!m_L_Paths.ContainsKey(variable.m_S_Type + "_" + variable.m_S_Name))
-                    m_L_Paths.Add(variable.m_S_Type + "_" + variable.m_S_Name, false);
-                else continue;
+                string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+
+                if (!tempPaths.ContainsKey(pathOfVariable)) // если переменной нет в старой коллекции
+                    m_L_Paths.Add(pathOfVariable, Tuple.Create(false, false)); // то создаем новую с флагами isSelected = false, isSerialized = false
+                else // иначе, то есть перменная была найдена в коллекции tempPaths
+                {
+                    Tuple<bool, bool> properties = new Tuple<bool, bool>(tempPaths[pathOfVariable].Item1, tempPaths[pathOfVariable].Item2); // сохраняем свойство isSelected и isSerialized
+                    m_L_Paths.Add(pathOfVariable, properties); // добавляем обратно в m_L_Paths
+                }
             }
 
-            dgObjects.ItemsSource = m_OBOV_Variables;
+            dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую
+
+            /*
+             * Тут не надо вызывать draw, так как переменная, которая уже была добавлена (isAdded) и выбрана (isSelected), 
+             * она либо уже отрисована или не отрисована (зависит от флага isSelected)
+             */
         }
         private void ColorDisplay_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.Controls.Button button = sender as System.Windows.Controls.Button;
-            Variable variable = button.DataContext as Variable;
+            System.Windows.Controls.Button button = sender as System.Windows.Controls.Button; // получаем кнопку из DataGrid, на которую нажал пользователь
 
-            if (button != null && variable != null)
+            if (button != null) // если кнопка не null
             {
-                ColorPicker colorPicker = new ColorPicker();
-                System.Windows.Window pickerWindow = new System.Windows.Window
+                Variable variable = button.DataContext as Variable; // получаем из неё переменную
+
+                if (variable != null) // если мы смогли получить переменную 
                 {
-                    Title = "Pick a Color",
-                    Content = colorPicker,
-                    SizeToContent = SizeToContent.WidthAndHeight,
-                    WindowStartupLocation = WindowStartupLocation.CenterScreen
-                };
+                    // создаем окно colorPicker
+                    ColorPicker colorPicker = new ColorPicker();
 
-                // Set the current color values
-                colorPicker.RedSlider.Value = variable.m_C_Color.m_i_R;
-                colorPicker.GreenSlider.Value = variable.m_C_Color.m_i_G;
-                colorPicker.BlueSlider.Value = variable.m_C_Color.m_i_B;
+                    System.Windows.Window pickerWindow = new System.Windows.Window
+                    {
+                        Title = "Pick a Color",
+                        Content = colorPicker,
+                        SizeToContent = SizeToContent.WidthAndHeight,
+                        WindowStartupLocation = WindowStartupLocation.CenterScreen
+                    };
 
-                pickerWindow.ShowDialog();
+                    // Передаем нашему ColorPicker'у значение цветов, полученных из переменной (поле m_C_Color)
+                    colorPicker.RedSlider.Value = variable.m_C_Color.m_i_R; // красный
+                    colorPicker.GreenSlider.Value = variable.m_C_Color.m_i_G; // зеленый
+                    colorPicker.BlueSlider.Value = variable.m_C_Color.m_i_B; // синий
 
-                // Update Variable's color
-                variable.m_C_Color = new Utils.Color(
-                    (int)colorPicker.RedSlider.Value,
-                    (int)colorPicker.GreenSlider.Value,
-                    (int)colorPicker.BlueSlider.Value
-                );
+                    pickerWindow.ShowDialog(); // показываем ДИАЛОГ с нашим ColorPicker (так как это диалог, то другие элементы UI недоступны - аналогия выборки файла при его открытии в Word'e)
 
-                // Update the button background
-                button.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(
-                    (byte)variable.m_C_Color.m_i_R,
-                    (byte)variable.m_C_Color.m_i_G,
-                    (byte)variable.m_C_Color.m_i_B));
+                    int R = (int)colorPicker.RedSlider.Value;
+                    int G = (int)colorPicker.GreenSlider.Value;
+                    int B = (int)colorPicker.BlueSlider.Value;
+
+                    if (variable.m_C_Color.m_i_R != R &&
+                        variable.m_C_Color.m_i_G != G &&
+                        variable.m_C_Color.m_i_B != B) // если цвет изменился (пользователь поменял значение слайдеров), кроме того, если цвет поменялся
+                                                       // то мы должны изменить и отрисовку при условии, что элемент выбран или (?сериализован?)
+                                                       // пока что пусть будет только что он выбран isSelected
+                    {
+                        // Передаем эти цвета в variable.m_C_Color
+                        variable.m_C_Color = new Utils.Color(R, G, B);
+
+                        // Обновляем цвет кнопки
+                        button.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb((byte)R, (byte)G, (byte)B));
+
+                        string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+                        bool isSelected = m_L_Paths[pathOfVariable].Item1; // isSelected (выбран ли он для отрисовки)
+
+                        if (isSelected) // если он выбран, то его нужно пересериализировать
+                        {
+                            m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(true, false);
+                            draw();
+                            m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(true, true);
+                        }
+                        else // если он не выбран, то мы просто его помечаем, как неIsSelected и неIsSerialized
+                        {
+                            m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(false, false);
+                        }
+                    }
+                    else // если цвет не изменился, то ничего не делаем, не меняем isSerialized (геометрия осталась такой же)
+                        return;
+                }
             }
         }
 
-        private void GeometryDebuggerLoaded(object sender, RoutedEventArgs e)
-        {
-            // Создание нашего OpenGL Hwnd 'контроля'...
-            host = new ControlHost(450, 800);
-
-            // ... и присоединяем его к контейнеру:
-            if (ControlHostElement.Child == null)
-                ControlHostElement.Child = host;
-        }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-
-            foreach (var path in m_L_Paths)
-            {
-                System.Diagnostics.Debug.WriteLine("KEY: " + path.Key + " BOOL: " + path.Value);
-            }
-
             //m_DE_events.OnEnterBreakMode -= OnEnterBreakMode; // subscribe on Enter Break mode or press f10 or press f5
-            //SharedMemory sharedMemory = new SharedMemory(m_OBOV_Variables, m_DGV_debugger.GetDTE(), host);
+            //SharedMemory sharedMemory = new SharedMemory(m_OBOV_Variables, m_DGV_debugger.GetDTE());
             //m_DE_events.OnEnterBreakMode += OnEnterBreakMode; // subscribe on Enter Break mode or press f10 or press f5
-        }
-        private void OnEnterBreakMode(dbgEventReason reason, ref dbgExecutionAction action)
-        {
-            addMenu.BreakModDetected();
-            m_OBOV_Variables = addMenu.GetVariables();
-            dgObjects.ItemsSource = m_OBOV_Variables;
-        }
 
-        private void MenuItemAddForIsntDrawing_Click(object sender, RoutedEventArgs e)
-        {
-            if (dgObjects.SelectedItems.Count == 0)
-                return;
+            //List<Tuple<string, bool>> files = new List<Tuple<string, bool>>();
 
-            foreach (var item in dgObjects.SelectedItems)
-            {
-                if (item is Variable dataItem)
-                {
-                    if (dataItem.m_B_IsSelected)
-                    {
-                        dataItem.m_B_IsSelected = false;
-                        m_L_Paths[dataItem.m_S_Type + "_" + dataItem.m_S_Name] = false;
-                    }
-                }
-            }
+            //foreach (var path in m_L_Paths)
+            //{
+            //    files.Add(Tuple.Create(path.Key, path.Value.Item1));
+            //}
 
-            dgObjects.Items.Refresh();
+            //host.reloadGeomView(files);
         }
 
-        private void MenuItemAddForDrawing_Click(object sender, RoutedEventArgs e)
+        private void draw()
         {
-            if (dgObjects.SelectedItems.Count == 0)
-                return;
+            /*
+             * есть функция reload в geomView, она принимает вектор пар (строка - путь до файла, bool - надо ли перерисовать)
+             * если у меня поменялся цвет только у одной переменной, то происходит сериализация
+             * меняется файл и потом вызватется релоад со всеми false, кроме этой (у нее остается
+             * true).
+             * есть функция visibilities в geomView, она отвечает только за визуализацию
+             * если пришел false - то не отображаем
+             * если пришел true - то отображаем
+            */
+
+            m_DE_events.OnEnterBreakMode -= OnEnterBreakMode; // отписываемся от входа в дебаг мод, может отрицательно влиять на результат
+                                                              // будут пропадать элементы из таблицы
             
-            foreach (var item in dgObjects.SelectedItems)
-            {
-                if (item is Variable dataItem)
-                {
-                    if (!dataItem.m_B_IsSelected)
-                    {
-                        dataItem.m_B_IsSelected = true;
-                        m_L_Paths[dataItem.m_S_Type + "_" + dataItem.m_S_Name] = true;
-                    }
-                }
-            }
-
-            dgObjects.Items.Refresh();
-        }
-
-        private void MenuItemDelete_Click(object sender, RoutedEventArgs e)
-        {
-            if (dgObjects.SelectedItems.Count == 0)
-                return;
-
-            foreach (var item in dgObjects.SelectedItems)
-            {
-                if (item is Variable dataItem)
-                {
-                    dataItem.m_B_IsAdded = false;
-                    dataItem.m_B_IsSelected = false;
-                    m_L_Paths.Remove(dataItem.m_S_Type + "_" + dataItem.m_S_Name);
-                }
-            }
-
-            ObservableCollection<Variable> variables = new ObservableCollection<Variable>();
+            List<Variable> variables = new List<Variable>(); // переменные, которые мы хотим заново сериализовать
+            List<Tuple<string, bool>> filesForVisibility = new List<Tuple<string, bool>>();
 
             foreach (var variable in m_OBOV_Variables)
             {
-                if (variable.m_B_IsAdded != false)
-                    variables.Add(variable);
+                string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+
+                bool isSelected = m_L_Paths[pathOfVariable].Item1;
+                bool isSerialized = m_L_Paths[pathOfVariable].Item2;
+
+                if (isSerialized) // если переменная уже сериализована (то есть данные о ней записаны в файл)
+                {
+                    if (isSelected) // если переменная выбрана для показа (isSelected)
+                        filesForVisibility.Add(Tuple.Create(pathOfVariable, true));
+                    else
+                        filesForVisibility.Add(Tuple.Create(pathOfVariable, false));
+                }
+                else // если переменная несериализована (данных о ней нет в файле или их необходимо обновить)
+                {
+                    if (isSelected)
+                        variables.Add(variable);
+                    else
+                        continue;
+                }
             }
 
-            m_OBOV_Variables = new ObservableCollection<Variable>(variables);
+            SharedMemory sharedMemory = new SharedMemory(variables, m_DGV_debugger.GetDTE());
+            
+            m_DE_events.OnEnterBreakMode += OnEnterBreakMode; // подписываемся на вход в дебаг мод обратно
 
-            dgObjects.ItemsSource = m_OBOV_Variables;
+            host.reloadGeomView(files);
+        }
+
+        private void OnEnterBreakMode(dbgEventReason reason, ref dbgExecutionAction action) // срабатывает при f5, f10, f11
+        {
+            addMenu.BreakModDetected(); // обновляем информацию о наших переменных, которые мы отслеживаем, валидны ли они
+            m_OBOV_Variables = addMenu.GetVariables(); // получаем итоговые данные с валидными переменными
+
+            /*
+             * Нам необходимо удалить все переменные из m_L_Paths, которые больше не валидны 
+             * Обновить у них всех isSerialized на false
+             * isSelected - оставить таким, каким было
+            */
+
+            Dictionary<string, Tuple<bool, bool>> tempPaths = new Dictionary<string, Tuple<bool, bool>>();
+            m_L_Paths.Clear();
+
+            foreach (var variable in m_OBOV_Variables)
+            {
+                string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+
+                if (tempPaths.ContainsKey(pathOfVariable)) // если наша переменная осталась валидной
+                {
+                    bool isSelected = tempPaths[pathOfVariable].Item1;
+                    Tuple<bool, bool> tuple = new Tuple<bool, bool>(isSelected, false);
+                    m_L_Paths.Add(pathOfVariable, tuple);
+                }
+                else // если наша переменная невалидна (навряд ли в этот блок мы попадем)
+                {
+                    Tuple<bool, bool> tuple = new Tuple<bool, bool>(false, false);
+                    m_L_Paths.Add(pathOfVariable, tuple);
+                }
+            }
+
+            dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую
+
+            draw();
+        }
+
+        private void MenuItemAddForIsntDrawing_Click(object sender, RoutedEventArgs e) // если с помощью контекстного меню выбрали unSelected переменные (одну или несколько)
+        {
+            if (dgObjects.SelectedItems.Count == 0) // если кол-во выбранных элементов = 0, то есть пользователь ничего
+                                                    // не выбрал для каких-либо действий через контекстное меню
+                return;
+            else // если же пользователь выбрал элементы для unSelected (в данном случае), т.е. dgObjects.SelectedItems.Count != 0
+            {
+                foreach (var item in dgObjects.SelectedItems) // проходимся по каждому элементу, который пользователь хочет сделать unSelected
+                {
+                    if (item is Variable variable)
+                    {
+                        if (variable.m_B_IsSelected)
+                        {
+                            /*
+                             * Тут мы должны проверить два случая, является переменная isSerialized или нет 
+                             */
+                            string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+                            bool isSerialized = m_L_Paths[pathOfVariable].Item2;
+                            variable.m_B_IsSelected = false;
+
+                            if (isSerialized) // если он уже просериализирована (файл с его геометрией уже записан)
+                                m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(false, true);
+                            else // если он не просериализирован
+                                m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(false, false);
+                        }
+                    }
+                }
+
+                dgObjects.Items.Refresh(); // обновляем визуальную составляющую
+
+                draw();
+            }
+        }
+
+        private void MenuItemAddForDrawing_Click(object sender, RoutedEventArgs e) // если с помощью контекстного меню выбрали isSelected переменные (одну или несколько)
+        {
+            if (dgObjects.SelectedItems.Count == 0) // если кол-во выбранных элементов = 0, то есть пользователь ничего
+                                                    // не выбрал для каких-либо действий через контекстное меню
+                return;
+            else // если же пользователь выбрал элементы для isSelected (в данном случае), т.е. dgObjects.SelectedItems.Count != 0
+            {
+                foreach (var item in dgObjects.SelectedItems) // проходимся по каждому элементу, который пользователь хочет сделать isSelected
+                {
+                    if (item is Variable variable)
+                    {
+                        if (!variable.m_B_IsSelected) // если переменная isSelected - false
+                        {
+                            /*
+                             * Тут мы должны проверить два случая, является переменная isSerialized или нет 
+                             */
+                            string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+                            bool isSerialized = m_L_Paths[pathOfVariable].Item2;
+                            variable.m_B_IsSelected = true;
+
+                            if (isSerialized) // если он уже просериализирована (файл с его геометрией уже записан)
+                                m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(true, true);
+                            else // если он не просериализирован
+                                m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(true, false);
+                        }
+                    }
+                }
+
+                dgObjects.Items.Refresh(); // обновляем визуальную составляющую
+
+                draw();
+            }
+        }
+
+        private void MenuItemDelete_Click(object sender, RoutedEventArgs e) // если с помощью контекстного меню удалили переменные (одну или несколько)
+        {
+            if (dgObjects.SelectedItems.Count == 0) // если кол-во выбранных элементов = 0, то есть пользователь ничего
+                                                    // не выбрал для каких-либо действий через контекстное меню
+                return;
+            else // если же пользователь выбрал элементы для удаления (в данном случае), т.е. dgObjects.SelectedItems.Count != 0
+            {
+                foreach (var item in dgObjects.SelectedItems) // проходимся по каждому элементу, который пользователь хочет удалить
+                {
+                    if (item is Variable variable) // если этот элемент - переменная
+                    {
+                        variable.m_B_IsAdded = false; // то мы меняем его isAdded - false
+                        variable.m_B_IsSelected = false; // isSelected - false
+
+                        string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+
+                        m_L_Paths.Remove(pathOfVariable); // мы должны удалить эту переменную из визуализации в geomView
+
+                        /*
+                         * Грубо говоря, пользователь вообще не добавлял эти переменные через окно AddVariables
+                         */
+                    }
+                }
+
+                List<Variable> variables = new List<Variable>(); // создаем временный лист, хранящий переменные, которые isAdded
+
+                foreach (var variable in m_OBOV_Variables) // проходимся по всем переменным в m_OBOV_Variables (наша цель найти все переменные, которые НЕ isAdded)
+                {
+                    if (variable.m_B_IsAdded != false) // если переменная isAdded, то мы сохраняем ее в List variables
+                        variables.Add(variable);
+                    else // иначе просто пропускаем (мы с ней ничего не хотим делать - в данном случае отрисосвывать)
+                        continue;
+                }
+
+                m_OBOV_Variables = new ObservableCollection<Variable>(variables); // приравнием в m_OBOV_Variables List variables
+                dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую
+
+                draw(); // перерисовка
+            }
         }
     }
 }

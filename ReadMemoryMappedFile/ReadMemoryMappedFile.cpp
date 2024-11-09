@@ -206,7 +206,7 @@ void RegisterType(const Variable& o) {
 
 	if (typeIdName == o.m_S_Type) {
 		T* ptr = static_cast<T*>(o.m_S_Addres);
-		buffer += serialize(ptr, o.m_S_Type, o.m_S_Name, o.m_I_R, o.m_I_G, o.m_I_B);
+		serialize(ptr, o.m_S_Type, o.m_S_Name, o.m_I_R, o.m_I_G, o.m_I_B);
 	}
 }
 
@@ -285,12 +285,6 @@ void Serialize() {
 
 	SerializeObjects(m_VOV_Variables);
 	std::cout << "END SER" << std::endl;
-	std::fstream file;
-	file.open("C:\\Users\\MypkaXD\\source\\repos\\LearningWPF\\ReadMemoryMappedFile\\out.txt", std::ios::out);
-	if (file.is_open()) {
-		file << buffer;
-	}
-	file.close();
 	writeMemoryMappedFile();
 
 }

@@ -55,12 +55,17 @@ public:
 	}
 };
 
-std::string serialize(Vector* value, std::string typeName, std::string variableName, int r, int g, int b) {
+void serialize(Vector* value, std::string typeName, std::string variableName, int r, int g, int b) {
 
 	std::string path = typeName + "_" + variableName + ".txt";
 	std::string data = "";
 
 	data += "points: " + typeName + "_" + variableName + '\n' + "(" + std::to_string(value->getX()) + "," + std::to_string(value->getY()) + "," + std::to_string(value->getZ()) + ")";
 	
-	return data;
+	std::fstream file;
+	file.open(path, std::ios::out);
+	if (file.is_open()) {
+		file << data;
+	}
+	file.close();
 }

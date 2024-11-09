@@ -10,6 +10,7 @@ using System.Windows.Automation;
 using System.Windows;
 using VSIXProjectHelloWorld.Utils;
 using System.Windows.Media;
+using Microsoft.VisualStudio.Shell;
 
 namespace VSIXProjectHelloWorld
 {
@@ -19,6 +20,7 @@ namespace VSIXProjectHelloWorld
 
         public DebuggerGetterVariables()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             m_DTE_Dte = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SDTE)) as EnvDTE.DTE;
         }
         public DTE GetDTE()
