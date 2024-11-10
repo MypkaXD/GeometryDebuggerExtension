@@ -117,33 +117,33 @@ void parser() {
 		case GET_NAME:
 		{
 			pos = message.find('|', i) == std::string::npos ? message.size() - 1 : message.find('|', i);
-			std::cout << pos << std::endl;
+			//std::cout << pos << std::endl;
 			name = message.substr(i, pos - i);
 			i += name.size();
 			states = statesOfGettingVariables::GET_TYPE;
-			std::cout << "NAME: " << name << std::endl;
+			//std::cout << "NAME: " << name << std::endl;
 			break;
 		}
 		case GET_TYPE:
 		{
 			pos = message.find('|', i) == std::string::npos ? message.size() - 1 : message.find('|', i);
-			std::cout << pos << std::endl;
+			//std::cout << pos << std::endl;
 			type = message.substr(i, pos - i);
 			i += type.size();
 			states = statesOfGettingVariables::GET_ADDRES;
-			std::cout << "TYPE: " << type << std::endl;
+			//std::cout << "TYPE: " << type << std::endl;
 			break;
 		}
 		case GET_ADDRES:
 		{
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
-			std::cout << pos << std::endl;
+			//std::cout << pos << std::endl;
 			std::string currentAddres = message.substr(i, pos - i);
 			i += currentAddres.size();
 			states = statesOfGettingVariables::GET_COLOR;
 			uint64_t number = strtoull(currentAddres.c_str(), nullptr, 16);
 			void* ptr = reinterpret_cast<void*>(number);
-			std::cout << "”казатель: " << ptr << std::endl;
+			//std::cout << "”казатель: " << ptr << std::endl;
 
 			addres = ptr;
 
@@ -280,14 +280,14 @@ void Serialize() {
 	parser();
 
 	for (int i = 0; i < m_VOV_Variables.size(); ++i) {
-		std::cout << "NAME: " << m_VOV_Variables[i].m_S_Name << " TYPE: " << m_VOV_Variables[i].m_S_Type << " ADDRESS: " << m_VOV_Variables[i].m_S_Addres << std::endl;
+		//std::cout << "NAME: " << m_VOV_Variables[i].m_S_Name << " TYPE: " << m_VOV_Variables[i].m_S_Type << " ADDRESS: " << m_VOV_Variables[i].m_S_Addres << std::endl;
 	}
 
-	std::cout << "before serialize" << std::endl;
+	//std::cout << "before serialize" << std::endl;
 	SerializeObjects(m_VOV_Variables);
-	std::cout << "before write" << std::endl;
+	//std::cout << "before write" << std::endl;
 	writeMemoryMappedFile();
-	std::cout << "END write" << std::endl;
+	//std::cout << "END write" << std::endl;
 
 }
 
@@ -309,8 +309,8 @@ int main() {
 
 	while (true) {
 		circle.setRadius(circle.getRadius() + step);
-		circle2.setRadius(circle.getRadius() - step);
-		circle3.setRadius(circle.getRadius() + step);
+		circle2.setRadius(circle2.getRadius() - step);
+		circle3.setRadius(circle3.getRadius() + step);
 		step += 0.5;
 	}
 
