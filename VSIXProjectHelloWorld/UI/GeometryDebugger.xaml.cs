@@ -139,7 +139,6 @@ namespace VSIXProjectHelloWorld
                     draw();
                 }
             }
-
         }
 
         private void btnOpenAddMenu_Click(object sender, RoutedEventArgs e)
