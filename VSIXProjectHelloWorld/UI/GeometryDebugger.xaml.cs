@@ -130,12 +130,12 @@ namespace VSIXProjectHelloWorld
                 if (e.PropertyName == nameof(variable.m_B_IsSelected)) // если изменение - CheckBox на m_B_IsSelected
                 {
 
-                    string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
-                    bool isSerialized = m_L_Paths[variable.m_S_Type + "_" + variable.m_S_Name].Item2; // есть ли информация о этой переменной в файле pathOfVariable
+                    string pathOfVariable = variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+                    bool isSerialized = m_L_Paths[pathOfVariable].Item2; // есть ли информация о этой переменной в файле pathOfVariable
                     bool isSelected = variable.m_B_IsSelected;
 
                     m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(isSelected, isSerialized);
-                    
+
                     draw();
                 }
             }
@@ -169,7 +169,7 @@ namespace VSIXProjectHelloWorld
 
             foreach (var variable in m_OBOV_Variables) // проходимся по каждой переменной в m_OBOV_Variables
             {
-                string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+                string pathOfVariable = variable.m_S_Addres; // ключ в Dictionary m_L_Paths
 
                 if (!tempPaths.ContainsKey(pathOfVariable)) // если переменной нет в старой коллекции
                     m_L_Paths.Add(pathOfVariable, Tuple.Create(false, false)); // то создаем новую с флагами isSelected = false, isSerialized = false
@@ -234,7 +234,7 @@ namespace VSIXProjectHelloWorld
                         // Обновляем цвет кнопки
                         button.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb((byte)R, (byte)G, (byte)B));
 
-                        string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+                        string pathOfVariable = variable.m_S_Addres; // ключ в Dictionary m_L_Paths
                         bool isSelected = m_L_Paths[pathOfVariable].Item1; // isSelected (выбран ли он для отрисовки)
 
                         if (isSelected) // если он выбран, то его нужно пересериализировать
@@ -269,7 +269,7 @@ namespace VSIXProjectHelloWorld
 
             foreach (var variable in m_OBOV_Variables)
             {
-                string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+                string pathOfVariable = variable.m_S_Addres; // ключ в Dictionary m_L_Paths
 
                 bool isSelected = m_L_Paths[pathOfVariable].Item1;
                 bool isSerialized = m_L_Paths[pathOfVariable].Item2;
@@ -277,6 +277,7 @@ namespace VSIXProjectHelloWorld
                 if (isSerialized) // если переменная уже сериализована (то есть данные о ней записаны в файл){
                 {
                     files.Add(Tuple.Create(pathOfVariable, false)); // указываем, что эту переменную НЕ надо перезагружать 
+                    System.Threading.Thread.Sleep(1);
                     host.visibilityGeomView(pathOfVariable, isSelected); // если переменная выбрана для показа (isSelected)
                 }
                 else // если переменная несериализована (данных о ней нет в файле или их необходимо обновить)
@@ -300,7 +301,7 @@ namespace VSIXProjectHelloWorld
 
                 foreach (var variable in variables)
                 {
-                    string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+                    string pathOfVariable = variable.m_S_Addres; // ключ в Dictionary m_L_Paths
                     bool isSelected = m_L_Paths[pathOfVariable].Item1;
 
                     m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(isSelected, true);
@@ -327,7 +328,7 @@ namespace VSIXProjectHelloWorld
 
             foreach (var variable in m_OBOV_Variables)
             {
-                string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+                string pathOfVariable = variable.m_S_Addres; // ключ в Dictionary m_L_Paths
 
                 bool isSelected = tempPaths[pathOfVariable].Item1;
                 Tuple<bool, bool> tuple = new Tuple<bool, bool>(isSelected, false);
@@ -355,7 +356,7 @@ namespace VSIXProjectHelloWorld
                             /*
                              * Тут мы должны проверить два случая, является переменная isSerialized или нет 
                             */
-                            string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+                            string pathOfVariable = variable.m_S_Addres; // ключ в Dictionary m_L_Paths
                             bool isSerialized = m_L_Paths[pathOfVariable].Item2; // получаем информацию, сериализована ли переменная
                             variable.PropertyChanged -= Variable_PropertyChanged; // отписваемся от изменений, из-за них вызовется лишняя функция
                             variable.m_B_IsSelected = false;
@@ -388,7 +389,7 @@ namespace VSIXProjectHelloWorld
                              * Тут мы должны проверить два случая, является переменная isSerialized или нет 
                             */
 
-                            string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+                            string pathOfVariable = variable.m_S_Addres; // ключ в Dictionary m_L_Paths
                             bool isSerialized = m_L_Paths[pathOfVariable].Item2; // получаем информацию, сериализована ли переменная
                             variable.PropertyChanged -= Variable_PropertyChanged; // отписваемся от изменений, из-за них вызовется лишняя функция
                             variable.m_B_IsSelected = true;
@@ -418,13 +419,13 @@ namespace VSIXProjectHelloWorld
                         variable.m_B_IsAdded = false; // то мы меняем его isAdded - false
                         variable.m_B_IsSelected = false; // isSelected - false
 
-                        string pathOfVariable = variable.m_S_Type + "_" + variable.m_S_Name; // ключ в Dictionary m_L_Paths
+                        string pathOfVariable = variable.m_S_Addres; // ключ в Dictionary m_L_Paths
 
                         m_L_Paths.Remove(pathOfVariable); // мы должны удалить эту переменную из визуализации в geomView
 
                         /*
                          * Грубо говоря, пользователь вообще не добавлял эти переменные через окно AddVariables
-                         */
+                        */
                     }
                 }
 
@@ -432,7 +433,7 @@ namespace VSIXProjectHelloWorld
 
                 foreach (var variable in m_OBOV_Variables) // проходимся по всем переменным в m_OBOV_Variables (наша цель найти все переменные, которые НЕ isAdded)
                 {
-                    if (variable.m_B_IsAdded != false) // если переменная isAdded, то мы сохраняем ее в List variables
+                    if (variable.m_B_IsAdded) // если переменная isAdded, то мы сохраняем ее в List variables
                         variables.Add(variable);
                     else // иначе просто пропускаем (мы с ней ничего не хотим делать - в данном случае отрисосвывать)
                         continue;

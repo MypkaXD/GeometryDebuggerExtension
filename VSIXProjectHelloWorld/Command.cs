@@ -89,7 +89,7 @@ namespace VSIXProjectHelloWorld
         /// <param name="sender">Event sender.</param>
         /// <param name="e">Event args.</param>
 
-        private bool isInit = false;
+        private bool isSet = false;
         private System.Windows.Window window;
         private GeometryDebugger geometryDebugger;
 
@@ -97,12 +97,13 @@ namespace VSIXProjectHelloWorld
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             
-            window = new System.Windows.Window();
-            if (isInit == false)
+            if (!isSet)
             {
+                window = new System.Windows.Window();
                 geometryDebugger = new GeometryDebugger(); // create UI with WPF
-                isInit = true;
+                isSet = true;
             }
+
             window.Content = geometryDebugger; // set content on our ui
             window.Show(); // show this window
         }

@@ -73,7 +73,7 @@ void printMessage() {
 class Variable {
 public:
 
-	void* m_S_Addres;
+	std::string m_S_Addres;
 	std::string m_S_Name;
 	std::string m_S_Type;
 	int m_I_R;
@@ -82,7 +82,7 @@ public:
 
 
 	Variable(std::string name, std::string type,
-		void* addres, int r, int g, int b) :
+		std::string addres, int r, int g, int b) :
 		m_S_Name(name), m_S_Type(type), m_S_Addres(addres),
 		m_I_R(r), m_I_G(g), m_I_B(b)
 	{
@@ -108,7 +108,7 @@ void parser() {
 
 	std::string name;
 	std::string type;
-	void* addres = nullptr;
+	std::string addres;
 	int R, G, B = 255;
 
 	for (int i = 0; i < message.size(); ++i) {
@@ -138,15 +138,9 @@ void parser() {
 		{
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
 			//std::cout << pos << std::endl;
-			std::string currentAddres = message.substr(i, pos - i);
-			i += currentAddres.size();
+			addres = message.substr(i, pos - i);
+			i += addres.size();
 			states = statesOfGettingVariables::GET_COLOR;
-			uint64_t number = strtoull(currentAddres.c_str(), nullptr, 16);
-			void* ptr = reinterpret_cast<void*>(number);
-			//std::cout << "”казатель: " << ptr << std::endl;
-
-			addres = ptr;
-
 			break;
 		}
 		case GET_COLOR:
@@ -205,8 +199,28 @@ void RegisterType(const Variable& o) {
 	//std::cout << typeIdName << std::endl;
 
 	if (typeIdName == o.m_S_Type) {
-		T* ptr = static_cast<T*>(o.m_S_Addres);
-		serialize(ptr, o.m_S_Type, o.m_S_Name, o.m_I_R, o.m_I_G, o.m_I_B);
+
+		std::cout << "FIND SERIALIZATOR FOR " << o.m_S_Type << std::endl;
+
+		std::string message = "";
+
+		uint64_t number = strtoull(o.m_S_Addres.c_str(), nullptr, 16);
+		void* ptrOfVariable = reinterpret_cast<void*>(number);
+
+		T* ptr = static_cast<T*>(ptrOfVariable);
+		message = serialize(ptr, o.m_S_Type, o.m_S_Name, o.m_I_R, o.m_I_G, o.m_I_B);
+	
+		std::cout << "ENDED SERIALIZE." << std::endl;
+
+		if (message.size() != 0) {
+
+			std::fstream file;
+			file.open(o.m_S_Addres + ".txt", std::ios::out);
+
+			if (file.is_open()) {
+				file << message;
+			}
+		}
 	}
 }
 
@@ -216,6 +230,7 @@ std::string SerializeObjects(const std::vector<Variable>& objects) {
 	for (const auto& o : objects) {
 		RegisterType<Vector>(o);
 		RegisterType<Circle>(o);
+		RegisterType<std::vector<Circle>>(o);
 	}
 
 	//std::cout << buffer << std::endl;
@@ -280,7 +295,7 @@ void Serialize() {
 	parser();
 
 	for (int i = 0; i < m_VOV_Variables.size(); ++i) {
-		//std::cout << "NAME: " << m_VOV_Variables[i].m_S_Name << " TYPE: " << m_VOV_Variables[i].m_S_Type << " ADDRESS: " << m_VOV_Variables[i].m_S_Addres << std::endl;
+		std::cout << "NAME: " << m_VOV_Variables[i].m_S_Name << " TYPE: " << m_VOV_Variables[i].m_S_Type << " ADDRESS: " << m_VOV_Variables[i].m_S_Addres << std::endl;
 	}
 
 	//std::cout << "before serialize" << std::endl;
@@ -305,13 +320,19 @@ int main() {
 	Circle circle2 = Circle(15, Vector(0, 0, 0), Vector(0, 1, 1));
 	Circle circle3 = Circle(10, Vector(0, 0, 0), Vector(1, 1, 1));
 
+	std::vector<Circle> circles(3);
+	for (int i = 0; i < circles.size(); ++i) {
+		circles[i] = Circle((i+1)*5, Vector(0,0,0), Vector(0,0,1));
+	}
+
 	double step = 1;
 
-	while (true) {
+	while (a < 10) {
 		circle.setRadius(circle.getRadius() + step);
-		circle2.setRadius(circle2.getRadius() - step);
+		circle2.setRadius(circle2.getRadius() + step);
 		circle3.setRadius(circle3.getRadius() + step);
 		step += 0.5;
+		++a;
 	}
 
 	int b = 4;

@@ -59,7 +59,8 @@ namespace VSIXProjectHelloWorld
                         m_C_Color = new Utils.Color(255, 0, 0)
                     };
 
-                    variables.Add(currentVariable);
+                    if (!isContainVariable(currentVariable, variables))
+                        variables.Add(currentVariable);
                 }
                 else
                     System.Diagnostics.Debug.WriteLine($"ERROR: Can't get addres for value {localVariable.Name}");
@@ -84,6 +85,17 @@ namespace VSIXProjectHelloWorld
             AutomationElement mainWindow = AutomationElement.FromHandle(customToolWindow.HWnd);
             PrintAutomationElement(mainWindow, ref variables);
         }
+
+        private bool isContainVariable(Variable variable, ObservableCollection<Variable> variables)
+        {
+            foreach (var currentVariable in variables)
+            {
+                if (variable.m_S_Addres == currentVariable.m_S_Addres && variable.m_S_Type == currentVariable.m_S_Type && variable.m_S_Name == currentVariable.m_S_Name)
+                    return true;
+            }
+            return false;
+        }
+
         private void GetElementsFromTreeGreed(AutomationElement element, ref ObservableCollection<Variable> variables)
         {
             string name = element.Current.Name;
@@ -106,7 +118,8 @@ namespace VSIXProjectHelloWorld
                         m_C_Color = new Utils.Color(0, 255, 0)
                     };
 
-                    variables.Add(variable);
+                    if (!isContainVariable(variable, variables))
+                        variables.Add(variable);
                 }
             }
             else

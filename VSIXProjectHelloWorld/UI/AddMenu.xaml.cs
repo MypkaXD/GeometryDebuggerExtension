@@ -149,12 +149,27 @@ namespace VSIXProjectHelloWorld
         {
             Variable variable = m_DGV_debugger.GetElemetFromExpression(MySelfAddedVariables.Text);
 
-            if (variable != null)
+            ObservableCollection<Variable> variables = new ObservableCollection<Variable>(
+                m_OBOV_variablesFromWathList
+                .Union(m_OBOV_variablseFromCurrentStackFrame)
+                .Union(m_OBOV_variablseFromMyselfAdded));
+            
+            if (variable != null && !isContainVariable(variable, variables))
                 m_OBOV_variablseFromMyselfAdded.Add(variable);
             else
                 return;
 
             UpdateData();
+        }
+
+        private bool isContainVariable(Variable variable, ObservableCollection<Variable> variables)
+        {
+            foreach (var currentVariable in variables)
+            {
+                if (currentVariable.m_S_Addres == variable.m_S_Addres && currentVariable.m_S_Name == variable.m_S_Name && currentVariable.m_S_Type == variable.m_S_Type)
+                    return true;
+            }
+            return false;
         }
 
         private void SetOnlyAddedVariable()
@@ -168,7 +183,7 @@ namespace VSIXProjectHelloWorld
 
             foreach (var variable in temp)
             {
-                if (variable.m_B_IsAdded)
+                if (variable.m_B_IsAdded && !isContainVariable(variable, m_OBOV_Variables))
                 {
                     m_OBOV_Variables.Add(variable);
                 }
