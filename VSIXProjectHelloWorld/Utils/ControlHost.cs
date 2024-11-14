@@ -53,6 +53,7 @@ namespace VSIXProjectHelloWorld.Utils
 
         protected override HandleRef BuildWindowCore(HandleRef hwndParent)
         {
+            System.Diagnostics.Debug.WriteLine("OPEN");
             IntPtr hwndControl = createGLtoolWindow(hwndParent.Handle);
             return new HandleRef(this, hwndControl);
         }
@@ -60,6 +61,12 @@ namespace VSIXProjectHelloWorld.Utils
         protected override void DestroyWindowCore(HandleRef hwnd)
         {
             destroyGLtoolWindow(hwnd.Handle);
+            System.Diagnostics.Debug.WriteLine("CLOSED");
+        }
+
+        public void Psevdo()
+        {
+            destroyGLtoolWindow(IntPtr.Zero);
         }
 
         public void visibilityGeomView(string path, bool isVisible)

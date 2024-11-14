@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
+using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Globalization;
 using System.Threading;
@@ -89,6 +90,24 @@ namespace VSIXProjectHelloWorld
         /// <param name="sender">Event sender.</param>
         /// <param name="e">Event args.</param>
 
+        //private bool isSet = false;
+        //private System.Windows.Window window;
+        //private GeometryDebugger geometryDebugger;
+
+        //private void Execute(object sender, EventArgs e)
+        //{
+        //    ThreadHelper.ThrowIfNotOnUIThread();
+
+        //    if (!isSet)
+        //    {
+        //        window = new System.Windows.Window();
+        //        geometryDebugger = new GeometryDebugger(); // create UI with WPF
+        //        isSet = true;
+        //    }
+
+        //    window.Content = geometryDebugger; // set content on our ui
+        //    window.Show(); // show this window
+        //}
         private bool isSet = false;
         private System.Windows.Window window;
         private GeometryDebugger geometryDebugger;
@@ -96,16 +115,20 @@ namespace VSIXProjectHelloWorld
         private void Execute(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            
-            if (!isSet)
-            {
-                window = new System.Windows.Window();
-                geometryDebugger = new GeometryDebugger(); // create UI with WPF
-                isSet = true;
-            }
+
+            window = new System.Windows.Window();
+            geometryDebugger = new GeometryDebugger(); // create UI with WPF
 
             window.Content = geometryDebugger; // set content on our ui
             window.Show(); // show this window
+
+            window.Closing += ClosedGeometryDebugger;
         }
+
+        private void ClosedGeometryDebugger(object sender, CancelEventArgs e)
+        {
+            geometryDebugger.CloseOpenGLContext();
+        }
+
     }
 }

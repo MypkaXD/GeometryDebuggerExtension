@@ -23,6 +23,7 @@
             <Button Click="btnOpenAddMenu_Click">
                 <Image Width="50" Height="25" Source="C:\\dev\\Source\\GeomDebugger\\images\\Add.png"/>
             </Button>
+            <Button Click="Button_Click" Width="50" Name="ASD"></Button>
         </StackPanel>
         <GridSplitter Grid.Column="0" Grid.Row="2" Height="5" HorizontalAlignment="Stretch"/>
         <DataGrid Grid.Row="1" Grid.Column="0" Name="dgObjects" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" HorizontalAlignment="Left">

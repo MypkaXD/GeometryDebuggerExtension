@@ -61,6 +61,8 @@ namespace VSIXProjectHelloWorld
 
                     if (!isContainVariable(currentVariable, variables))
                         variables.Add(currentVariable);
+                    else
+                        System.Windows.MessageBox.Show("ERROR: A variable with this address: " + currentVariable.m_S_Addres + " is already in the table.\nIt will not be added to it.");
                 }
                 else
                     System.Diagnostics.Debug.WriteLine($"ERROR: Can't get addres for value {localVariable.Name}");
@@ -120,6 +122,8 @@ namespace VSIXProjectHelloWorld
 
                     if (!isContainVariable(variable, variables))
                         variables.Add(variable);
+                    else
+                        System.Windows.MessageBox.Show("ERROR: A variable with this address: " + variable.m_S_Addres + " is already in the table.\nIt will not be added to it.");
                 }
             }
             else

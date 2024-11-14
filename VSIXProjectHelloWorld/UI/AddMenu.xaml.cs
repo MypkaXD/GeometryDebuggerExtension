@@ -154,8 +154,13 @@ namespace VSIXProjectHelloWorld
                 .Union(m_OBOV_variablseFromCurrentStackFrame)
                 .Union(m_OBOV_variablseFromMyselfAdded));
             
-            if (variable != null && !isContainVariable(variable, variables))
-                m_OBOV_variablseFromMyselfAdded.Add(variable);
+            if (variable != null)
+            {
+                if (!isContainVariable(variable, variables))
+                    m_OBOV_variablseFromMyselfAdded.Add(variable);
+                else
+                    System.Windows.MessageBox.Show("ERROR: A variable with this address: " + variable.m_S_Addres + " is already in the table.\nIt will not be added to it.");
+            }
             else
                 return;
 
@@ -166,7 +171,7 @@ namespace VSIXProjectHelloWorld
         {
             foreach (var currentVariable in variables)
             {
-                if (currentVariable.m_S_Addres == variable.m_S_Addres && currentVariable.m_S_Name == variable.m_S_Name && currentVariable.m_S_Type == variable.m_S_Type)
+                if (currentVariable.m_S_Addres == variable.m_S_Addres)
                     return true;
             }
             return false;

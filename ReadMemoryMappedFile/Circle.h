@@ -1,43 +1,64 @@
 #include "Vector.h"
+#include "Curve.h"
+
+#define _USE_MATH_DEFINES
+
+#include <math.h>
 
 #pragma once
 
-class Circle {
+class Circle : public Curve {
 private:
 
 	double m_r;
-	Vector m_normal;
 	Vector m_center;
+
+    Vector getPointInLocalSK(const double& phi) const {
+        return Vector(m_r * cos(phi), m_r * sin(phi), 0);
+    }
 
 public:
 
 	Circle() {
 		m_r = 1;
-		m_normal = Vector(0, 0, 1);
 		m_center = Vector(0, 0, 0);
-	}
+        Curve::setNormal(Vector(0,0,1));
+        Curve::setBasis();
+    }
 	Circle(double r) :
 		m_r(r)
 	{
-		m_normal = Vector(0, 0, 1);
 		m_center = Vector(0, 0, 0);
+        
+        Curve::setNormal(Vector(0, 0, 1));
+
+        Curve::setBasis();
 	}
 	Circle(double r, Vector center, Vector normal) :
-		m_r(r), m_center(center), m_normal(normal) {
-	}
+		m_r(r), m_center(center) {
+        Curve::setNormal(normal);
+        Curve::setBasis();
+    }
 
-	double getRadius() const {
+	double getRadius() override {
 		return m_r;
 	}
-	Vector getNormal() const {
-		return m_normal;
-	}
-	Vector getCenter() const {
+
+	Vector getCenter() override {
 		return m_center;
 	}
 
     void setRadius(const double& radius) {
         m_r = radius;
+    }
+
+    Vector getPoint(const double& phi) override {
+
+        Vector currentPoint = getPointInLocalSK(phi);
+
+        currentPoint.transformToOtherSK(Curve::getXComp(), Curve::getYComp(), Curve::getNormal());
+        
+        return currentPoint + getCenter();
     }
 };
 
@@ -50,10 +71,8 @@ std::string serialize(Circle* value, std::string typeName, std::string variableN
 
     for (int i = 0; i < countOfCircle; ++i) {
         double phi = 2 * M_PI * i / countOfCircle;
-        double x = value->getCenter().getX() + value->getRadius() * cos(phi);
-        double y = value->getCenter().getY() + value->getRadius() * sin(phi);
-        double z = value->getCenter().getZ();
-        coords.push_back(std::make_tuple(x, y, z));
+        Vector coord = value->getPoint(phi);
+        coords.push_back(std::make_tuple(coord.getX(), coord.getY(), coord.getZ()));
     }
 
     // Формирование строк для записи сегментов круга

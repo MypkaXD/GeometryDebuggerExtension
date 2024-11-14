@@ -26,5 +26,14 @@
     <ClInclude Include="Vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Curve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Edge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

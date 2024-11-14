@@ -132,6 +132,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Circle.h" />
+    <ClInclude Include="Curve.h" />
+    <ClInclude Include="Edge.h" />
+    <ClInclude Include="Triangle.h" />
     <ClInclude Include="Vector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
