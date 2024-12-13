@@ -429,6 +429,8 @@ namespace GeometryDebugger.UI
                 return;
             else // если же пользователь выбрал элементы для удаления (в данном случае), т.е. dgObjects.SelectedItems.Count != 0
             {
+                List<Variable> variablesOnDelete = new List<Variable>(); // создаем временный лист, хранящий переменные, которые isAdded
+
                 foreach (var item in dgObjects.SelectedItems) // проходимся по каждому элементу, который пользователь хочет удалить
                 {
                     if (item is Variable) // если этот элемент - переменная
@@ -439,31 +441,46 @@ namespace GeometryDebugger.UI
                         variable.m_B_IsAdded = false; // то мы меняем его isAdded - false
                         variable.m_B_IsSelected = false; // isSelected - false
 
-                        string pathOfVariable = pathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
-
-                        m_L_Paths.Remove(pathOfVariable); // мы должны удалить эту переменную из визуализации в geomView
-
-                        /*
-                         * Грубо говоря, пользователь вообще не добавлял эти переменные через окно AddVariables
-                        */
+                        variablesOnDelete.Add(variable);
                     }
                 }
 
-                List<Variable> variables = new List<Variable>(); // создаем временный лист, хранящий переменные, которые isAdded
 
-                foreach (var variable in m_OBOV_Variables) // проходимся по всем переменным в m_OBOV_Variables (наша цель найти все переменные, которые НЕ isAdded)
+                foreach (var variable in variablesOnDelete) // проходимся по всем переменным в m_OBOV_Variables (наша цель найти все переменные, которые НЕ isAdded)
                 {
-                    if (variable.m_B_IsAdded) // если переменная isAdded, то мы сохраняем ее в List variables
-                        variables.Add(variable);
-                    else // иначе просто пропускаем (мы с ней ничего не хотим делать - в данном случае отрисосвывать)
-                        continue;
+                    if (m_OBOV_Variables.Contains(variable))
+                    {
+                        string pathOfVariable = pathForFile + variable.m_S_Addres;
+
+                        m_L_Paths.Remove(pathForFile);
+                        m_OBOV_Variables.Remove(variable);
+                    }
                 }
 
-                m_OBOV_Variables = new ObservableCollection<Variable>(variables); // приравнием в m_OBOV_Variables List variables
                 dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую
 
-                draw(); // перерисовка
+                delete();
             }
+        }
+        
+        private void delete()
+        {
+            List<Tuple<string, bool>> files = new List<Tuple<string, bool>>();
+
+            foreach (var variable in m_OBOV_Variables)
+            {
+                string pathOfVariable = pathForFile + variable.m_S_Addres;
+
+                bool isSelected = m_L_Paths[pathOfVariable].Item1;
+                bool isSerialized = m_L_Paths[pathOfVariable].Item2;
+
+                if (isSerialized) // если переменная уже сериализована (то есть данные о ней записаны в файл){
+                    files.Add(Tuple.Create(pathOfVariable, isSelected)); // указываем, что эту переменную НЕ надо перезагружать 
+                else // если переменная несериализована (данных о ней нет в файле или их необходимо обновить)
+                    continue;
+            }
+
+            host.reloadGeomView(files, globalPath);
         }
 
         private void GeometryDebuggerUnLoaded(object sender, RoutedEventArgs e)
@@ -471,15 +488,6 @@ namespace GeometryDebugger.UI
             //host.destroyOpenGLWindow(IntPtr.Zero);
         }
 
-        private void ASDSA_Click(object sender, RoutedEventArgs e)
-        {
-            if (m_OBOV_Variables.Count >= 2)
-            {
-                Variable temp = m_OBOV_Variables[0];
-                m_OBOV_Variables[0] = m_OBOV_Variables[m_OBOV_Variables.Count - 1];
-                m_OBOV_Variables[m_OBOV_Variables.Count - 1] = temp;
-            }
-        }
         private void MenuItemToDown_Click(object sender, RoutedEventArgs e)
         {
             if (dgObjects.SelectedItems.Count == 0) // Если нет выбранных элементов
@@ -513,10 +521,8 @@ namespace GeometryDebugger.UI
                 dgObjects.SelectedItems.Add(variable);
             }
 
-            draw();
+            reorder();
         }
-
-
         private void MenuItemToUp_Click(object sender, RoutedEventArgs e)
         {
             if (dgObjects.SelectedItems.Count == 0) // Если нет выбранных элементов
@@ -549,7 +555,7 @@ namespace GeometryDebugger.UI
                 dgObjects.SelectedItems.Add(variable);
             }
 
-            draw();
+            reorder();
         }
         private void MenuItemToBottom_Click(object sender, RoutedEventArgs e)
         {
@@ -585,9 +591,8 @@ namespace GeometryDebugger.UI
                 dgObjects.SelectedItems.Add(variable);
             }
 
-            draw();
+            reorder();
         }
-
         private void MenuItemToTop_Click(object sender, RoutedEventArgs e)
         {
             if (dgObjects.SelectedItems.Count == 0) // Если нет выбранных элементов
@@ -622,7 +627,27 @@ namespace GeometryDebugger.UI
                 dgObjects.SelectedItems.Add(variable);
             }
 
-            draw(); // изменяем порядок отрисовки
+            reorder(); // изменяем порядок отрисовки
+        }
+
+        private void reorder()
+        {
+            List<Tuple<string, bool>> files = new List<Tuple<string, bool>>();
+
+            foreach (var variable in m_OBOV_Variables)
+            {
+                string pathOfVariable = pathForFile + variable.m_S_Addres;
+
+                bool isSelected = m_L_Paths[pathOfVariable].Item1;
+                bool isSerialized = m_L_Paths[pathOfVariable].Item2;
+
+                if (isSerialized) // если переменная уже сериализована (то есть данные о ней записаны в файл){
+                    files.Add(Tuple.Create(pathOfVariable, isSelected)); // указываем, что эту переменную НЕ надо перезагружать 
+                else // если переменная несериализована (данных о ней нет в файле или их необходимо обновить)
+                    continue;
+            }
+
+            host.reloadGeomView(files, globalPath);
         }
     }
 }
