@@ -16,13 +16,13 @@ namespace GeometryDebugger.UI
             InitializeComponent();
 
             Loaded += GeometryDebuggerToolWindowLoaded;
+            Unloaded += GeometryDebuggerToolWindowUnloaded;
         }
 
         public void GeometryDebuggerToolWindowLoaded(object sender, RoutedEventArgs e)
         {
             SubscribeOnDebugEvents();
         }
-
 
         public void SubscribeOnDebugEvents()
         {
@@ -53,6 +53,12 @@ namespace GeometryDebugger.UI
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             Debug.WriteLine($"EnterBreakMode: reason={reason}");
+        }
+
+        private void GeometryDebuggerToolWindowUnloaded(object sender, EventArgs e)
+        {
+            UnsubscribeFromDebugEvents();
+            Debug.WriteLine("Tool window closed.");
         }
     }
 }

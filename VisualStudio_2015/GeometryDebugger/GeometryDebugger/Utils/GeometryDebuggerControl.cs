@@ -17,27 +17,5 @@ namespace GeometryDebugger.Utils
             m_ui = new GeometryDebuggerToolWindow();
             this.Content = m_ui;
         }
-
-        protected override void Initialize()
-        {
-            base.Initialize();
-
-            // Убедиться, что выполняется в UI-потоке
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            // Подписка на события
-            m_ui.SubscribeOnDebugEvents();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                // Отписываемся от событий, если требуется
-                m_ui?.UnsubscribeFromDebugEvents();
-            }
-
-            base.Dispose(disposing);
-        }
     }
 }
