@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="GeometryDebugger.MypkaXD.7e05b753-c49a-4be1-99f8-d85be5e49413" Version="1.0" Language="en-US" Publisher="MypkaXD" />
-    <DisplayName>GeometryDebugger</DisplayName>
+    <Identity Id="VSIXProject1.MypkaXD.1cc54f65-6c0a-4420-b635-f7bc33412718" Version="1.0" Language="en-US" Publisher="MypkaXD" />
+    <DisplayName>VSIXProject1</DisplayName>
     <Description>Empty VSIX Project.</Description>
   </Metadata>
   <Installation>
