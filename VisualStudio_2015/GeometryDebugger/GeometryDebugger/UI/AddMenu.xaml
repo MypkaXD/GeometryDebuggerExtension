@@ -3,10 +3,91 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:GeometryDebugger.UI"
+             xmlns:local="clr-namespace:GeometryDebugger.Utils"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+                      d:DesignHeight="800" d:DesignWidth="600">
+    <UserControl.Resources>
+        <local:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
+    </UserControl.Resources>
     <Grid>
-            
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+            <TextBox Name="MySelfAddedVariables" Width="100"></TextBox>
+            <CheckBox Name="WL" Click="ButtonWatchList_Click" IsChecked="False">
+                <CheckBox.Template>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Border Background="Transparent">
+                            <Image x:Name="CheckBoxImage" Width="32" Height="32"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- Триггер для состояния IsChecked=True -->
+                            <Trigger Property="IsChecked" Value="True">
+                                <!--<Setter TargetName="CheckBoxImage" Property="Source" Value="C:\dev\Source\GeomDebugger\images\wl.png"/>-->
+                            </Trigger>
+                            <!-- Триггер для состояния IsChecked=False -->
+                            <Trigger Property="IsChecked" Value="False">
+                                <!--<Setter TargetName="CheckBoxImage" Property="Source" Value="C:\dev\Source\GeomDebugger\images\nwl.png"/>-->
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </CheckBox.Template>
+            </CheckBox>
+            <CheckBox Name="CF" Click="ButtonCurrentStackFrame_Click" IsChecked="False">
+                <CheckBox.Template>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Border Background="Transparent">
+                            <Image x:Name="CheckBoxImage" Width="32" Height="32"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- Триггер для состояния IsChecked=True -->
+                            <Trigger Property="IsChecked" Value="True">
+                                <!--<Setter TargetName="CheckBoxImage" Property="Source" Value="C:\dev\Source\GeomDebugger\images\cf.png"/>-->
+                            </Trigger>
+                            <!-- Триггер для состояния IsChecked=False -->
+                            <Trigger Property="IsChecked" Value="False">
+                                <!--<Setter TargetName="CheckBoxImage" Property="Source" Value="C:\dev\Source\GeomDebugger\images\ncf.png"/>-->
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </CheckBox.Template>
+            </CheckBox>
+            <Button Click="ButtonImport_Click" Background="White">
+                <!--<Image Width="32" Height="32" Source="C:\\dev\\Source\\GeomDebugger\\images\\export.png"/>-->
+            </Button>
+            <Button Content="Add variables from TextBox" Click="ButtonMyselfAdded_Click" Loaded="Loaded"></Button>
+        </StackPanel>
+        <DataGrid Grid.Row="1" Grid.Column="0" Name="dgAddVariables" HorizontalAlignment="Left" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Select" Click="MenuItemAddForImport_Click"/>
+                    <MenuItem Header="Unselect" Click="MenuItemAddForIsntImport_Click"/>
+                    <MenuItem Header="Delete" Click="MenuItemDelete_Click"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Width="Auto" Header="IsAdded" Binding="{Binding m_B_IsAdded, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></DataGridCheckBoxColumn>
+                <DataGridTemplateColumn Width="50" Header="Color">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button x:Name="ColorDisplay" 
+                Background="{Binding m_C_Color, Converter={StaticResource ColorToBrushConverter}}" 
+                Width="50" 
+                Height="Auto" 
+                Click="ColorDisplay_Click"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Width="*" IsReadOnly="True" Header="Name" Binding="{Binding m_S_Name}"></DataGridTextColumn>
+                <DataGridTextColumn Width="*" IsReadOnly="True" Header="Type" Binding="{Binding m_S_Type}"></DataGridTextColumn>
+                <DataGridTextColumn Width="*" IsReadOnly="True" Header="Addres" Binding="{Binding m_S_Addres}"></DataGridTextColumn>
+                <DataGridTextColumn Width="Auto" IsReadOnly="True" Header="Source" Binding="{Binding m_S_Source}"></DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </UserControl>

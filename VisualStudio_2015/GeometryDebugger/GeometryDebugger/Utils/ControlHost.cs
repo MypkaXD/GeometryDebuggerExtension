@@ -14,24 +14,22 @@ namespace GeometryDebugger.Utils
     }
     public class ControlHost : HwndHost
     {
-        [DllImport("C:\\Users\\MypkaXD\\Desktop\\wpfOpenGL\\x64\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [DllImport("C:\\dev\\Source\\LearningWPF\\VisualStudio_2015\\GeometryDebugger\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         public static extern IntPtr createGLtoolWindow(IntPtr hWndParent = default(IntPtr));
 
-        [DllImport("C:\\Users\\MypkaXD\\Desktop\\wpfOpenGL\\x64\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("C:\\dev\\Source\\LearningWPF\\VisualStudio_2015\\GeometryDebugger\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void destroyGLtoolWindow(IntPtr hwnd);
 
-        [DllImport("C:\\Users\\MypkaXD\\Desktop\\wpfOpenGL\\x64\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void reload(ref StringArrayData data);
+        [DllImport("C:\\dev\\Source\\LearningWPF\\VisualStudio_2015\\GeometryDebugger\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void reload(ref StringArrayData data, bool resetCamera);
 
-        [DllImport("C:\\Users\\MypkaXD\\Desktop\\wpfOpenGL\\x64\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("C:\\dev\\Source\\LearningWPF\\VisualStudio_2015\\GeometryDebugger\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void visibilities(ref StringArrayData data);
 
-        int hostHeight, hostWidth;
+        private bool isFirst = true;
 
-        public ControlHost(double height, double width)
+        public ControlHost()
         {
-            hostHeight = (int)height;
-            hostWidth = (int)width;
         }
 
         protected override HandleRef BuildWindowCore(HandleRef hwndParent)
@@ -97,7 +95,8 @@ namespace GeometryDebugger.Utils
             };
 
             // Передаем структуру в C++
-            reload(ref data);
+            reload(ref data, isFirst);
+            isFirst = false;
 
             // Освобождаем память
             foreach (IntPtr ptr in stringPtrs)
