@@ -98,27 +98,22 @@ void parser() {
 		case GET_NAME:
 		{
 			pos = message.find('|', i) == std::string::npos ? message.size() - 1 : message.find('|', i);
-			//std::cout << pos << std::endl;
 			name = message.substr(i, pos - i);
 			i += name.size();
 			states = statesOfGettingVariables::GET_TYPE;
-			//std::cout << "NAME: " << name << std::endl;
 			break;
 		}
 		case GET_TYPE:
 		{
 			pos = message.find('|', i) == std::string::npos ? message.size() - 1 : message.find('|', i);
-			//std::cout << pos << std::endl;
 			type = message.substr(i, pos - i);
 			i += type.size();
 			states = statesOfGettingVariables::GET_ADDRES;
-			//std::cout << "TYPE: " << type << std::endl;
 			break;
 		}
 		case GET_ADDRES:
 		{
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
-			//std::cout << pos << std::endl;
 			addres = message.substr(i, pos - i);
 			i += addres.size();
 			states = statesOfGettingVariables::GET_COLOR;
@@ -129,17 +124,17 @@ void parser() {
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
 			R = std::stof(message.substr(i, pos - i));
 			i += message.substr(i, pos - i).size() + 1;
-			std::cout << "R: " << R << std::endl;
+			std::cout << R << std::endl;
 
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
 			G = std::stof(message.substr(i, pos - i));
 			i += message.substr(i, pos - i).size() + 1;
-			std::cout << "G: " << G << std::endl;
+			std::cout << G << std::endl;
 
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
 			B = std::stof(message.substr(i, pos - i));
 			i += message.substr(i, pos - i).size();
-			std::cout << "B: " << B << std::endl;
+			std::cout << B << std::endl;
 
 			m_VOV_Variables.push_back(Variable(name, type, addres, R, G, B));
 
@@ -166,8 +161,6 @@ std::string getCurrentDir() {
 void writeMemoryMappedFile() {
 
 	std::string path = getCurrentDir();
-
-	std::cout << path << std::endl;
 
 	size_t dataSize = path.size() + 1;
 
@@ -238,8 +231,6 @@ void RegisterType(const Variable& o) {
 
 	if (typeIdName == o.m_S_Type) {
 
-		std::cout << "FIND SERIALIZATOR FOR " << o.m_S_Type << std::endl;
-
 		std::string message = "";
 
 		uint64_t number = strtoull(o.m_S_Addres.c_str(), nullptr, 16);
@@ -247,8 +238,6 @@ void RegisterType(const Variable& o) {
 
 		T* ptr = static_cast<T*>(ptrOfVariable);
 		message = serialize(ptr, o.m_S_Name, o.m_I_R, o.m_I_G, o.m_I_B);
-
-		std::cout << "ENDED SERIALIZE." << std::endl;
 
 		if (message.size() != 0) {
 
