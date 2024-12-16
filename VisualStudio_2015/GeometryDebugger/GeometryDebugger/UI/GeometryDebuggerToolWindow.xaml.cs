@@ -15,16 +15,17 @@ namespace GeometryDebugger.UI
 {
     public partial class GeometryDebuggerToolWindow : UserControl
     {
-        private string pathForFile = "vis_dbg_";
-        private string globalPath = "";
-        private string message { get; set; }
-        private bool isSet = false;
+        private string m_S_PathForFile = "vis_dbg_";
+        private string m_S_GlobalPath = "";
+        private string m_S_Message { get; set; }
 
-        private DebuggerGetterVariables m_DGV_debugger;
-        private AddMenu addMenu;
-        private System.Windows.Window addWindow;
-        private DebuggerEvents m_DE_debuggerEvents;
-        private ControlHost host;
+        private bool m_B_IsSet = false;
+
+        private DebuggerGetterVariables m_DGV_Debugger;
+        private AddMenu m_AM_AddMenu;
+        private System.Windows.Window m_W_AddWindow;
+        private DebuggerEvents m_DE_DebuggerEvents;
+        private ControlHost m_CH_Host;
         private Dictionary<string, Tuple<bool, bool>> m_L_Paths;
 
         private ObservableCollection<Variable> _m_OBOV_Variables;
@@ -62,12 +63,12 @@ namespace GeometryDebugger.UI
         {
             InitializeComponent();
 
+            m_DGV_Debugger = new DebuggerGetterVariables();
+
             Loaded += GeometryDebuggerToolWindowLoaded;
             Unloaded += GeometryDebuggerToolWindowUnloaded;
 
-            m_DGV_debugger = new DebuggerGetterVariables();
-
-            addMenu = new AddMenu(m_DGV_debugger);
+            m_AM_AddMenu = new AddMenu(m_DGV_Debugger);
             m_L_Paths = new Dictionary<string, Tuple<bool, bool>>();
             m_OBOV_Variables = new ObservableCollection<Variable>();
 
@@ -76,52 +77,58 @@ namespace GeometryDebugger.UI
 
         private void InitAddWindowComponent()
         {
-            addWindow = new System.Windows.Window
+            m_W_AddWindow = new System.Windows.Window
             {
                 Title = "Add Variable",
-                Content = addMenu,
+                Content = m_AM_AddMenu,
                 Height = 800,
                 Width = 600,
                 SizeToContent = SizeToContent.Height,
                 WindowStartupLocation = WindowStartupLocation.CenterScreen
             };
 
-            addWindow.Closing += OnAddWindowClosing;
+            m_W_AddWindow.Closing += OnAddWindowClosing;
         }
 
         public void GeometryDebuggerToolWindowLoaded(object sender, RoutedEventArgs e)
         {
-            host = new ControlHost();
+            m_CH_Host = new ControlHost();
             if (ControlHostElement.Child == null)
-                ControlHostElement.Child = host;
+                ControlHostElement.Child = m_CH_Host;
 
             SubscribeOnDebugEvents();
+        }
+
+        private void ClearGeomViewWindow()
+        {
+            m_OBOV_Variables.Clear();
+            dgObjects.ItemsSource = m_OBOV_Variables;
+
+            m_CH_Host.reloadGeomView(new List<Tuple<string, bool>> { }, m_S_GlobalPath);
         }
 
         public void SubscribeOnDebugEvents()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-            if (dte == null)
-            {
+            if (m_DGV_Debugger.GetDTE() == null)
                 return;
-            }
 
-            m_DE_debuggerEvents = dte.Events.DebuggerEvents;
-            m_DE_debuggerEvents.OnEnterBreakMode += OnEnterBreakMode;
+            m_DE_DebuggerEvents = m_DGV_Debugger.GetDTE().Events.DebuggerEvents;
+            m_DE_DebuggerEvents.OnEnterBreakMode += OnEnterBreakMode;
         }
 
         public void UnsubscribeFromDebugEvents()
         {
-            if (m_DE_debuggerEvents != null)
+            if (m_DE_DebuggerEvents != null)
             {
-                m_DE_debuggerEvents.OnEnterBreakMode -= OnEnterBreakMode;
+                m_DE_DebuggerEvents.OnEnterBreakMode -= OnEnterBreakMode;
             }
         }
 
         private void GeometryDebuggerToolWindowUnloaded(object sender, EventArgs e)
         {
+            ClearGeomViewWindow();
         }
 
         private void Variables_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -138,7 +145,7 @@ namespace GeometryDebugger.UI
                 if (e.PropertyName == nameof(variable.m_B_IsSelected)) // если изменение - CheckBox на m_B_IsSelected
                 {
 
-                    string pathOfVariable = pathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+                    string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
                     bool isSerialized = m_L_Paths[pathOfVariable].Item2; // есть ли информация о этой переменной в файле pathOfVariable
                     bool isSelected = variable.m_B_IsSelected;
 
@@ -151,16 +158,16 @@ namespace GeometryDebugger.UI
 
         private void btnOpenAddMenu_Click(object sender, RoutedEventArgs e)
         {
-            if (m_DGV_debugger.IsDebugMode())
+            if (m_DGV_Debugger.IsDebugMode())
             {
-                if (addWindow == null || addWindow.IsVisible == false)
+                if (m_W_AddWindow == null || m_W_AddWindow.IsVisible == false)
                 {
                     InitAddWindowComponent();
                 }
-                addMenu.BreakModDetected();
-                m_OBOV_Variables = addMenu.GetVariables();
+                m_AM_AddMenu.BreakModDetected();
+                m_OBOV_Variables = m_AM_AddMenu.GetVariables();
                 dgObjects.ItemsSource = m_OBOV_Variables;
-                addWindow.ShowDialog();
+                m_W_AddWindow.ShowDialog();
             }
             else
             {
@@ -169,7 +176,7 @@ namespace GeometryDebugger.UI
         }
         private void OnAddWindowClosing(object sender, CancelEventArgs e)
         {
-            m_OBOV_Variables = addMenu.GetVariables(); // получаем список всех переменных, которые пришли из окна AddVariables (их отличительное
+            m_OBOV_Variables = m_AM_AddMenu.GetVariables(); // получаем список всех переменных, которые пришли из окна AddVariables (их отличительное
                                                        // свойство в том, что они все isAdded
 
             Dictionary<string, Tuple<bool, bool>> tempPaths = new Dictionary<string, Tuple<bool, bool>>(m_L_Paths); // сохраняем старый список переменных, которые уже были до этого
@@ -177,7 +184,7 @@ namespace GeometryDebugger.UI
 
             foreach (var variable in m_OBOV_Variables) // проходимся по каждой переменной в m_OBOV_Variables
             {
-                string pathOfVariable = pathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+                string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
 
                 if (!tempPaths.ContainsKey(pathOfVariable)) // если переменной нет в старой коллекции
                     m_L_Paths.Add(pathOfVariable, Tuple.Create(false, false)); // то создаем новую с флагами isSelected = false, isSerialized = false
@@ -242,7 +249,7 @@ namespace GeometryDebugger.UI
                         // Обновляем цвет кнопки
                         button.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb((byte)R, (byte)G, (byte)B));
 
-                        string pathOfVariable = pathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+                        string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
                         bool isSelected = m_L_Paths[pathOfVariable].Item1; // isSelected (выбран ли он для отрисовки)
 
                         if (isSelected) // если он выбран, то его нужно пересериализировать
@@ -277,7 +284,7 @@ namespace GeometryDebugger.UI
 
             foreach (var variable in m_OBOV_Variables)
             {
-                string pathOfVariable = pathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+                string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
 
                 bool isSelected = m_L_Paths[pathOfVariable].Item1;
                 bool isSerialized = m_L_Paths[pathOfVariable].Item2;
@@ -286,7 +293,7 @@ namespace GeometryDebugger.UI
                 {
                     files.Add(Tuple.Create(pathOfVariable, false)); // указываем, что эту переменную НЕ надо перезагружать 
                     System.Threading.Thread.Sleep(1);
-                    host.visibilityGeomView(globalPath + "\\" + pathOfVariable, isSelected); // если переменная выбрана для показа (isSelected)
+                    m_CH_Host.visibilityGeomView(m_S_GlobalPath + "\\" + pathOfVariable, isSelected); // если переменная выбрана для показа (isSelected)
                 }
                 else // если переменная несериализована (данных о ней нет в файле или их необходимо обновить)
                 {
@@ -302,33 +309,33 @@ namespace GeometryDebugger.UI
 
             if (variables.Count != 0)
             {
-                m_DE_debuggerEvents.OnEnterBreakMode -= OnEnterBreakMode; // отписываемся от входа в дебаг мод, может отрицательно влиять на результат
+                m_DE_DebuggerEvents.OnEnterBreakMode -= OnEnterBreakMode; // отписываемся от входа в дебаг мод, может отрицательно влиять на результат
                                                                   // будут пропадать элементы из таблицы
-                SharedMemory sharedMemory = new SharedMemory(variables, m_DGV_debugger.GetDTE()); // сюда мы отдаем только те переменные, которые выбраны и их надо пересериализировать
+                SharedMemory sharedMemory = new SharedMemory(variables, m_DGV_Debugger.GetDTE()); // сюда мы отдаем только те переменные, которые выбраны и их надо пересериализировать
                 sharedMemory.CreateMessages();
                 sharedMemory.WriteToMemory();
                 sharedMemory.DoSerialize();
-                globalPath = sharedMemory.getResult();
+                m_S_GlobalPath = sharedMemory.getResult();
 
-                m_DE_debuggerEvents.OnEnterBreakMode += OnEnterBreakMode; // подписываемся на вход в дебаг мод обратно
+                m_DE_DebuggerEvents.OnEnterBreakMode += OnEnterBreakMode; // подписываемся на вход в дебаг мод обратно
 
                 foreach (var variable in variables)
                 {
-                    string pathOfVariable = pathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+                    string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
                     bool isSelected = m_L_Paths[pathOfVariable].Item1;
 
                     m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(isSelected, true);
                 }
 
-                host.reloadGeomView(files, globalPath);
+                m_CH_Host.reloadGeomView(files, m_S_GlobalPath);
             }
         }
 
 
         private void OnEnterBreakMode(dbgEventReason reason, ref dbgExecutionAction action) // срабатывает при f5, f10, f11
         {
-            addMenu.BreakModDetected(); // обновляем информацию о наших переменных, которые мы отслеживаем, валидны ли они
-            m_OBOV_Variables = addMenu.GetVariables(); // получаем итоговые данные с валидными переменными
+            m_AM_AddMenu.BreakModDetected(); // обновляем информацию о наших переменных, которые мы отслеживаем, валидны ли они
+            m_OBOV_Variables = m_AM_AddMenu.GetVariables(); // получаем итоговые данные с валидными переменными
 
             /*
              * Нам необходимо удалить все переменные из m_L_Paths, которые больше не валидны 
@@ -341,7 +348,7 @@ namespace GeometryDebugger.UI
 
             foreach (var variable in m_OBOV_Variables)
             {
-                string pathOfVariable = pathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+                string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
 
                 bool isSelected = tempPaths[pathOfVariable].Item1;
                 Tuple<bool, bool> tuple = new Tuple<bool, bool>(isSelected, false);
@@ -371,7 +378,7 @@ namespace GeometryDebugger.UI
                             /*
                              * Тут мы должны проверить два случая, является переменная isSerialized или нет 
                             */
-                            string pathOfVariable = pathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+                            string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
                             bool isSerialized = m_L_Paths[pathOfVariable].Item2; // получаем информацию, сериализована ли переменная
                             variable.PropertyChanged -= Variable_PropertyChanged; // отписваемся от изменений, из-за них вызовется лишняя функция
                             variable.m_B_IsSelected = false;
@@ -406,7 +413,7 @@ namespace GeometryDebugger.UI
                              * Тут мы должны проверить два случая, является переменная isSerialized или нет 
                             */
 
-                            string pathOfVariable = pathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+                            string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
                             bool isSerialized = m_L_Paths[pathOfVariable].Item2; // получаем информацию, сериализована ли переменная
                             variable.PropertyChanged -= Variable_PropertyChanged; // отписваемся от изменений, из-за них вызовется лишняя функция
                             variable.m_B_IsSelected = true;
@@ -450,9 +457,9 @@ namespace GeometryDebugger.UI
                 {
                     if (m_OBOV_Variables.Contains(variable))
                     {
-                        string pathOfVariable = pathForFile + variable.m_S_Addres;
+                        string pathOfVariable = m_S_PathForFile + variable.m_S_Addres;
 
-                        m_L_Paths.Remove(pathForFile);
+                        m_L_Paths.Remove(m_S_PathForFile);
                         m_OBOV_Variables.Remove(variable);
                     }
                 }
@@ -469,7 +476,7 @@ namespace GeometryDebugger.UI
 
             foreach (var variable in m_OBOV_Variables)
             {
-                string pathOfVariable = pathForFile + variable.m_S_Addres;
+                string pathOfVariable = m_S_PathForFile + variable.m_S_Addres;
 
                 bool isSelected = m_L_Paths[pathOfVariable].Item1;
                 bool isSerialized = m_L_Paths[pathOfVariable].Item2;
@@ -480,7 +487,7 @@ namespace GeometryDebugger.UI
                     continue;
             }
 
-            host.reloadGeomView(files, globalPath);
+            m_CH_Host.reloadGeomView(files, m_S_GlobalPath);
         }
 
         private void GeometryDebuggerUnLoaded(object sender, RoutedEventArgs e)
@@ -636,7 +643,7 @@ namespace GeometryDebugger.UI
 
             foreach (var variable in m_OBOV_Variables)
             {
-                string pathOfVariable = pathForFile + variable.m_S_Addres;
+                string pathOfVariable = m_S_PathForFile + variable.m_S_Addres;
 
                 bool isSelected = m_L_Paths[pathOfVariable].Item1;
                 bool isSerialized = m_L_Paths[pathOfVariable].Item2;
@@ -647,7 +654,7 @@ namespace GeometryDebugger.UI
                     continue;
             }
 
-            host.reloadGeomView(files, globalPath);
+            m_CH_Host.reloadGeomView(files, m_S_GlobalPath);
         }
     }
 }

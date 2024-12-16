@@ -57,7 +57,7 @@
                     </ControlTemplate>
                 </CheckBox.Template>
             </CheckBox>
-            <Button Click="ButtonImport_Click" Background="White">
+            <Button Click="ButtonImport_Click" Background="White" Width="50" Height="50">>
                 <!--<Image Width="32" Height="32" Source="C:\\dev\\Source\\GeomDebugger\\images\\export.png"/>-->
             </Button>
             <Button Content="Add variables from TextBox" Click="ButtonMyselfAdded_Click" Loaded="Loaded"></Button>

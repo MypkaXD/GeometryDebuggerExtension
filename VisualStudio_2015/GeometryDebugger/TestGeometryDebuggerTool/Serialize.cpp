@@ -27,7 +27,7 @@ public:
 
 
 	Variable(std::string name, std::string type,
-		std::string addres, int r, int g, int b) :
+		std::string addres, float r, float g, float b) :
 		m_S_Name(name), m_S_Type(type), m_S_Addres(addres),
 		m_I_R(r), m_I_G(g), m_I_B(b)
 	{
@@ -129,14 +129,17 @@ void parser() {
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
 			R = std::stof(message.substr(i, pos - i));
 			i += message.substr(i, pos - i).size() + 1;
+			std::cout << "R: " << R << std::endl;
 
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
 			G = std::stof(message.substr(i, pos - i));
 			i += message.substr(i, pos - i).size() + 1;
+			std::cout << "G: " << G << std::endl;
 
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
 			B = std::stof(message.substr(i, pos - i));
 			i += message.substr(i, pos - i).size();
+			std::cout << "B: " << B << std::endl;
 
 			m_VOV_Variables.push_back(Variable(name, type, addres, R, G, B));
 

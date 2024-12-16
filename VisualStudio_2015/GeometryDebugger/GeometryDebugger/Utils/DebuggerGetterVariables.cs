@@ -20,7 +20,7 @@ namespace GeometryDebugger.Utils
         public DebuggerGetterVariables()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            m_DTE_Dte = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SDTE)) as EnvDTE.DTE;
+            m_DTE_Dte = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE)) as EnvDTE.DTE;
         }
         public DTE GetDTE()
         {
@@ -53,7 +53,7 @@ namespace GeometryDebugger.Utils
                         m_B_IsSelected = false,
                         m_S_Name = localVariable.Name,
                         m_S_Source = "LocalStackFrame",
-                        m_S_Type = localVariable.Type,
+                        m_S_Type = localVariable.Type.Replace(" ", ""),
                         m_S_Addres = expression.Value.Split(' ')[0],
                         m_C_Color = new Utils.Color(255, 0, 0)
                     };
@@ -91,7 +91,7 @@ namespace GeometryDebugger.Utils
         {
             foreach (var currentVariable in variables)
             {
-                if (variable.m_S_Addres == currentVariable.m_S_Addres && variable.m_S_Type == currentVariable.m_S_Type && variable.m_S_Name == currentVariable.m_S_Name)
+                if (variable.m_S_Addres == currentVariable.m_S_Addres)
                     return true;
             }
             return false;
@@ -114,7 +114,7 @@ namespace GeometryDebugger.Utils
                         m_B_IsSelected = false,
                         m_S_Name = expressionForTypeAndName.Name,
                         m_S_Source = "WatchWindow",
-                        m_S_Type = expressionForTypeAndName.Type,
+                        m_S_Type = expressionForTypeAndName.Type.Replace(" ", ""),
                         m_S_Addres = expressionForAddress.Value.Split(' ')[0],
                         m_C_Color = new Utils.Color(0, 255, 0)
                     };
@@ -157,7 +157,7 @@ namespace GeometryDebugger.Utils
                     m_B_IsSelected = false,
                     m_S_Name = expressionForTypeAndName.Name,
                     m_S_Source = "AddedMySelf",
-                    m_S_Type = expressionForTypeAndName.Type,
+                    m_S_Type = expressionForTypeAndName.Type.Replace(" ", ""),
                     m_S_Addres = expressionForAddress.Value.Split(' ')[0],
                     m_C_Color = new Utils.Color(0, 0, 255)
                 };

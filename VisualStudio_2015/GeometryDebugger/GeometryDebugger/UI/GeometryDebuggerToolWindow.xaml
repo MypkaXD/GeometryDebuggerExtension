@@ -20,7 +20,7 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-            <Button Click="btnOpenAddMenu_Click">
+            <Button Click="btnOpenAddMenu_Click" Width="50" Height="50">
                 <!--<Image Width="50" Height="25" Source="C:\\dev\\Source\\GeomDebugger\\images\\Add.png"/>-->
             </Button>
         </StackPanel>
