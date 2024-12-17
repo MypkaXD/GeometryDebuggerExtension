@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using GeometryDebugger.Utils;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace GeometryDebugger.UI
 {
@@ -62,6 +63,10 @@ namespace GeometryDebugger.UI
         {
             InitializeComponent();
 
+
+            SyncThemeOfVisualStudio();
+
+
             m_DGV_Debugger = new DebuggerGetterVariables();
 
             Loaded += GeometryDebuggerToolWindowLoaded;
@@ -72,6 +77,49 @@ namespace GeometryDebugger.UI
             m_OBOV_Variables = new ObservableCollection<Variable>();
 
             InitAddWindowComponent();
+        }
+
+        private void SyncThemeOfVisualStudio()
+        {
+            // Получить IVsUIShell5
+            var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2;
+            if (vsUIShell == null)
+                throw new InvalidOperationException("Не удалось получить IVsUIShell5.");
+
+            uint win32ColorBackgroundToolWindow;
+            uint win32ColorTextToolWindow;
+
+            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_BACKGROUND, out win32ColorBackgroundToolWindow);
+            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_TEXT, out win32ColorTextToolWindow);
+
+            System.Drawing.Color colorBackgroundToolWindow = System.Drawing.ColorTranslator.FromWin32((int)win32ColorBackgroundToolWindow);
+            System.Drawing.Color colorTextToolWindow = System.Drawing.ColorTranslator.FromWin32((int)win32ColorTextToolWindow);
+
+            System.Windows.Media.Color mediaColorBackgroundToolWindow = System.Windows.Media.Color.FromArgb(colorBackgroundToolWindow.A, colorBackgroundToolWindow.R, colorBackgroundToolWindow.G, colorBackgroundToolWindow.B);
+            System.Windows.Media.Color mediaColorTextToolWindow = System.Windows.Media.Color.FromArgb(colorTextToolWindow.A, colorTextToolWindow.R, colorTextToolWindow.G, colorTextToolWindow.B);
+
+            // Установка фона для WPF-контрола
+            this.Background = new SolidColorBrush(mediaColorBackgroundToolWindow);
+
+            //// Установка фона и текста для DataGrid
+            //if (this.dgObjects != null)
+            //{
+            //    this.dgObjects.Background = new SolidColorBrush(mediaColorBackgroundToolWindow);
+
+            //    // Применяем стиль для всех ячеек DataGrid
+            //    Style cellStyle = new Style(typeof(System.Windows.Controls.DataGridCell));
+            //    cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.BackgroundProperty, new SolidColorBrush(mediaColorBackgroundToolWindow)));
+            //    cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.ForegroundProperty, new SolidColorBrush(mediaColorTextToolWindow))); // Цвет текста
+
+            //    this.dgObjects.CellStyle = cellStyle;
+
+            //    // Стиль заголовков столбцов
+            //    Style headerStyle = new Style(typeof(System.Windows.Controls.Primitives.DataGridColumnHeader));
+            //    headerStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.BackgroundProperty, new SolidColorBrush(mediaColorBackgroundToolWindow)));
+            //    headerStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.ForegroundProperty, new SolidColorBrush(mediaColorTextToolWindow)));
+
+            //    this.dgObjects.ColumnHeaderStyle = headerStyle;
+            //}
         }
 
         private void InitAddWindowComponent()
@@ -91,12 +139,15 @@ namespace GeometryDebugger.UI
 
         public void GeometryDebuggerToolWindowLoaded(object sender, RoutedEventArgs e)
         {
+
+
             m_CH_Host = new ControlHost();
             if (ControlHostElement.Child == null)
                 ControlHostElement.Child = m_CH_Host;
 
             if (!m_B_IsSubscribeOnBreakMod)
             {
+                SyncThemeOfVisualStudio();
                 SubscribeOnDebugEvents();
                 m_B_IsSubscribeOnBreakMod = true;
             }
@@ -181,7 +232,7 @@ namespace GeometryDebugger.UI
         private void OnAddWindowClosing(object sender, CancelEventArgs e)
         {
             m_OBOV_Variables = m_AM_AddMenu.GetVariables(); // получаем список всех переменных, которые пришли из окна AddVariables (их отличительное
-                                                       // свойство в том, что они все isAdded
+                                                            // свойство в том, что они все isAdded
 
             Dictionary<string, Tuple<bool, bool>> tempPaths = new Dictionary<string, Tuple<bool, bool>>(m_L_Paths); // сохраняем старый список переменных, которые уже были до этого
             m_L_Paths.Clear(); // очищаем исходные данные
@@ -299,7 +350,40 @@ namespace GeometryDebugger.UI
 
             draw();
         }
+        private void MenuItemAddForDrawing_Click(object sender, RoutedEventArgs e) // если с помощью контекстного меню выбрали isSelected переменные (одну или несколько)
+        {
+            if (dgObjects.SelectedItems.Count == 0) // если кол-во выбранных элементов = 0, то есть пользователь ничего
+                                                    // не выбрал для каких-либо действий через контекстное меню
+                return;
+            else // если же пользователь выбрал элементы для isSelected (в данном случае), т.е. dgObjects.SelectedItems.Count != 0
+            {
+                foreach (var item in dgObjects.SelectedItems) // проходимся по каждому элементу, который пользователь хочет сделать isSelected
+                {
+                    if (item is Variable)
+                    {
+                        Variable variable = (Variable)item;
 
+                        if (!variable.m_B_IsSelected) // если переменная isSelected - false
+                        {
+                            /*
+                             * Тут мы должны проверить два случая, является переменная isSerialized или нет 
+                            */
+
+                            string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+                            bool isSerialized = m_L_Paths[pathOfVariable].Item2; // получаем информацию, сериализована ли переменная
+                            variable.PropertyChanged -= Variable_PropertyChanged; // отписваемся от изменений, из-за них вызовется лишняя функция
+                            variable.m_B_IsSelected = true;
+                            variable.PropertyChanged += Variable_PropertyChanged; // подписываемся обратно
+                            m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(true, isSerialized); // ставим, что переменная isSelected, isSerialized - сохраняем старый
+                        }
+                    }
+                }
+
+                dgObjects.Items.Refresh(); // обновляем визуальную составляющую
+
+                draw();
+            }
+        }
         private void MenuItemAddForIsntDrawing_Click(object sender, RoutedEventArgs e) // если с помощью контекстного меню выбрали unSelected переменные (одну или несколько)
         {
             if (dgObjects.SelectedItems.Count == 0) // если кол-во выбранных элементов = 0, то есть пользователь ничего
@@ -577,6 +661,79 @@ namespace GeometryDebugger.UI
             }
 
             m_CH_Host.reloadGeomView(files, m_S_GlobalPath); // отправляем файл на перезагрузку уже в нужном порядке
+        }
+
+        private void btnAddMenu_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2;
+            if (vsUIShell == null)
+                throw new InvalidOperationException("Не удалось получить IVsUIShell5.");
+
+            uint win32ColorMouseEnterButton;
+
+            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_BUTTON_DOWN_BORDER, out win32ColorMouseEnterButton);
+
+            System.Drawing.Color colorMouseEnterButton = System.Drawing.ColorTranslator.FromWin32((int)win32ColorMouseEnterButton);
+
+            System.Windows.Media.Color mediaColorMouseEnterButton = System.Windows.Media.Color.FromArgb(colorMouseEnterButton.A, colorMouseEnterButton.R, colorMouseEnterButton.G, colorMouseEnterButton.B);
+            System.Windows.Media.Color mediaColorMouseEnterButton2 = System.Windows.Media.Color.FromArgb(255, 255, 0, 255);
+
+            if (sender is Button)
+            {
+                Button button = (Button)sender;
+
+                button.BorderThickness = new Thickness(1, 1, 1, 1);
+                button.BorderBrush = new SolidColorBrush(mediaColorMouseEnterButton);
+                button.Background = new SolidColorBrush(mediaColorMouseEnterButton2);
+            }
+        }
+
+        private void btnAddMenu_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2;
+            if (vsUIShell == null)
+                throw new InvalidOperationException("Не удалось получить IVsUIShell5.");
+
+            uint win32ColorMouseLeaveButton;
+
+            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_BACKGROUND, out win32ColorMouseLeaveButton);
+
+            System.Drawing.Color colorMouseLeaveButton = System.Drawing.ColorTranslator.FromWin32((int)win32ColorMouseLeaveButton);
+
+            System.Windows.Media.Color mediaColorMouseLeaveButton = System.Windows.Media.Color.FromArgb(colorMouseLeaveButton.A, colorMouseLeaveButton.R, colorMouseLeaveButton.G, colorMouseLeaveButton.B);
+
+            if (sender is Button)
+            {
+                Button button = (Button)sender;
+
+                button.BorderThickness = new Thickness(0, 0, 0, 0);
+                button.Background = new SolidColorBrush(mediaColorMouseLeaveButton);
+            }
+        }
+
+        private void Button_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2;
+            if (vsUIShell == null)
+                throw new InvalidOperationException("Не удалось получить IVsUIShell5.");
+
+            uint win32ColorMouseEnterButton;
+
+            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_BUTTON_DOWN_BORDER, out win32ColorMouseEnterButton);
+
+            System.Drawing.Color colorMouseEnterButton = System.Drawing.ColorTranslator.FromWin32((int)win32ColorMouseEnterButton);
+
+            System.Windows.Media.Color mediaColorMouseEnterButton = System.Windows.Media.Color.FromArgb(colorMouseEnterButton.A, colorMouseEnterButton.R, colorMouseEnterButton.G, colorMouseEnterButton.B);
+            System.Windows.Media.Color mediaColorMouseEnterButton2 = System.Windows.Media.Color.FromArgb(255, 255, 0, 255);
+
+            if (sender is Button)
+            {
+                Button button = (Button)sender;
+
+                button.BorderThickness = new Thickness(1, 1, 1, 1);
+                button.BorderBrush = new SolidColorBrush(mediaColorMouseEnterButton);
+                button.Background = new SolidColorBrush(mediaColorMouseEnterButton2);
+            }
         }
     }
 }

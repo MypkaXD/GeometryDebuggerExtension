@@ -20,12 +20,11 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-            <Button Click="btnOpenAddMenu_Click" Width="50" Height="50">
-                <!--<Image Width="50" Height="25" Source="C:\\dev\\Source\\GeomDebugger\\images\\Add.png"/>-->
+            <Button Click="btnOpenAddMenu_Click" Width="50" Height="25" Content="Add" MouseEnter="btnAddMenu_MouseEnter" MouseLeave="btnAddMenu_MouseLeave" BorderThickness="0" MouseMove="Button_MouseMove">
             </Button>
         </StackPanel>
         <GridSplitter Grid.Column="0" Grid.Row="2" Height="5" HorizontalAlignment="Stretch"/>
-        <DataGrid Grid.Row="1" Grid.Column="0" Name="dgObjects" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" HorizontalAlignment="Left">
+        <DataGrid Grid.Row="1" Grid.Column="0" Name="dgObjects" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" HorizontalAlignment="Left" SelectionMode="Extended">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Select" Click="MenuItemAddForDrawing_Click"/>
