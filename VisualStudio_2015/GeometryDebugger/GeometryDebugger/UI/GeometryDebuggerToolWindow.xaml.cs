@@ -665,7 +665,7 @@ namespace GeometryDebugger.UI
 
         private void btnAddMenu_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2;
+            var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2; //
             if (vsUIShell == null)
                 throw new InvalidOperationException("Не удалось получить IVsUIShell5.");
 
