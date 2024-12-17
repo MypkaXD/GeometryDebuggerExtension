@@ -100,26 +100,55 @@ namespace GeometryDebugger.UI
 
             // Установка фона для WPF-контрола
             this.Background = new SolidColorBrush(mediaColorBackgroundToolWindow);
+            this.Foreground = new SolidColorBrush(mediaColorTextToolWindow);
 
-            //// Установка фона и текста для DataGrid
-            //if (this.dgObjects != null)
-            //{
-            //    this.dgObjects.Background = new SolidColorBrush(mediaColorBackgroundToolWindow);
+            // Установка фона и текста для DataGrid
+            if (this.dgObjects != null)
+            {
+                // Получаем цвета из Visual Studio
+                uint win32ColorBackgroundHeaders;
+                uint win32ColorTextHeaders;
+                uint win32ColorLineHeaders;
 
-            //    // Применяем стиль для всех ячеек DataGrid
-            //    Style cellStyle = new Style(typeof(System.Windows.Controls.DataGridCell));
-            //    cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.BackgroundProperty, new SolidColorBrush(mediaColorBackgroundToolWindow)));
-            //    cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.ForegroundProperty, new SolidColorBrush(mediaColorTextToolWindow))); // Цвет текста
+                vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_GRID_HEADING_BACKGROUND, out win32ColorBackgroundHeaders);
+                vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_GRID_HEADING_TEXT, out win32ColorTextHeaders);
+                vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_GRID_LINE, out win32ColorLineHeaders);
 
-            //    this.dgObjects.CellStyle = cellStyle;
+                // Преобразуем цвета в System.Drawing
+                System.Drawing.Color colorBackgroundHeaders = System.Drawing.ColorTranslator.FromWin32((int)win32ColorBackgroundHeaders);
+                System.Drawing.Color colorTextHeaders = System.Drawing.ColorTranslator.FromWin32((int)win32ColorTextHeaders);
+                System.Drawing.Color colorLineHeaders = System.Drawing.ColorTranslator.FromWin32((int)win32ColorLineHeaders);
 
-            //    // Стиль заголовков столбцов
-            //    Style headerStyle = new Style(typeof(System.Windows.Controls.Primitives.DataGridColumnHeader));
-            //    headerStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.BackgroundProperty, new SolidColorBrush(mediaColorBackgroundToolWindow)));
-            //    headerStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.ForegroundProperty, new SolidColorBrush(mediaColorTextToolWindow)));
+                // Преобразуем System.Drawing.Color в System.Windows.Media.Color
+                System.Windows.Media.Color mediaColorBackgroundHeaders = System.Windows.Media.Color.FromArgb(colorBackgroundToolWindow.A, colorBackgroundToolWindow.R, colorBackgroundToolWindow.G, colorBackgroundToolWindow.B);
+                System.Windows.Media.Color mediaColorTextHeaders = System.Windows.Media.Color.FromArgb(colorTextToolWindow.A, colorTextToolWindow.R, colorTextToolWindow.G, colorTextToolWindow.B);
+                System.Windows.Media.Color mediaColorLineHeaders = System.Windows.Media.Color.FromArgb(colorLineHeaders.A, colorLineHeaders.R, colorLineHeaders.G, colorLineHeaders.B);
 
-            //    this.dgObjects.ColumnHeaderStyle = headerStyle;
-            //}
+                //// Применяем стиль для всех ячеек DataGrid
+                //Style cellStyle = new Style(typeof(System.Windows.Controls.DataGridCell));
+                //cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.BackgroundProperty, new SolidColorBrush(mediaColorBackgroundHeaders)));
+                //cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.BorderThicknessProperty, new Thickness(0.3, 0.3, 0.3, 0.3)));
+                //cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.ForegroundProperty, new SolidColorBrush(mediaColorTextHeaders))); // Цвет текста
+                //cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.BorderBrushProperty, new SolidColorBrush(mediaColorLineHeaders)));
+
+                //this.dgObjects.CellStyle = cellStyle;
+
+                //// Стиль заголовков столбцов
+                //Style headerStyle = new Style(typeof(System.Windows.Controls.Primitives.DataGridColumnHeader));
+                //headerStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.ForegroundProperty, new SolidColorBrush(mediaColorTextHeaders)));
+                //headerStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.BorderThicknessProperty, new Thickness(0.3, 0.3, 0.3, 0.3)));
+                //headerStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.BorderBrushProperty, new SolidColorBrush(mediaColorLineHeaders)));
+
+                //this.dgObjects.ColumnHeaderStyle = headerStyle;
+
+                this.dgObjects.Background = new SolidColorBrush(mediaColorBackgroundToolWindow);
+                this.dgObjects.BorderBrush = new SolidColorBrush(mediaColorBackgroundToolWindow);
+                this.dgObjects.HorizontalGridLinesBrush = new SolidColorBrush(mediaColorBackgroundToolWindow);
+                this.dgObjects.VerticalGridLinesBrush = new SolidColorBrush(mediaColorBackgroundToolWindow);
+                this.dgObjects.BorderThickness = new Thickness(0.3, 0.3, 0.3, 0.3);
+                this.dgObjects.Foreground = new SolidColorBrush(mediaColorTextHeaders);
+            }
+
         }
 
         private void InitAddWindowComponent()
@@ -666,31 +695,39 @@ namespace GeometryDebugger.UI
         private void btnAddMenu_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
             var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2;
+
             if (vsUIShell == null)
                 throw new InvalidOperationException("Не удалось получить IVsUIShell5.");
 
-            uint win32ColorMouseEnterButton;
+            uint win32ColorBackgroundButton;
+            uint win32ColorThicknessButton;
+            uint win32ColorText;
 
-            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_BUTTON_DOWN_BORDER, out win32ColorMouseEnterButton);
+            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_COMMANDBAR_HOVER, out win32ColorBackgroundButton);
+            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_COMMANDBAR_BORDER, out win32ColorThicknessButton);
+            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_TEXT, out win32ColorText);
 
-            System.Drawing.Color colorMouseEnterButton = System.Drawing.ColorTranslator.FromWin32((int)win32ColorMouseEnterButton);
+            System.Drawing.Color colorBackgroundButton = System.Drawing.ColorTranslator.FromWin32((int)win32ColorBackgroundButton);
+            System.Drawing.Color colorThicknessButton = System.Drawing.ColorTranslator.FromWin32((int)win32ColorThicknessButton);
+            System.Drawing.Color colorText = System.Drawing.ColorTranslator.FromWin32((int)win32ColorText);
 
-            System.Windows.Media.Color mediaColorMouseEnterButton = System.Windows.Media.Color.FromArgb(colorMouseEnterButton.A, colorMouseEnterButton.R, colorMouseEnterButton.G, colorMouseEnterButton.B);
-            System.Windows.Media.Color mediaColorMouseEnterButton2 = System.Windows.Media.Color.FromArgb(255, 255, 0, 255);
+            System.Windows.Media.Color mediaColorBackgroundButton = System.Windows.Media.Color.FromArgb(colorBackgroundButton.A, colorBackgroundButton.R, colorBackgroundButton.G, colorBackgroundButton.B);
+            System.Windows.Media.Color mediaColorThicknessButton = System.Windows.Media.Color.FromArgb(colorThicknessButton.A, colorThicknessButton.R, colorThicknessButton.G, colorThicknessButton.B);
+            System.Windows.Media.Color mediaColorText = System.Windows.Media.Color.FromArgb(colorText.A, colorText.R, colorText.G, colorText.B);
 
             if (sender is Button)
             {
                 Button button = (Button)sender;
-
                 button.BorderThickness = new Thickness(1, 1, 1, 1);
-                button.BorderBrush = new SolidColorBrush(mediaColorMouseEnterButton);
-                button.Background = new SolidColorBrush(mediaColorMouseEnterButton2);
+                button.Background = new SolidColorBrush(mediaColorBackgroundButton);
+                button.BorderBrush = new SolidColorBrush(mediaColorThicknessButton);
+                button.Foreground = new SolidColorBrush(mediaColorText);
             }
         }
-
         private void btnAddMenu_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
         {
             var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2;
+
             if (vsUIShell == null)
                 throw new InvalidOperationException("Не удалось получить IVsUIShell5.");
 
@@ -705,34 +742,8 @@ namespace GeometryDebugger.UI
             if (sender is Button)
             {
                 Button button = (Button)sender;
-
                 button.BorderThickness = new Thickness(0, 0, 0, 0);
                 button.Background = new SolidColorBrush(mediaColorMouseLeaveButton);
-            }
-        }
-
-        private void Button_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2;
-            if (vsUIShell == null)
-                throw new InvalidOperationException("Не удалось получить IVsUIShell5.");
-
-            uint win32ColorMouseEnterButton;
-
-            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_BUTTON_DOWN_BORDER, out win32ColorMouseEnterButton);
-
-            System.Drawing.Color colorMouseEnterButton = System.Drawing.ColorTranslator.FromWin32((int)win32ColorMouseEnterButton);
-
-            System.Windows.Media.Color mediaColorMouseEnterButton = System.Windows.Media.Color.FromArgb(colorMouseEnterButton.A, colorMouseEnterButton.R, colorMouseEnterButton.G, colorMouseEnterButton.B);
-            System.Windows.Media.Color mediaColorMouseEnterButton2 = System.Windows.Media.Color.FromArgb(255, 255, 0, 255);
-
-            if (sender is Button)
-            {
-                Button button = (Button)sender;
-
-                button.BorderThickness = new Thickness(1, 1, 1, 1);
-                button.BorderBrush = new SolidColorBrush(mediaColorMouseEnterButton);
-                button.Background = new SolidColorBrush(mediaColorMouseEnterButton2);
             }
         }
     }

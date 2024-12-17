@@ -20,11 +20,25 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-            <Button Click="btnOpenAddMenu_Click" Width="50" Height="25" Content="Add" MouseEnter="btnAddMenu_MouseEnter" MouseLeave="btnAddMenu_MouseLeave" BorderThickness="0" MouseMove="Button_MouseMove">
+            <Button Click="btnOpenAddMenu_Click"
+                Width="50" Height="25"
+                Content="Add"
+                Name="btnAddMenu"
+                MouseEnter="btnAddMenu_MouseEnter" MouseLeave="btnAddMenu_MouseLeave"> 
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
         </StackPanel>
         <GridSplitter Grid.Column="0" Grid.Row="2" Height="5" HorizontalAlignment="Stretch"/>
-        <DataGrid Grid.Row="1" Grid.Column="0" Name="dgObjects" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" HorizontalAlignment="Left" SelectionMode="Extended">
+        <DataGrid Grid.Row="1" Grid.Column="0" Name="dgObjects" HeadersVisibility="Column" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" HorizontalAlignment="Left" SelectionMode="Extended">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Select" Click="MenuItemAddForDrawing_Click"/>
