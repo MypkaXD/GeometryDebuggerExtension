@@ -81,73 +81,74 @@ namespace GeometryDebugger.UI
 
         private void SyncThemeOfVisualStudio()
         {
-            // Получить IVsUIShell5
-            var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2;
-            if (vsUIShell == null)
-                throw new InvalidOperationException("Не удалось получить IVsUIShell5.");
+            //// Получить IVsUIShell5
+            //var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2;
+            //if (vsUIShell == null)
+            //    throw new InvalidOperationException("Не удалось получить IVsUIShell5.");
 
-            uint win32ColorBackgroundToolWindow;
-            uint win32ColorTextToolWindow;
+            //uint win32ColorBackgroundToolWindow;
+            //uint win32ColorTextToolWindow;
 
-            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_BACKGROUND, out win32ColorBackgroundToolWindow);
-            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_TEXT, out win32ColorTextToolWindow);
+            //vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_BACKGROUND, out win32ColorBackgroundToolWindow);
+            //vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_TEXT, out win32ColorTextToolWindow);
 
-            System.Drawing.Color colorBackgroundToolWindow = System.Drawing.ColorTranslator.FromWin32((int)win32ColorBackgroundToolWindow);
-            System.Drawing.Color colorTextToolWindow = System.Drawing.ColorTranslator.FromWin32((int)win32ColorTextToolWindow);
+            //System.Drawing.Color colorBackgroundToolWindow = System.Drawing.ColorTranslator.FromWin32((int)win32ColorBackgroundToolWindow);
+            //System.Drawing.Color colorTextToolWindow = System.Drawing.ColorTranslator.FromWin32((int)win32ColorTextToolWindow);
 
-            System.Windows.Media.Color mediaColorBackgroundToolWindow = System.Windows.Media.Color.FromArgb(colorBackgroundToolWindow.A, colorBackgroundToolWindow.R, colorBackgroundToolWindow.G, colorBackgroundToolWindow.B);
-            System.Windows.Media.Color mediaColorTextToolWindow = System.Windows.Media.Color.FromArgb(colorTextToolWindow.A, colorTextToolWindow.R, colorTextToolWindow.G, colorTextToolWindow.B);
+            //System.Windows.Media.Color mediaColorBackgroundToolWindow = System.Windows.Media.Color.FromArgb(colorBackgroundToolWindow.A, colorBackgroundToolWindow.R, colorBackgroundToolWindow.G, colorBackgroundToolWindow.B);
+            //System.Windows.Media.Color mediaColorTextToolWindow = System.Windows.Media.Color.FromArgb(colorTextToolWindow.A, colorTextToolWindow.R, colorTextToolWindow.G, colorTextToolWindow.B);
 
-            // Установка фона для WPF-контрола
-            this.Background = new SolidColorBrush(mediaColorBackgroundToolWindow);
-            this.Foreground = new SolidColorBrush(mediaColorTextToolWindow);
+            //// Установка фона для WPF-контрола
+            //this.Background = new SolidColorBrush(mediaColorBackgroundToolWindow);
+            //this.Foreground = new SolidColorBrush(mediaColorTextToolWindow);
 
-            // Установка фона и текста для DataGrid
-            if (this.dgObjects != null)
-            {
-                // Получаем цвета из Visual Studio
-                uint win32ColorBackgroundHeaders;
-                uint win32ColorTextHeaders;
-                uint win32ColorLineHeaders;
+            ////// Установка фона и текста для DataGrid
+            ////if (this.dgObjects != null)
+            ////{
+            ////    // Получаем цвета из Visual Studio
+            ////    uint win32ColorBackgroundHeaders;
+            ////    uint win32ColorTextHeaders;
+            ////    uint win32ColorLineHeaders;
 
-                vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_GRID_HEADING_BACKGROUND, out win32ColorBackgroundHeaders);
-                vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_GRID_HEADING_TEXT, out win32ColorTextHeaders);
-                vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_GRID_LINE, out win32ColorLineHeaders);
+            ////    vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_GRID_HEADING_BACKGROUND, out win32ColorBackgroundHeaders);
+            ////    vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_GRID_HEADING_TEXT, out win32ColorTextHeaders);
+            ////    vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_GRID_LINE, out win32ColorLineHeaders);
 
-                // Преобразуем цвета в System.Drawing
-                System.Drawing.Color colorBackgroundHeaders = System.Drawing.ColorTranslator.FromWin32((int)win32ColorBackgroundHeaders);
-                System.Drawing.Color colorTextHeaders = System.Drawing.ColorTranslator.FromWin32((int)win32ColorTextHeaders);
-                System.Drawing.Color colorLineHeaders = System.Drawing.ColorTranslator.FromWin32((int)win32ColorLineHeaders);
+            ////    // Преобразуем цвета в System.Drawing
+            ////    System.Drawing.Color colorBackgroundHeaders = System.Drawing.ColorTranslator.FromWin32((int)win32ColorBackgroundHeaders);
+            ////    System.Drawing.Color colorTextHeaders = System.Drawing.ColorTranslator.FromWin32((int)win32ColorTextHeaders);
+            ////    System.Drawing.Color colorLineHeaders = System.Drawing.ColorTranslator.FromWin32((int)win32ColorLineHeaders);
 
-                // Преобразуем System.Drawing.Color в System.Windows.Media.Color
-                System.Windows.Media.Color mediaColorBackgroundHeaders = System.Windows.Media.Color.FromArgb(colorBackgroundToolWindow.A, colorBackgroundToolWindow.R, colorBackgroundToolWindow.G, colorBackgroundToolWindow.B);
-                System.Windows.Media.Color mediaColorTextHeaders = System.Windows.Media.Color.FromArgb(colorTextToolWindow.A, colorTextToolWindow.R, colorTextToolWindow.G, colorTextToolWindow.B);
-                System.Windows.Media.Color mediaColorLineHeaders = System.Windows.Media.Color.FromArgb(colorLineHeaders.A, colorLineHeaders.R, colorLineHeaders.G, colorLineHeaders.B);
+            ////    // Преобразуем System.Drawing.Color в System.Windows.Media.Color
+            ////    System.Windows.Media.Color mediaColorBackgroundHeaders = System.Windows.Media.Color.FromArgb(colorBackgroundToolWindow.A, colorBackgroundToolWindow.R, colorBackgroundToolWindow.G, colorBackgroundToolWindow.B);
+            ////    System.Windows.Media.Color mediaColorTextHeaders = System.Windows.Media.Color.FromArgb(colorTextToolWindow.A, colorTextToolWindow.R, colorTextToolWindow.G, colorTextToolWindow.B);
+            ////    System.Windows.Media.Color mediaColorLineHeaders = System.Windows.Media.Color.FromArgb(colorLineHeaders.A, colorLineHeaders.R, colorLineHeaders.G, colorLineHeaders.B);
 
-                //// Применяем стиль для всех ячеек DataGrid
-                //Style cellStyle = new Style(typeof(System.Windows.Controls.DataGridCell));
-                //cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.BackgroundProperty, new SolidColorBrush(mediaColorBackgroundHeaders)));
-                //cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.BorderThicknessProperty, new Thickness(0.3, 0.3, 0.3, 0.3)));
-                //cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.ForegroundProperty, new SolidColorBrush(mediaColorTextHeaders))); // Цвет текста
-                //cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.BorderBrushProperty, new SolidColorBrush(mediaColorLineHeaders)));
+            ////    // Стиль заголовков столбцов
+            ////    Style headerStyle = new Style(typeof(System.Windows.Controls.Primitives.DataGridColumnHeader));
+            ////    headerStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.BackgroundProperty, new SolidColorBrush(mediaColorBackgroundHeaders)));
+            ////    //headerStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.ForegroundProperty, new SolidColorBrush(mediaColorTextHeaders)));
+            ////    //headerStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.BorderThicknessProperty, new Thickness(0.3, 0.3, 0.3, 0.3)));
+            ////    //headerStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.BorderBrushProperty, new SolidColorBrush(mediaColorLineHeaders)));
 
-                //this.dgObjects.CellStyle = cellStyle;
+            ////    this.dgObjects.ColumnHeaderStyle = headerStyle;
 
-                //// Стиль заголовков столбцов
-                //Style headerStyle = new Style(typeof(System.Windows.Controls.Primitives.DataGridColumnHeader));
-                //headerStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.ForegroundProperty, new SolidColorBrush(mediaColorTextHeaders)));
-                //headerStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.BorderThicknessProperty, new Thickness(0.3, 0.3, 0.3, 0.3)));
-                //headerStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.BorderBrushProperty, new SolidColorBrush(mediaColorLineHeaders)));
+            ////    //this.dgObjects.Background = new SolidColorBrush(mediaColorBackgroundToolWindow);
+            ////    //this.dgObjects.BorderBrush = new SolidColorBrush(mediaColorBackgroundToolWindow);
+            ////    //this.dgObjects.HorizontalGridLinesBrush = new SolidColorBrush(mediaColorBackgroundToolWindow);
+            ////    //this.dgObjects.VerticalGridLinesBrush = new SolidColorBrush(mediaColorBackgroundToolWindow);
+            ////    //this.dgObjects.BorderThickness = new Thickness(0.3, 0.3, 0.3, 0.3);
+            ////    //this.dgObjects.Foreground = new SolidColorBrush(mediaColorTextHeaders);
 
-                //this.dgObjects.ColumnHeaderStyle = headerStyle;
+            ////    // Применяем стиль для всех ячеек DataGrid
+            ////    Style cellStyle = new Style(typeof(System.Windows.Controls.DataGridCell));
+            ////    cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.BackgroundProperty, new SolidColorBrush(mediaColorBackgroundHeaders)));
+            ////    //cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.BorderThicknessProperty, new Thickness(0.3, 0.3, 0.3, 0.3)));
+            ////    //cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.ForegroundProperty, new SolidColorBrush(mediaColorTextHeaders))); // Цвет текста
+            ////    //cellStyle.Setters.Add(new Setter(System.Windows.Controls.DataGridCell.BorderBrushProperty, new SolidColorBrush(mediaColorLineHeaders)));
 
-                this.dgObjects.Background = new SolidColorBrush(mediaColorBackgroundToolWindow);
-                this.dgObjects.BorderBrush = new SolidColorBrush(mediaColorBackgroundToolWindow);
-                this.dgObjects.HorizontalGridLinesBrush = new SolidColorBrush(mediaColorBackgroundToolWindow);
-                this.dgObjects.VerticalGridLinesBrush = new SolidColorBrush(mediaColorBackgroundToolWindow);
-                this.dgObjects.BorderThickness = new Thickness(0.3, 0.3, 0.3, 0.3);
-                this.dgObjects.Foreground = new SolidColorBrush(mediaColorTextHeaders);
-            }
+            ////    this.dgObjects.CellStyle = cellStyle;
+            ////}
 
         }
 
@@ -694,57 +695,57 @@ namespace GeometryDebugger.UI
 
         private void btnAddMenu_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2;
+            //var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2;
 
-            if (vsUIShell == null)
-                throw new InvalidOperationException("Не удалось получить IVsUIShell5.");
+            //if (vsUIShell == null)
+            //    throw new InvalidOperationException("Не удалось получить IVsUIShell5.");
 
-            uint win32ColorBackgroundButton;
-            uint win32ColorThicknessButton;
-            uint win32ColorText;
+            //uint win32ColorBackgroundButton;
+            //uint win32ColorThicknessButton;
+            //uint win32ColorText;
 
-            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_COMMANDBAR_HOVER, out win32ColorBackgroundButton);
-            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_COMMANDBAR_BORDER, out win32ColorThicknessButton);
-            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_TEXT, out win32ColorText);
+            //vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_COMMANDBAR_HOVER, out win32ColorBackgroundButton);
+            //vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_COMMANDBAR_BORDER, out win32ColorThicknessButton);
+            //vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_TEXT, out win32ColorText);
 
-            System.Drawing.Color colorBackgroundButton = System.Drawing.ColorTranslator.FromWin32((int)win32ColorBackgroundButton);
-            System.Drawing.Color colorThicknessButton = System.Drawing.ColorTranslator.FromWin32((int)win32ColorThicknessButton);
-            System.Drawing.Color colorText = System.Drawing.ColorTranslator.FromWin32((int)win32ColorText);
+            //System.Drawing.Color colorBackgroundButton = System.Drawing.ColorTranslator.FromWin32((int)win32ColorBackgroundButton);
+            //System.Drawing.Color colorThicknessButton = System.Drawing.ColorTranslator.FromWin32((int)win32ColorThicknessButton);
+            //System.Drawing.Color colorText = System.Drawing.ColorTranslator.FromWin32((int)win32ColorText);
 
-            System.Windows.Media.Color mediaColorBackgroundButton = System.Windows.Media.Color.FromArgb(colorBackgroundButton.A, colorBackgroundButton.R, colorBackgroundButton.G, colorBackgroundButton.B);
-            System.Windows.Media.Color mediaColorThicknessButton = System.Windows.Media.Color.FromArgb(colorThicknessButton.A, colorThicknessButton.R, colorThicknessButton.G, colorThicknessButton.B);
-            System.Windows.Media.Color mediaColorText = System.Windows.Media.Color.FromArgb(colorText.A, colorText.R, colorText.G, colorText.B);
+            //System.Windows.Media.Color mediaColorBackgroundButton = System.Windows.Media.Color.FromArgb(colorBackgroundButton.A, colorBackgroundButton.R, colorBackgroundButton.G, colorBackgroundButton.B);
+            //System.Windows.Media.Color mediaColorThicknessButton = System.Windows.Media.Color.FromArgb(colorThicknessButton.A, colorThicknessButton.R, colorThicknessButton.G, colorThicknessButton.B);
+            //System.Windows.Media.Color mediaColorText = System.Windows.Media.Color.FromArgb(colorText.A, colorText.R, colorText.G, colorText.B);
 
-            if (sender is Button)
-            {
-                Button button = (Button)sender;
-                button.BorderThickness = new Thickness(1, 1, 1, 1);
-                button.Background = new SolidColorBrush(mediaColorBackgroundButton);
-                button.BorderBrush = new SolidColorBrush(mediaColorThicknessButton);
-                button.Foreground = new SolidColorBrush(mediaColorText);
-            }
+            //if (sender is Button)
+            //{
+            //    Button button = (Button)sender;
+            //    button.BorderThickness = new Thickness(1, 1, 1, 1);
+            //    button.Background = new SolidColorBrush(mediaColorBackgroundButton);
+            //    button.BorderBrush = new SolidColorBrush(mediaColorThicknessButton);
+            //    button.Foreground = new SolidColorBrush(mediaColorText);
+            //}
         }
         private void btnAddMenu_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2;
+            //var vsUIShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell2;
 
-            if (vsUIShell == null)
-                throw new InvalidOperationException("Не удалось получить IVsUIShell5.");
+            //if (vsUIShell == null)
+            //    throw new InvalidOperationException("Не удалось получить IVsUIShell5.");
 
-            uint win32ColorMouseLeaveButton;
+            //uint win32ColorMouseLeaveButton;
 
-            vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_BACKGROUND, out win32ColorMouseLeaveButton);
+            //vsUIShell.GetVSSysColorEx((int)__VSSYSCOLOREX.VSCOLOR_TOOLWINDOW_BACKGROUND, out win32ColorMouseLeaveButton);
 
-            System.Drawing.Color colorMouseLeaveButton = System.Drawing.ColorTranslator.FromWin32((int)win32ColorMouseLeaveButton);
+            //System.Drawing.Color colorMouseLeaveButton = System.Drawing.ColorTranslator.FromWin32((int)win32ColorMouseLeaveButton);
 
-            System.Windows.Media.Color mediaColorMouseLeaveButton = System.Windows.Media.Color.FromArgb(colorMouseLeaveButton.A, colorMouseLeaveButton.R, colorMouseLeaveButton.G, colorMouseLeaveButton.B);
+            //System.Windows.Media.Color mediaColorMouseLeaveButton = System.Windows.Media.Color.FromArgb(colorMouseLeaveButton.A, colorMouseLeaveButton.R, colorMouseLeaveButton.G, colorMouseLeaveButton.B);
 
-            if (sender is Button)
-            {
-                Button button = (Button)sender;
-                button.BorderThickness = new Thickness(0, 0, 0, 0);
-                button.Background = new SolidColorBrush(mediaColorMouseLeaveButton);
-            }
+            //if (sender is Button)
+            //{
+            //    Button button = (Button)sender;
+            //    button.BorderThickness = new Thickness(0, 0, 0, 0);
+            //    button.Background = new SolidColorBrush(mediaColorMouseLeaveButton);
+            //}
         }
     }
 }

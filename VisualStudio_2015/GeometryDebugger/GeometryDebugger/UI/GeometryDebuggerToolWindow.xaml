@@ -4,11 +4,59 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GeometryDebugger.Utils"
+             xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.14.0"
              mc:Ignorable="d" 
          d:DesignHeight="450" d:DesignWidth="800" Loaded="GeometryDebuggerToolWindowLoaded" Unloaded="GeometryDebuggerToolWindowUnloaded">
     <UserControl.Resources>
         <local:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
+        
+        <!-- DataGrid Style -->
+        <Style TargetType="DataGrid">
+            <Setter Property="GridLinesVisibility" Value="All"/>
+            <Setter Property="Foreground"
+                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+            <Setter Property="Background"
+                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
+            <Setter Property="HorizontalGridLinesBrush"
+                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.GridLineBrushKey}}"/>
+            <Setter Property="RowBackground"
+                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
+            <Setter Property="AlternatingRowBackground"
+                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
+        </Style>
+
+        <!-- DataGridColumnHeader Style -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background"
+                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.GridHeadingBackgroundBrushKey}}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.GridHeadingTextBrushKey}}"/>
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.GridLineBrushKey}}"/>
+            <Setter Property="BorderThickness"
+                    Value="0.5"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarHoverBrushKey}}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarBorderBrushKey}}"/>
+                    <Setter Property="BorderThickness" Value="1"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="GridSplitter">
+            <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.FileTabInactiveBorderBrushKey}}"/>
+        </Style>
+        
     </UserControl.Resources>
+    
     <Grid Margin="10">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
@@ -21,10 +69,15 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
             <Button Click="btnOpenAddMenu_Click"
-                Width="50" Height="25"
-                Content="Add"
+                Width="70" Height="25"
                 Name="btnAddMenu"
-                MouseEnter="btnAddMenu_MouseEnter" MouseLeave="btnAddMenu_MouseLeave"> 
+                MouseEnter="btnAddMenu_MouseEnter" MouseLeave="btnAddMenu_MouseLeave">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="../Images/AddVariables.png" Width="32" Height="16"/>
+                        <TextBlock Text="Add" VerticalAlignment="Center"></TextBlock>
+                    </StackPanel>
+                </Button.Content>
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
@@ -52,18 +105,28 @@
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Width="Auto" Header="IsSelected" Binding="{Binding m_B_IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></DataGridCheckBoxColumn>
-                <DataGridTemplateColumn Width="50" Header="Color">
+                <DataGridTemplateColumn Width="50" MinWidth="50" Header="Color">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Button x:Name="ColorDisplay" 
                             Background="{Binding m_C_Color, Converter={StaticResource ColorToBrushConverter}}" 
-                            Width="50" 
+                            Width="Auto" 
                             Height="Auto" 
                             Click="ColorDisplay_Click"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Width="*" IsReadOnly="True" Header="Name" Binding="{Binding m_S_Name}"></DataGridTextColumn>
+                <DataGridTemplateColumn Width="*" Header="Name">
+                    <!-- Шаблон ячейки для данных -->
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="../Images/Cube.png" Width="16" Height="16"/>
+                                <TextBlock Text="{Binding m_S_Name}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Width="*" IsReadOnly="True" Header="Type" Binding="{Binding m_S_Type}"></DataGridTextColumn>
                 <DataGridTextColumn Width="*" IsReadOnly="True" Header="Addres" Binding="{Binding m_S_Addres}"></DataGridTextColumn>
                 <DataGridTextColumn Width="Auto" IsReadOnly="True" Header="Source" Binding="{Binding m_S_Source}"></DataGridTextColumn>
