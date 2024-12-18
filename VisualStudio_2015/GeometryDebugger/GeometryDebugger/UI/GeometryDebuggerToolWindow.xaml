@@ -5,8 +5,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GeometryDebugger.Utils"
              xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.14.0"
+             
              mc:Ignorable="d" 
-         d:DesignHeight="450" d:DesignWidth="800" Loaded="GeometryDebuggerToolWindowLoaded" Unloaded="GeometryDebuggerToolWindowUnloaded">
+             
+             Loaded="GeometryDebuggerToolWindowLoaded" 
+             Unloaded="GeometryDebuggerToolWindowUnloaded"
+             
+             d:DesignHeight="450" d:DesignWidth="800" 
+             >
+             
     <UserControl.Resources>
         <local:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
         
@@ -35,6 +42,35 @@
                     Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.GridLineBrushKey}}"/>
             <Setter Property="BorderThickness"
                     Value="0.5"/>
+        </Style>
+
+        <Style TargetType="ContextMenu">
+            <Setter Property="Background"
+            Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
+            <Setter Property="Foreground"
+            Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+            <Setter Property="BorderBrush"
+            Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBorderBrushKey}}"/>
+        </Style>
+
+        <Style TargetType="MenuItem">
+            <Setter Property="Background" 
+                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
+            <Setter Property="Foreground" 
+                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+            <Setter Property="BorderBrush" 
+                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBorderBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" 
+                        Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarHoverBrushKey}}"/>
+                    <Setter Property="Foreground" 
+                        Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+                    <Setter Property="BorderBrush" 
+                        Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarBorderBrushKey}}"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style TargetType="Button">
@@ -70,8 +106,7 @@
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
             <Button Click="btnOpenAddMenu_Click"
                 Width="70" Height="25"
-                Name="btnAddMenu"
-                MouseEnter="btnAddMenu_MouseEnter" MouseLeave="btnAddMenu_MouseLeave">
+                Name="btnAddMenu">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="../Images/AddVariables.png" Width="32" Height="16"/>
@@ -94,7 +129,11 @@
         <DataGrid Grid.Row="1" Grid.Column="0" Name="dgObjects" HeadersVisibility="Column" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" HorizontalAlignment="Left" SelectionMode="Extended">
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Select" Click="MenuItemAddForDrawing_Click"/>
+                    <MenuItem Header="Select" Click="MenuItemAddForDrawing_Click">
+                        <MenuItem.Icon>
+                            <Image Source="../Images/Cube.png" Width="16" Height="16"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <MenuItem Header="Unselect" Click="MenuItemAddForIsntDrawing_Click"/>
                     <MenuItem Header="Delete" Click="MenuItemDelete_Click"/>
                     <MenuItem Header="ToDown" Click="MenuItemToDown_Click"/>
