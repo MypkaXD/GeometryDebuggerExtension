@@ -44,35 +44,6 @@
                     Value="0.5"/>
         </Style>
 
-        <Style TargetType="ContextMenu">
-            <Setter Property="Background"
-            Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
-            <Setter Property="Foreground"
-            Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-            <Setter Property="BorderBrush"
-            Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBorderBrushKey}}"/>
-        </Style>
-
-        <Style TargetType="MenuItem">
-            <Setter Property="Background" 
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
-            <Setter Property="Foreground" 
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-            <Setter Property="BorderBrush" 
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBorderBrushKey}}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Style.Triggers>
-                <Trigger Property="IsHighlighted" Value="True">
-                    <Setter Property="Background" 
-                        Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarHoverBrushKey}}"/>
-                    <Setter Property="Foreground" 
-                        Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-                    <Setter Property="BorderBrush" 
-                        Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarBorderBrushKey}}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
         <Style TargetType="Button">
             <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
             <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
@@ -89,6 +60,12 @@
 
         <Style TargetType="GridSplitter">
             <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.FileTabInactiveBorderBrushKey}}"/>
+        </Style>
+
+        <Style TargetType="MenuItem">
+            <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="0"/>
         </Style>
         
     </UserControl.Resources>
@@ -134,12 +111,36 @@
                             <Image Source="../Images/Cube.png" Width="16" Height="16"></Image>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="Unselect" Click="MenuItemAddForIsntDrawing_Click"/>
-                    <MenuItem Header="Delete" Click="MenuItemDelete_Click"/>
-                    <MenuItem Header="ToDown" Click="MenuItemToDown_Click"/>
-                    <MenuItem Header="ToUp" Click="MenuItemToUp_Click"/>
-                    <MenuItem Header="ToTop" Click="MenuItemToTop_Click"/>
-                    <MenuItem Header="ToBottom" Click="MenuItemToBottom_Click"/>
+                    <MenuItem Header="Unselect" Click="MenuItemAddForIsntDrawing_Click">
+                        <MenuItem.Icon>
+                            <Image Source="../Images/Cube.png" Width="16" Height="16"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Delete" Click="MenuItemDelete_Click">
+                        <MenuItem.Icon>
+                            <Image Source="../Images/Cube.png" Width="16" Height="16"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="ToDown" Click="MenuItemToDown_Click">
+                        <MenuItem.Icon>
+                            <Image Source="../Images/Cube.png" Width="16" Height="16"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="ToUp" Click="MenuItemToUp_Click">
+                        <MenuItem.Icon>
+                            <Image Source="../Images/Cube.png" Width="16" Height="16"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="ToTop" Click="MenuItemToTop_Click">
+                        <MenuItem.Icon>
+                            <Image Source="../Images/Cube.png" Width="16" Height="16"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="ToBottom" Click="MenuItemToBottom_Click">
+                        <MenuItem.Icon>
+                            <Image Source="../Images/Cube.png" Width="16" Height="16"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
