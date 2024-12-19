@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ColorPicker"
         mc:Ignorable="d"
-        Title="ColorPicker" Height="500" Width="400" ResizeMode="NoResize">
+        Title="ColorPicker" Height="500" Width="400" ResizeMode="NoResize" Loaded="Window_Loaded">
     <StackPanel>
         <StackPanel Orientation="Horizontal">
         <Grid Margin="10">
@@ -43,14 +43,44 @@
             </Canvas>
         </Grid>
         <Canvas>
-            <Rectangle x:Name="BrightnessRect" Width="30" Height="200" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,0" />
-            <Slider x:Name="BrightnessSlider" Orientation="Vertical" Width="30" Height="190" Minimum="0" Maximum="1" Value="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="5,15,0,0" ValueChanged="BrightnessSlider_ValueChanged" Canvas.ZIndex="1"/>
-            <Border BorderBrush="Black" BorderThickness="1" Width="30" Height="200" Margin="0,10,0,0"/>
+            <Rectangle x:Name="BrightnessRect" Width="30" Height="200" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="8,10,0,0" />
+            <Slider x:Name="BrightnessSlider" Orientation="Vertical" Width="30" Height="190" Minimum="0" Maximum="1" Value="0.5" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="13,15,0,0" ValueChanged="BrightnessSlider_ValueChanged" Canvas.ZIndex="1"/>
+            <Border BorderBrush="Black" BorderThickness="1" Width="30" Height="200" Margin="8,10,0,0"/>
         </Canvas>
     </StackPanel>
-        <Canvas x:Name="BrightnessCanvas" Width="75" Height="75" Background="White" ClipToBounds="True" Margin="10,0,0,0" HorizontalAlignment="Left">
-            <Rectangle x:Name="ColorPreview" Height="75" Width="75"/>
-            <Border BorderBrush="Black" BorderThickness="1" Width="75" Height="75" Margin="0,0,0,0"/>
-        </Canvas>
+            <StackPanel Orientation="Horizontal">
+                <Canvas x:Name="BrightnessCanvas" Width="75" Height="75" Background="White" ClipToBounds="True" Margin="10,0,0,0" HorizontalAlignment="Left">
+                <Rectangle x:Name="ColorPreview" Height="75" Width="75"/>
+                <Border BorderBrush="Black" BorderThickness="1" Width="75" Height="75" Margin="0,0,0,0"/>
+            </Canvas>
+                <StackPanel Orientation="Vertical" Margin="10,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="R:" FontWeight="Bold"/>
+                    <TextBox x:Name="RedValue" Width="50" Text="255" Height="Auto" Margin="10,0,0,0" TextAlignment="Center" TextChanged="RGB_TextChanged"></TextBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <TextBlock Text="G:" FontWeight="Bold"/>
+                    <TextBox x:Name="GreenValue" Width="50" Text="255" Margin="10,0,0,0" TextAlignment="Center" TextChanged="RGB_TextChanged"></TextBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <TextBlock Text="B:" FontWeight="Bold"/>
+                    <TextBox x:Name="BlueValue" Width="50" Text="255" Margin="10,0,0,0" TextAlignment="Center" TextChanged="RGB_TextChanged"></TextBox>
+                    </StackPanel>
+            </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="10,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="H(°):" FontWeight="Bold"/>
+                    <TextBox x:Name="HueValue" Width="50" Text="180" Height="Auto" Margin="13,0,0,0" TextAlignment="Center" TextChanged="HSL_TextChanged"/>
+                </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <TextBlock Text="S(%):" FontWeight="Bold"/>
+                    <TextBox x:Name="SaturationValue" Width="50" Text="50" Margin="10,0,0,0" TextAlignment="Center" TextChanged="HSL_TextChanged"></TextBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <TextBlock Text="L(%):" FontWeight="Bold"/>
+                    <TextBox x:Name="LightnessValue" Width="50" Text="50" Margin="10,0,0,0" TextAlignment="Center" TextChanged="HSL_TextChanged"></TextBox>
+                    </StackPanel>
+                </StackPanel>
+        </StackPanel>
     </StackPanel>
 </Window>
