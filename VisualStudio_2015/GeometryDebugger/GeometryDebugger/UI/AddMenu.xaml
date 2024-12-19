@@ -6,15 +6,11 @@
              xmlns:local="clr-namespace:GeometryDebugger.Utils"
              xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.14.0"
              mc:Ignorable="d" 
-                      d:DesignHeight="800" d:DesignWidth="600">
+             d:DesignHeight="800" d:DesignWidth="600">
+    
     <UserControl.Resources>
         <local:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
 
-        <Style TargetType="Window">
-            <Setter Property="Background"
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
-        </Style>
-        
         <!-- DataGrid Style -->
         <Style TargetType="DataGrid">
             <Setter Property="GridLinesVisibility" Value="All"/>
@@ -55,7 +51,15 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <Style TargetType="MenuItem">
+            <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
     </UserControl.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -133,9 +137,21 @@
         <DataGrid Grid.Row="1" Grid.Column="0" Name="dgAddVariables"  HeadersVisibility="Column" HorizontalAlignment="Left" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Select" Click="MenuItemAddForImport_Click"/>
-                    <MenuItem Header="Unselect" Click="MenuItemAddForIsntImport_Click"/>
-                    <MenuItem Header="Delete" Click="MenuItemDelete_Click"/>
+                    <MenuItem Header="Select" Click="MenuItemAddForImport_Click">
+                        <MenuItem.Icon>
+                            <Image Source="../Images/Watch.png" Width="16" Height="16"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Unselect" Click="MenuItemAddForIsntImport_Click">
+                        <MenuItem.Icon>
+                            <Image Source="../Images/NotWatch.png" Width="16" Height="16"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Delete" Click="MenuItemDelete_Click">
+                        <MenuItem.Icon>
+                            <Image Source="../Images/Delete.png" Width="16" Height="16"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
