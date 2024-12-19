@@ -1,0 +1,56 @@
+﻿<Window x:Class="ColorPicker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ColorPicker"
+        mc:Ignorable="d"
+        Title="ColorPicker" Height="500" Width="400" ResizeMode="NoResize">
+    <StackPanel>
+        <StackPanel Orientation="Horizontal">
+        <Grid Margin="10">
+            <Canvas x:Name="ColorCanvas" Width="200" Height="200" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Background="White" ClipToBounds="True"
+                MouseDown="ColorCanvas_MouseMove"
+                MouseMove="ColorCanvas_MouseMove">
+                <Rectangle Width="200" Height="200">
+                    <Rectangle.Fill>
+                        <LinearGradientBrush EndPoint="1,0">
+                            <GradientStop Color="Red" Offset="0" />
+                            <GradientStop Color="Yellow" Offset="0.17" />
+                            <GradientStop Color="Lime" Offset="0.33" />
+                            <GradientStop Color="Cyan" Offset="0.5" />
+                            <GradientStop Color="Blue" Offset="0.67" />
+                            <GradientStop Color="Magenta" Offset="0.83" />
+                            <GradientStop Color="Red" Offset="1" />
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <Rectangle Width="200" Height="200">
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="White" Offset="0" />
+                            <GradientStop Color="Transparent" Offset="0.5" />
+                            <GradientStop Color="Black" Offset="1" />
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <Border BorderBrush="Black" BorderThickness="1" Width="200" Height="200"/>
+
+                <Ellipse x:Name="SelectorEllipse" Width="10" Height="10" 
+                         Stroke="Black" Fill="Transparent"
+                         Canvas.Left="100" Canvas.Top="100" />
+            </Canvas>
+        </Grid>
+        <Canvas>
+            <Rectangle x:Name="BrightnessRect" Width="30" Height="200" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,0" />
+            <Slider x:Name="BrightnessSlider" Orientation="Vertical" Width="30" Height="190" Minimum="0" Maximum="1" Value="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="5,15,0,0" ValueChanged="BrightnessSlider_ValueChanged" Canvas.ZIndex="1"/>
+            <Border BorderBrush="Black" BorderThickness="1" Width="30" Height="200" Margin="0,10,0,0"/>
+        </Canvas>
+    </StackPanel>
+        <Canvas x:Name="BrightnessCanvas" Width="75" Height="75" Background="White" ClipToBounds="True" Margin="10,0,0,0" HorizontalAlignment="Left">
+            <Rectangle x:Name="ColorPreview" Height="75" Width="75"/>
+            <Border BorderBrush="Black" BorderThickness="1" Width="75" Height="75" Margin="0,0,0,0"/>
+        </Canvas>
+    </StackPanel>
+</Window>
