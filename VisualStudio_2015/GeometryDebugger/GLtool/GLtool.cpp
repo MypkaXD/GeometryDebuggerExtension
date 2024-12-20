@@ -32,10 +32,15 @@ void GLtool::close() {
 }
 
 void GLtool::reload(const std::vector<std::pair<std::string, bool>>& files, bool resetCamera) {
+
+	std::setlocale(LC_NUMERIC, "en_US.UTF-8");
+
 	gv.reload(files, resetCamera);
 }
 
 void GLtool::visibilities(std::string path, bool isVisble) {
+
+	std::setlocale(LC_NUMERIC, "en_US.UTF-8");
 
 	std::vector<std::pair<std::string, bool>> pairs = { std::make_pair(path, isVisble) };
 

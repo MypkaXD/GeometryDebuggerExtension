@@ -223,24 +223,23 @@ namespace GeometryDebugger.UI
                 ColorPicker colorPicker = new ColorPicker();
                 System.Windows.Window pickerWindow = new System.Windows.Window
                 {
-                    Title = "Pick a Color",
+                    Title = "ColorPicker",
                     Content = colorPicker,
                     SizeToContent = SizeToContent.WidthAndHeight,
                     WindowStartupLocation = WindowStartupLocation.CenterScreen
                 };
 
-                // Set the current color values
-                colorPicker.RedSlider.Value = variable.m_C_Color.m_i_R;
-                colorPicker.GreenSlider.Value = variable.m_C_Color.m_i_G;
-                colorPicker.BlueSlider.Value = variable.m_C_Color.m_i_B;
+                colorPicker.RedValue.Text = ((byte)variable.m_C_Color.m_i_R).ToString();
+                colorPicker.GreenValue.Text = ((byte)variable.m_C_Color.m_i_G).ToString();
+                colorPicker.BlueValue.Text = ((byte)variable.m_C_Color.m_i_B).ToString();
 
                 pickerWindow.ShowDialog();
 
                 // Update Variable's color
                 variable.m_C_Color = new Utils.Color(
-                    (int)colorPicker.RedSlider.Value,
-                    (int)colorPicker.GreenSlider.Value,
-                    (int)colorPicker.BlueSlider.Value
+                    (int)colorPicker.m_RGB.m_Byte_R,
+                    (int)colorPicker.m_RGB.m_Byte_G,
+                    (int)colorPicker.m_RGB.m_Byte_B
                 );
 
                 // Update the button background

@@ -231,15 +231,15 @@ namespace GeometryDebugger.UI
                     };
 
                     // Передаем нашему ColorPicker'у значение цветов, полученных из переменной (поле m_C_Color)
-                    colorPicker.RedSlider.Value = variable.m_C_Color.m_i_R; // красный
-                    colorPicker.GreenSlider.Value = variable.m_C_Color.m_i_G; // зеленый
-                    colorPicker.BlueSlider.Value = variable.m_C_Color.m_i_B; // синий
+                    colorPicker.RedValue.Text = ((byte)variable.m_C_Color.m_i_R).ToString();
+                    colorPicker.GreenValue.Text = ((byte)variable.m_C_Color.m_i_G).ToString();
+                    colorPicker.BlueValue.Text = ((byte)variable.m_C_Color.m_i_B).ToString();
 
                     pickerWindow.ShowDialog(); // показываем ДИАЛОГ с нашим ColorPicker (так как это диалог, то другие элементы UI недоступны - аналогия выборки файла при его открытии в Word'e)
 
-                    int R = (int)colorPicker.RedSlider.Value;
-                    int G = (int)colorPicker.GreenSlider.Value;
-                    int B = (int)colorPicker.BlueSlider.Value;
+                    int R = (int)colorPicker.m_RGB.m_Byte_R;
+                    int G = (int)colorPicker.m_RGB.m_Byte_G;
+                    int B = (int)colorPicker.m_RGB.m_Byte_B;
 
                     if (variable.m_C_Color.m_i_R != R ||
                         variable.m_C_Color.m_i_G != G ||

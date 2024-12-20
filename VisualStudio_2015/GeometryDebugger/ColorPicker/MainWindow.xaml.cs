@@ -38,7 +38,16 @@ namespace ColorPicker
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
+            if (isInit())
+            {
+                UnSubscribeFromEvents();
+                UpdateHSLFromCoords();
+                ConvertHSLToRGB();
+                updateColorPreview();
+                updateColorRect();
+                updateLightnessRect();
+                SubscribeOnEvents();
+            }
         }
 
         private void LightnessSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -50,6 +59,7 @@ namespace ColorPicker
                 ConvertHSLToRGB();
                 updateColorPreview();
                 updateColorRect();
+                updateLightnessRect();
                 SubscribeOnEvents();
             }
         }
@@ -73,15 +83,18 @@ namespace ColorPicker
                     EndPoint = new Point(0, 1)
                 };
 
+                HSL HSLMiddleColor = GetHSLFromRGB(m_RGB.m_Byte_R, m_RGB.m_Byte_G, m_RGB.m_Byte_B);
+                HSLMiddleColor.m_L = 50;
+                HSLMiddleColor.m_Hue = (HSLMiddleColor.m_Hue % 360 + 360) % 360;
+                RGB RGBMiddleColor = GetRGBFromHSL(HSLMiddleColor);
+
                 gradientBrush.GradientStops.Add(new GradientStop(Color.FromRgb(255,255,255), 0));
-                gradientBrush.GradientStops.Add(new GradientStop(Color.FromRgb(m_RGB.m_Byte_R, m_RGB.m_Byte_G, m_RGB.m_Byte_B), 0.5));
+                gradientBrush.GradientStops.Add(new GradientStop(Color.FromRgb(RGBMiddleColor.m_Byte_R, RGBMiddleColor.m_Byte_G, RGBMiddleColor.m_Byte_B), 0.5));
                 gradientBrush.GradientStops.Add(new GradientStop(Color.FromRgb(0, 0, 0), 1));
 
                 LightnessRect.Fill = gradientBrush;
             }
         }
-
-
 
         private void UnSubscribeFromEvents()
         {
@@ -267,6 +280,12 @@ namespace ColorPicker
                 EndPoint = new Point(1, 0)
             };
 
+            var gradientBrushForGray = new LinearGradientBrush
+            {
+                EndPoint = new Point(0, 1)
+            };
+
+            HSL gray = GetHSLFromRGB(Colors.Gray.R, Colors.Gray.G, Colors.Gray.B);
             HSL red = GetHSLFromRGB(Colors.Red.R, Colors.Red.G, Colors.Red.B);
             HSL yellow = GetHSLFromRGB(Colors.Yellow.R, Colors.Yellow.G, Colors.Yellow.B);
             HSL lime = GetHSLFromRGB(Colors.Lime.R, Colors.Lime.G, Colors.Lime.B);
@@ -274,12 +293,13 @@ namespace ColorPicker
             HSL blue = GetHSLFromRGB(Colors.Blue.R, Colors.Blue.G, Colors.Blue.B);
             HSL magenta = GetHSLFromRGB(Colors.Magenta.R, Colors.Magenta.G, Colors.Magenta.B);
 
-            RGB newRed = GetRGBFromHSL(new HSL(red.m_Hue, red.m_S, m_HSL.m_L));
-            RGB newYellow = GetRGBFromHSL(new HSL(yellow.m_Hue, yellow.m_S, m_HSL.m_L));
-            RGB newLime = GetRGBFromHSL(new HSL(lime.m_Hue, lime.m_S, m_HSL.m_L));
-            RGB newCyan = GetRGBFromHSL(new HSL(cyan.m_Hue, cyan.m_S, m_HSL.m_L));
-            RGB newBlue = GetRGBFromHSL(new HSL(blue.m_Hue, blue.m_S, m_HSL.m_L));
-            RGB newMagneta = GetRGBFromHSL(new HSL(magenta.m_Hue, magenta.m_S, m_HSL.m_L));
+            RGB newGray = GetRGBFromHSL(new HSL((gray.m_Hue % 360 + 360) % 360, gray.m_S, m_HSL.m_L));
+            RGB newRed = GetRGBFromHSL(new HSL((red.m_Hue % 360 + 360) %360, red.m_S, m_HSL.m_L));
+            RGB newYellow = GetRGBFromHSL(new HSL((yellow.m_Hue % 360 + 360) % 360, yellow.m_S, m_HSL.m_L));
+            RGB newLime = GetRGBFromHSL(new HSL((lime.m_Hue % 360 + 360) % 360, lime.m_S, m_HSL.m_L));
+            RGB newCyan = GetRGBFromHSL(new HSL((cyan.m_Hue % 360 + 360) % 360, cyan.m_S, m_HSL.m_L));
+            RGB newBlue = GetRGBFromHSL(new HSL((blue.m_Hue % 360 + 360) % 360, blue.m_S, m_HSL.m_L));
+            RGB newMagneta = GetRGBFromHSL(new HSL((magenta.m_Hue % 360 + 360) % 360, magenta.m_S, m_HSL.m_L));
 
             gradientBrush.GradientStops.Add(new GradientStop(Color.FromRgb(newRed.m_Byte_R, newRed.m_Byte_G, newRed.m_Byte_B), 0));
             gradientBrush.GradientStops.Add(new GradientStop(Color.FromRgb(newYellow.m_Byte_R, newYellow.m_Byte_G, newYellow.m_Byte_B), 0.17));
@@ -289,8 +309,13 @@ namespace ColorPicker
             gradientBrush.GradientStops.Add(new GradientStop(Color.FromRgb(newMagneta.m_Byte_R, newMagneta.m_Byte_G, newMagneta.m_Byte_B), 0.83));
             gradientBrush.GradientStops.Add(new GradientStop(Color.FromRgb(newRed.m_Byte_R, newRed.m_Byte_G, newRed.m_Byte_B), 1));
 
+            gradientBrushForGray.GradientStops.Add(new GradientStop(Color.FromArgb(0,255,255,255), 0));
+            gradientBrushForGray.GradientStops.Add(new GradientStop(Color.FromRgb(newGray.m_Byte_R, newGray.m_Byte_G, newGray.m_Byte_B), 1));
+
             if (ColorRect != null)
                 ColorRect.Fill = gradientBrush;
+            if (RectangleGray != null)
+                RectangleGray.Fill = gradientBrushForGray;
         }
 
         private void RGB_TextChanged(object sender, TextChangedEventArgs e)
@@ -425,7 +450,7 @@ namespace ColorPicker
         {
             m_Hue = hue;
             m_S = s;
-            m_L = l;
+            m_L = l;    
         }
     }
 

@@ -5,40 +5,82 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GeometryDebugger.UI"
              xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-             mc:Ignorable="d" 
-                          d:DesignHeight="250" d:DesignWidth="300">
-    <StackPanel Margin="10">
+             mc:Ignorable="d" Height="305" Width="275" Loaded="Window_Loaded">
 
-        <TextBlock Text="Настройка цвета" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
-
-        <!-- Color Display -->
-        <Border x:Name="ColorDisplay" Height="50" BorderBrush="Black" BorderThickness="1" Margin="0,0,0,10"/>
-
-        <!-- Red Slider -->
-        <TextBlock Text="Красный (R):" FontWeight="Bold"/>
+    <StackPanel>
         <StackPanel Orientation="Horizontal">
-            <Slider x:Name="RedSlider" Minimum="0" Maximum="255" Value="255" Width="200" Margin="0,0,10,0"
-                ValueChanged="RGBSlider_ValueChanged"/>
-            <TextBox x:Name="RedValue" Width="50" Text="255" TextAlignment="Center"
-                 TextChanged="RGBTextBox_TextChanged"/>
+            <Grid Margin="10">
+                <Canvas x:Name="ColorCanvas" Width="200" Height="200" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Background="White" ClipToBounds="True"
+                MouseDown="ColorCanvas_MouseMove"
+                MouseMove="ColorCanvas_MouseMove">
+                    <Rectangle x:Name="ColorRect" Width="200" Height="200">
+                        <Rectangle.Fill>
+                            <LinearGradientBrush EndPoint="1,0">
+                                <GradientStop Color="Red" Offset="0" />
+                                <GradientStop Color="Yellow" Offset="0.17" />
+                                <GradientStop Color="Lime" Offset="0.33" />
+                                <GradientStop Color="Cyan" Offset="0.5" />
+                                <GradientStop Color="Blue" Offset="0.67" />
+                                <GradientStop Color="Magenta" Offset="0.83" />
+                                <GradientStop Color="Red" Offset="1" />
+                            </LinearGradientBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                    <Rectangle x:Name="RectangleGray" Width="200" Height="200">
+                        <Rectangle.Fill>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="Transparent" Offset="0" />
+                                <GradientStop Color="Gray" Offset="1" />
+                            </LinearGradientBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                    <Border BorderBrush="Black" BorderThickness="1" Width="200" Height="200"/>
+
+                    <Ellipse x:Name="SelectorEllipse" Width="10" Height="10" 
+                         Stroke="Black" Fill="Transparent"
+                         Canvas.Left="100" Canvas.Top="100" />
+                </Canvas>
+            </Grid>
+            <Canvas>
+                <Rectangle x:Name="LightnessRect" Width="30" Height="200" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="8,10,0,0" />
+                <Slider x:Name="LightnessSlider" Orientation="Vertical" Width="31" Height="190" Minimum="0" Maximum="1" Value="0.5" HorizontalAlignment="Center" VerticalAlignment="Top" ValueChanged="LightnessSlider_ValueChanged" Panel.ZIndex="1" Canvas.Left="13" Canvas.Top="15"/>
+                <Border BorderBrush="Black" BorderThickness="1" Width="30" Height="200" Margin="8,10,0,0"/>
+            </Canvas>
         </StackPanel>
-
-        <!-- Green Slider -->
-        <TextBlock Text="Зелёный (G):" FontWeight="Bold"/>
         <StackPanel Orientation="Horizontal">
-            <Slider x:Name="GreenSlider" Minimum="0" Maximum="255" Value="255" Width="200" Margin="0,0,10,0"
-                ValueChanged="RGBSlider_ValueChanged"/>
-            <TextBox x:Name="GreenValue" Width="50" Text="255" TextAlignment="Center"
-                 TextChanged="RGBTextBox_TextChanged"/>
-        </StackPanel>
-
-        <!-- Blue Slider -->
-        <TextBlock Text="Синий (B):" FontWeight="Bold"/>
-        <StackPanel Orientation="Horizontal">
-            <Slider x:Name="BlueSlider" Minimum="0" Maximum="255" Value="255" Width="200" Margin="0,0,10,0"
-                ValueChanged="RGBSlider_ValueChanged"/>
-            <TextBox x:Name="BlueValue" Width="50" Text="255" TextAlignment="Center"
-                 TextChanged="RGBTextBox_TextChanged"/>
+            <Canvas x:Name="CanvasOfColor" Width="75" Height="75" Background="White" ClipToBounds="True" Margin="10,0,0,0" HorizontalAlignment="Left">
+                <Rectangle x:Name="ColorPreview" Height="75" Width="75"/>
+                <Border BorderBrush="Black" BorderThickness="1" Width="75" Height="75" Margin="0,0,0,0"/>
+            </Canvas>
+            <StackPanel Orientation="Vertical" Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="R:" FontWeight="Bold"/>
+                    <TextBox x:Name="RedValue" Width="50" Text="255" Height="Auto" Margin="10,0,0,0" TextAlignment="Center" TextChanged="RGB_TextChanged"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <TextBlock Text="G:" FontWeight="Bold"/>
+                    <TextBox x:Name="GreenValue" Width="50" Text="255" Margin="10,0,0,0" TextAlignment="Center" TextChanged="RGB_TextChanged"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <TextBlock Text="B:" FontWeight="Bold"/>
+                    <TextBox x:Name="BlueValue" Width="50" Text="255" Margin="10,0,0,0" TextAlignment="Center" TextChanged="RGB_TextChanged"/>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="H(°):" FontWeight="Bold"/>
+                    <TextBox x:Name="HueValue" Width="50" Text="180" Height="Auto" Margin="13,0,0,0" TextAlignment="Center" TextChanged="HSL_TextChanged"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <TextBlock Text="S(%):" FontWeight="Bold"/>
+                    <TextBox x:Name="SaturationValue" Width="50" Text="50" Margin="10,0,0,0" TextAlignment="Center" TextChanged="HSL_TextChanged"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <TextBlock Text="L(%):" FontWeight="Bold"/>
+                    <TextBox x:Name="LightnessValue" Width="50" Text="50" Margin="10,0,0,0" TextAlignment="Center" TextChanged="HSL_TextChanged"/>
+                </StackPanel>
+            </StackPanel>
         </StackPanel>
     </StackPanel>
 </UserControl>
