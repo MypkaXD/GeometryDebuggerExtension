@@ -255,15 +255,9 @@ std::string SerializeObjects(const std::vector<Variable>& objects) {
 
 	for (const auto& o : objects) {
 		RegisterType<Point>(o);
-		RegisterType<Vector>(o);
-		RegisterType<Circle>(o);
-		RegisterType<std::vector<Circle>>(o);
-		RegisterType<Line>(o);
-		RegisterType<CoordinateSystem>(o);
 		RegisterType<Edge>(o);
-		RegisterType<NetPoint>(o);
-		RegisterType<NetEdge>(o);
-		RegisterType<Net>(o);
+		RegisterType<Graph>(o);
+		RegisterType<Path>(o);
 	}
 
 	return buffer;

@@ -6,6 +6,7 @@
 #include "Line.h"
 #include "Coordinate_system.h"
 #include "Edge.h"
+#include "Net.h"
 
 #pragma once
 
@@ -152,3 +153,43 @@ std::string serialize(Edge* value, std::string variableName, float r, float g, f
 
 	return data + "\n";
 }
+
+
+std::string serialize(NetPoint* value, std::string variableName, float r, float g, float b) {
+
+	std::string data = "";
+
+	data += "points: " + variableName + '\n' + "(" + std::to_string(value->getX()) + "," + std::to_string(value->getY()) + "," + std::to_string(value->getZ()) + ")";
+
+	return data + "\n";
+}
+
+std::string serialize(NetEdge* value, std::string variableName, float r, float g, float b) {
+
+	std::string data = "";
+
+	data += serialize(&(value->getA()), variableName + ".netPoint", r, g, b);
+	data += serialize(&(value->getB()), variableName + ".netPoint", r, g, b);
+
+	data += "lines: " + variableName + ".lines\n";
+
+	//(0.000000,5.000000,0.000000)(-0.626666,4.960574,0.000000)(1.000000,0.000000,0.000000)
+
+	data += "(" + std::to_string(value->getA().getX()) + "," + std::to_string(value->getA().getY()) + "," + std::to_string(value->getA().getZ()) + ")" +
+		"(" + std::to_string(value->getB().getX()) + "," + std::to_string(value->getB().getY()) + "," + std::to_string(value->getB().getZ()) + ")";
+	data += "(" + std::to_string(r) + "," + std::to_string(g) + "," + std::to_string(b) + ")\n";
+
+	return data + "\n";
+}
+
+std::string serialize(Net* value, std::string variableName, float r, float g, float b) {
+
+	std::string data = "";
+
+	for (int i = 0; i < value->getEdges().size(); ++i) {
+		data += serialize(&(value->getEdges()[i]), variableName + ".netEdge" + std::to_string(i), r, g, b);
+	}
+
+	return data + "\n";
+}
+

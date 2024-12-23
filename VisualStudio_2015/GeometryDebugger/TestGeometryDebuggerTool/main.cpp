@@ -7,57 +7,104 @@
 #include "Point.h"
 #include "Coordinate_system.h"
 #include "Edge.h"
+#include "Net.h"
 
 Point getPointForCustomCurve(double param) {
 	return Point(std::sin(param), std::cos(param), param);
 }
 
+Net getFirstNet() {
+	NetPoint a1 = NetPoint(0, 0, 0);
+	NetPoint a2 = NetPoint(1, 0, 0);
+	NetPoint a3 = NetPoint(1.2, 0, 0);
+	NetPoint a4 = NetPoint(3, 0, 0);
+	NetPoint b1 = NetPoint(0, 1, 0);
+	NetPoint b2 = NetPoint(1, 1, 0);
+	NetPoint b3 = NetPoint(2, 1, 0);
+	NetPoint b4 = NetPoint(3, 1, 0);
+
+	NetEdge a1a2 = NetEdge(a1, a2);
+	NetEdge a2a3 = NetEdge(a2, a3);
+	NetEdge a3a4 = NetEdge(a3, a4);
+
+	NetEdge a1b1 = NetEdge(a1, b1);
+	NetEdge a2b2 = NetEdge(a2, b2);
+	NetEdge a3b3 = NetEdge(a3, b3);
+	NetEdge a4b4 = NetEdge(a4, b4);
+
+	NetEdge b1b2 = NetEdge(b1, b2);
+	NetEdge b2b3 = NetEdge(b2, b3);
+	NetEdge b3b4 = NetEdge(b3, b4);
+
+	Net net = Net();
+
+	net.addEdge(a1a2);
+	net.addEdge(a2a3);
+	net.addEdge(a3a4);
+
+	net.addEdge(a1b1);
+	net.addEdge(a2b2);
+	net.addEdge(a3b3);
+	net.addEdge(a4b4);
+
+	net.addEdge(b1b2);
+	net.addEdge(b2b3);
+	net.addEdge(b3b4);
+
+	return net;
+}
+
+Net fixNet() {
+	NetPoint a1 = NetPoint(0, 0, 0);
+	NetPoint a2 = NetPoint(1, 0, 0);
+	NetPoint a3 = NetPoint(2, 0, 0);
+	NetPoint a4 = NetPoint(3, 0, 0);
+	NetPoint b1 = NetPoint(0, 1, 0);
+	NetPoint b2 = NetPoint(1, 1, 0);
+	NetPoint b3 = NetPoint(2, 1, 0);
+	NetPoint b4 = NetPoint(3, 1, 0);
+
+	NetEdge a1a2 = NetEdge(a1, a2);
+	NetEdge a2a3 = NetEdge(a2, a3);
+	NetEdge a3a4 = NetEdge(a3, a4);
+
+	NetEdge a1b1 = NetEdge(a1, b1);
+	NetEdge a2b2 = NetEdge(a2, b2);
+	NetEdge a3b3 = NetEdge(a3, b3);
+	NetEdge a4b4 = NetEdge(a4, b4);
+
+	NetEdge b1b2 = NetEdge(b1, b2);
+	NetEdge b2b3 = NetEdge(b2, b3);
+	NetEdge b3b4 = NetEdge(b3, b4);
+
+	Net net = Net();
+
+	net.addEdge(a1a2);
+	net.addEdge(a2a3);
+	net.addEdge(a3a4);
+
+	net.addEdge(a1b1);
+	net.addEdge(a2b2);
+	net.addEdge(a3b3);
+	net.addEdge(a4b4);
+
+	net.addEdge(b1b2);
+	net.addEdge(b2b3);
+	net.addEdge(b3b4);
+
+	return net;
+}
+
 int main() {
 
 	CoordinateSystem cs = CoordinateSystem();
+	
+	NetPoint point = NetPoint(0, 2.5, 4);
 
-	Line line = Line(Point(1, 1, 1), Vector(Point(0, 0, 1)));
+	Net net = getFirstNet();
+	net = fixNet();
 
-	Point vector = Point(1, 0, 0);
-	Point vector2 = Point(0, 0, 0);
-
-	Edge edge1 = CreateStraightEdge(&line, 0, 1);
-	Circle circle = Circle(1, Point(1, 1, 1), Point(0, 0, 1));
-	Edge edge2 = CreateArcEdge(&circle, 0, 3 * M_PI / 2);
-
-	CustomCurve customCurve = CustomCurve(
-		Point(0, 0, 0),
-		Vector(Point(0, 0, 1)),
-		getPointForCustomCurve
-	);
-
-	Edge edge3 = CreateCustomEdge(&customCurve, 0, M_PI * 2);
-
-	std::cout << std::endl;
-
-	int a = 5;
-	Point local = Point(5, 0, 0);
-
-	Circle circle2 = Circle(15, Point(0, 0, 0), Point(0, 1, 1));
-	Circle circle3 = Circle(5, Point(0, 0, 0), Point(0, 0, 1));
-	Circle circle4 = Circle(5, Point(0, 0, 0), Point(0, 0, 1));
-
-	std::vector<Circle> circles(3);
-	for (int i = 0; i < circles.size(); ++i) {
-		circles[i] = Circle((i + 1) * 5, Point(0, 0, 0), Point(0, 0, 1));
-	}
-
-	double step = 1;
-
-	while (a < 10) {
-		circle.setRadius(circle.getRadius() + step);
-		circle2.setRadius(circle2.getRadius() + step);
-		circle3.setRadius(circle3.getRadius() + step);
-		step += 0.5;
-		++a;
-	}
-
-	std::cout << "HELLO " << std::endl;
+	std::cout << "End" << std::endl;
 
 	return 0;
 

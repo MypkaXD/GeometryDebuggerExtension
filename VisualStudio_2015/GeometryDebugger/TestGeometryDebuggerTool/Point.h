@@ -97,3 +97,16 @@ double operator*(const Point& v1, const Point& v2);
 Point operator-(const Point& v1, const Point& v2);
 Point operator+(const Point& v1, const Point& v2);
 Point operator&(const Point& v1, const Point& v2);
+
+class PointGraph
+{
+public:
+	double x;
+	double y;
+	double z;
+
+	PointGraph();
+	PointGraph(double x1, double y1, double z1);
+	void copy_point(PointGraph a1);
+	double get_distanse(PointGraph* a2);
+};
