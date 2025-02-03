@@ -30,6 +30,7 @@ namespace GeometryDebugger.UI
         private DebuggerEvents m_DE_DebuggerEvents;
         private ControlHost m_CH_Host;
         private Dictionary<string, Tuple<bool, bool>> m_L_Paths;
+        private ObservableCollection<Variable> m_OBOV_TempVariables;
 
         private ObservableCollection<Variable> _m_OBOV_Variables;
         public ObservableCollection<Variable> m_OBOV_Variables
@@ -172,6 +173,28 @@ namespace GeometryDebugger.UI
                 {
                     InitAddWindowComponent();
                 }
+
+                m_OBOV_TempVariables = new ObservableCollection<Variable>();
+                foreach (var variable in m_OBOV_Variables)
+                {
+                    Variable tempVariable = new Variable();
+
+                    tempVariable.m_B_IsAdded = variable.m_B_IsAdded;
+                    tempVariable.m_B_IsSelected = variable.m_B_IsAdded;
+
+                    int R = variable.m_C_Color.m_i_R;
+                    int G = variable.m_C_Color.m_i_G;
+                    int B = variable.m_C_Color.m_i_B;
+
+                    tempVariable.m_C_Color = new Utils.Color(R, G, B);
+                    tempVariable.m_S_Addres = variable.m_S_Addres;
+                    tempVariable.m_S_Name = variable.m_S_Name;
+                    tempVariable.m_S_Source = variable.m_S_Source;
+                    tempVariable.m_S_Type = variable.m_S_Type;
+
+                    m_OBOV_TempVariables.Add(tempVariable);
+                }
+
                 m_AM_AddMenu.BreakModDetected();
                 m_OBOV_Variables = m_AM_AddMenu.GetVariables();
                 dgObjects.ItemsSource = m_OBOV_Variables;
@@ -184,22 +207,6 @@ namespace GeometryDebugger.UI
         }
         private void OnAddWindowClosing(object sender, CancelEventArgs e)
         {
-            ObservableCollection<Variable> tempVariables = new ObservableCollection<Variable>();
-            foreach (var variable in m_OBOV_Variables)
-            {
-                Variable tempVariable = new Variable();
-
-                tempVariable.m_B_IsAdded = variable.m_B_IsAdded;
-                tempVariable.m_B_IsSelected = variable.m_B_IsAdded;
-                tempVariable.m_C_Color = new Utils.Color(variable.m_C_Color.m_i_R, variable.m_C_Color.m_i_G, variable.m_C_Color.m_i_B);
-                tempVariable.m_S_Addres = variable.m_S_Addres;
-                tempVariable.m_S_Name = variable.m_S_Name;
-                tempVariable.m_S_Source = variable.m_S_Source;
-                tempVariable.m_S_Type = variable.m_S_Type;
-
-                tempVariables.Add(tempVariable);
-            }
-
             m_OBOV_Variables = m_AM_AddMenu.GetVariables(); // получаем список всех переменных, которые пришли из окна AddVariables (их отличительное
                                                             // свойство в том, что они все isAdded
 
@@ -217,9 +224,15 @@ namespace GeometryDebugger.UI
                     Tuple<bool, bool> properties = new Tuple<bool, bool>(false, false);
                     bool isFind = false;
 
-                    foreach (var tempVariable in tempVariables)
+                    foreach (var tempVariable in m_OBOV_TempVariables)
                     {
-                        if (variable == tempVariable)
+                        if (tempVariable.m_B_IsAdded == variable.m_B_IsAdded &&
+                           tempVariable.m_B_IsSelected == variable.m_B_IsSelected &&
+                           tempVariable.m_C_Color == variable.m_C_Color &&
+                           tempVariable.m_S_Addres == variable.m_S_Addres &&
+                           tempVariable.m_S_Name == variable.m_S_Name &&
+                           tempVariable.m_S_Source == variable.m_S_Source &&
+                           tempVariable.m_S_Type == variable.m_S_Type)
                         {
                             properties = new Tuple<bool, bool>(tempPaths[pathOfVariable].Item1, tempPaths[pathOfVariable].Item2); // сохраняем свойство isSelected и isSerialized
                             isFind = true;
@@ -227,7 +240,7 @@ namespace GeometryDebugger.UI
                     }
 
                     if (!isFind)
-                        properties = new Tuple<bool, bool>(tempPaths[pathOfVariable].Item1, false); // сохраняем свойство isSelected и isSerialized
+                        properties = new Tuple<bool, bool>(tempPaths[pathOfVariable].Item1, false);
 
                     m_L_Paths.Add(pathOfVariable, properties); // добавляем обратно в m_L_Paths
                 }
@@ -601,7 +614,8 @@ namespace GeometryDebugger.UI
                 m_CH_Host.reloadGeomView(files, m_S_GlobalPath, m_B_IsFirst);
                 m_B_IsFirst = false;
             }
-            else
+            
+            if (m_OBOV_Variables.Count == 0)
                 m_CH_Host.reloadGeomView(files, m_S_GlobalPath);
         }
         private void reorder()
