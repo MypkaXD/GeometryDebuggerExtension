@@ -153,14 +153,17 @@ namespace GeometryDebugger.UI
                 // Здесь можно обработать изменения конкретных свойств
                 if (e.PropertyName == nameof(variable.m_B_IsSelected)) // если изменение - CheckBox на m_B_IsSelected
                 {
-
                     string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+
                     bool isSerialized = m_L_Paths[pathOfVariable].Item2; // есть ли информация о этой переменной в файле pathOfVariable
                     bool isSelected = variable.m_B_IsSelected;
 
                     m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(isSelected, isSerialized);
 
-                    draw();
+                    if (isSerialized)
+                        m_CH_Host.visibilityGeomView(m_S_GlobalPath + "\\" + pathOfVariable, isSelected); // если переменная выбрана для показа (isSelected)
+                    else
+                        draw();
                 }
             }
         }
@@ -552,51 +555,46 @@ namespace GeometryDebugger.UI
             reorder(); // изменяем порядок отрисовки
         }
 
+        private void changeVisibility()
+        {
+
+        }
         private void draw()
         {
-            /*
-             * есть функция reload в geomView, она принимает вектор пар (строка - путь до файла, bool - надо ли перерисовать)
-             * если у меня поменялся цвет только у одной переменной, то происходит сериализация
-             * меняется файл и потом вызватется релоад со всеми false, кроме этой (у нее остается
-             * true).
-             * есть функция visibilities в geomView, она отвечает только за визуализацию
-             * если пришел false - то не отображаем
-             * если пришел true - то отображаем
-            */
-
+            List<Variable> variablesForSerializations = new List<Variable>(); // переменные, которые нужно сериализировать заново
             List<Tuple<string, bool>> files = new List<Tuple<string, bool>>(); // лист с путями и bool - isVisible
-            List<Variable> variables = new List<Variable>(); // переменные, которые нужно будет заново сериализировать
 
-            foreach (var variable in m_OBOV_Variables)
+            foreach (var currentVariable in m_OBOV_Variables)
             {
-                string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+                string pathOfVariable = m_S_PathForFile + currentVariable.m_S_Addres; // ключ в Dictionary m_L_Paths
 
                 bool isSelected = m_L_Paths[pathOfVariable].Item1;
                 bool isSerialized = m_L_Paths[pathOfVariable].Item2;
 
-                if (isSerialized) // если переменная уже сериализована (то есть данные о ней записаны в файл){
+                if (isSerialized)
                 {
-                    files.Add(Tuple.Create(pathOfVariable, false)); // указываем, что эту переменную НЕ надо перезагружать 
-                    System.Threading.Thread.Sleep(1);
-                    m_CH_Host.visibilityGeomView(m_S_GlobalPath + "\\" + pathOfVariable, isSelected); // если переменная выбрана для показа (isSelected)
+                    if (isSelected) // в случае, если переменная уже сериализована (данные о ней есть в файле) и надо менять визибилити
+                        files.Add(Tuple.Create(pathOfVariable, false)); // указываем, что эту переменную НЕ надо перезагружать 
+                    else // в случае, если переменная уже сериализована (данные о ней есть в файле) и ей НЕ надо менять визибилити, то мы ничего с ней не делаем
+                        continue;
                 }
-                else // если переменная несериализована (данных о ней нет в файле или их необходимо обновить)
+                else
                 {
                     if (isSelected)
                     {
                         files.Add(Tuple.Create(pathOfVariable, true)); // указываем, что эту переменную надо перезагружать 
-                        variables.Add(variable);
+                        variablesForSerializations.Add(currentVariable);
                     }
-                    else // в данном случае переменная неIsSelected и неIsSerialized => эту переменную не надо отрисовывать и что-то вообще с ней делать
+                    else
                         continue;
                 }
             }
 
-            if (variables.Count != 0)
+            if (variablesForSerializations.Count != 0)
             {
                 m_DE_DebuggerEvents.OnEnterBreakMode -= OnEnterBreakMode; // отписываемся от входа в дебаг мод, может отрицательно влиять на результат
                                                                           // будут пропадать элементы из таблицы
-                SharedMemory sharedMemory = new SharedMemory(variables, m_DGV_Debugger.GetDTE()); // сюда мы отдаем только те переменные, которые выбраны и их надо пересериализировать
+                SharedMemory sharedMemory = new SharedMemory(variablesForSerializations, m_DGV_Debugger.GetDTE()); // сюда мы отдаем только те переменные, которые выбраны и их надо пересериализировать
                 sharedMemory.CreateMessages();
                 sharedMemory.WriteToMemory();
                 sharedMemory.DoSerialize();
@@ -604,19 +602,22 @@ namespace GeometryDebugger.UI
 
                 m_DE_DebuggerEvents.OnEnterBreakMode += OnEnterBreakMode; // подписываемся на вход в дебаг мод обратно
 
-                foreach (var variable in variables)
+                foreach (var variable in variablesForSerializations)
                 {
                     string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
                     bool isSelected = m_L_Paths[pathOfVariable].Item1;
 
                     m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(isSelected, true);
                 }
+
                 m_CH_Host.reloadGeomView(files, m_S_GlobalPath, m_B_IsFirst);
                 m_B_IsFirst = false;
+                return;
             }
-            
-            if (m_OBOV_Variables.Count == 0)
-                m_CH_Host.reloadGeomView(files, m_S_GlobalPath);
+
+            // у нас есть готовая сериализация, то есть все переменные имеют данные в файлах
+
+            m_CH_Host.reloadGeomView(files, m_S_GlobalPath);
         }
         private void reorder()
         {
