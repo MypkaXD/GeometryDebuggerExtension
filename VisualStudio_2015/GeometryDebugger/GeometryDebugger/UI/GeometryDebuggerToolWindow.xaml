@@ -108,12 +108,12 @@
                 <ContextMenu>
                     <MenuItem Header="Select" Click="MenuItemAddForDrawing_Click">
                         <MenuItem.Icon>
-                            <Image Source="../Images/Watch.png" Width="16" Height="16"></Image>
+                            <Image Source="../Images/Select.png" Width="16" Height="16"></Image>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Unselect" Click="MenuItemAddForIsntDrawing_Click">
                         <MenuItem.Icon>
-                            <Image Source="../Images/NotWatch.png" Width="16" Height="16"></Image>
+                            <Image Source="../Images/Unselect.png" Width="16" Height="16"></Image>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Delete" Click="MenuItemDelete_Click">

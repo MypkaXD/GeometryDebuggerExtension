@@ -369,70 +369,6 @@ namespace GeometryDebugger.UI
                 draw();
             }
         }
-        private void draw()
-        {
-            /*
-             * есть функция reload в geomView, она принимает вектор пар (строка - путь до файла, bool - надо ли перерисовать)
-             * если у меня поменялся цвет только у одной переменной, то происходит сериализация
-             * меняется файл и потом вызватется релоад со всеми false, кроме этой (у нее остается
-             * true).
-             * есть функция visibilities в geomView, она отвечает только за визуализацию
-             * если пришел false - то не отображаем
-             * если пришел true - то отображаем
-            */
-
-            List<Tuple<string, bool>> files = new List<Tuple<string, bool>>(); // лист с путями и bool - isVisible
-            List<Variable> variables = new List<Variable>(); // переменные, которые нужно будет заново сериализировать
-
-            foreach (var variable in m_OBOV_Variables)
-            {
-                string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
-
-                bool isSelected = m_L_Paths[pathOfVariable].Item1;
-                bool isSerialized = m_L_Paths[pathOfVariable].Item2;
-
-                if (isSerialized) // если переменная уже сериализована (то есть данные о ней записаны в файл){
-                {
-                    files.Add(Tuple.Create(pathOfVariable, false)); // указываем, что эту переменную НЕ надо перезагружать 
-                    System.Threading.Thread.Sleep(1);
-                    m_CH_Host.visibilityGeomView(m_S_GlobalPath + "\\" + pathOfVariable, isSelected); // если переменная выбрана для показа (isSelected)
-                }
-                else // если переменная несериализована (данных о ней нет в файле или их необходимо обновить)
-                {
-                    if (isSelected)
-                    {
-                        files.Add(Tuple.Create(pathOfVariable, true)); // указываем, что эту переменную надо перезагружать 
-                        variables.Add(variable);
-                    }
-                    else // в данном случае переменная неIsSelected и неIsSerialized => эту переменную не надо отрисовывать и что-то вообще с ней делать
-                        continue;
-                }
-            }
-
-            if (variables.Count != 0)
-            {
-                m_DE_DebuggerEvents.OnEnterBreakMode -= OnEnterBreakMode; // отписываемся от входа в дебаг мод, может отрицательно влиять на результат
-                                                                          // будут пропадать элементы из таблицы
-                SharedMemory sharedMemory = new SharedMemory(variables, m_DGV_Debugger.GetDTE()); // сюда мы отдаем только те переменные, которые выбраны и их надо пересериализировать
-                sharedMemory.CreateMessages();
-                sharedMemory.WriteToMemory();
-                sharedMemory.DoSerialize();
-                m_S_GlobalPath = sharedMemory.getResult();
-
-                m_DE_DebuggerEvents.OnEnterBreakMode += OnEnterBreakMode; // подписываемся на вход в дебаг мод обратно
-
-                foreach (var variable in variables)
-                {
-                    string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
-                    bool isSelected = m_L_Paths[pathOfVariable].Item1;
-
-                    m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(isSelected, true);
-                }
-
-                m_CH_Host.reloadGeomView(files, m_S_GlobalPath);
-            }
-        }
-
         private void MenuItemDelete_Click(object sender, RoutedEventArgs e) // если с помощью контекстного меню удалили переменные (одну или несколько)
         {
             if (dgObjects.SelectedItems.Count == 0) // если кол-во выбранных элементов = 0, то есть пользователь ничего
@@ -455,27 +391,6 @@ namespace GeometryDebugger.UI
                 delete();
             }
         }
-        private void delete()
-        {
-            List<Tuple<string, bool>> files = new List<Tuple<string, bool>>();
-
-            foreach (var variable in m_OBOV_Variables)
-            {
-                string pathOfVariable = m_S_PathForFile + variable.m_S_Addres;
-
-                bool isSelected = m_L_Paths[pathOfVariable].Item1;
-                bool isSerialized = m_L_Paths[pathOfVariable].Item2;
-
-                if (isSerialized) // если переменная уже сериализована (то есть данные о ней записаны в файл){
-                    files.Add(Tuple.Create(pathOfVariable, isSelected));
-                else
-                    continue;
-            }
-
-            m_CH_Host.reloadGeomView(files, m_S_GlobalPath);
-        }
-
-
         private void MenuItemToDown_Click(object sender, RoutedEventArgs e)
         {
             if (dgObjects.SelectedItems.Count == 0) // Если нет выбранных элементов
@@ -595,6 +510,70 @@ namespace GeometryDebugger.UI
 
             reorder(); // изменяем порядок отрисовки
         }
+
+        private void draw()
+        {
+            /*
+             * есть функция reload в geomView, она принимает вектор пар (строка - путь до файла, bool - надо ли перерисовать)
+             * если у меня поменялся цвет только у одной переменной, то происходит сериализация
+             * меняется файл и потом вызватется релоад со всеми false, кроме этой (у нее остается
+             * true).
+             * есть функция visibilities в geomView, она отвечает только за визуализацию
+             * если пришел false - то не отображаем
+             * если пришел true - то отображаем
+            */
+
+            List<Tuple<string, bool>> files = new List<Tuple<string, bool>>(); // лист с путями и bool - isVisible
+            List<Variable> variables = new List<Variable>(); // переменные, которые нужно будет заново сериализировать
+
+            foreach (var variable in m_OBOV_Variables)
+            {
+                string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+
+                bool isSelected = m_L_Paths[pathOfVariable].Item1;
+                bool isSerialized = m_L_Paths[pathOfVariable].Item2;
+
+                if (isSerialized) // если переменная уже сериализована (то есть данные о ней записаны в файл){
+                {
+                    files.Add(Tuple.Create(pathOfVariable, false)); // указываем, что эту переменную НЕ надо перезагружать 
+                    System.Threading.Thread.Sleep(1);
+                    m_CH_Host.visibilityGeomView(m_S_GlobalPath + "\\" + pathOfVariable, isSelected); // если переменная выбрана для показа (isSelected)
+                }
+                else // если переменная несериализована (данных о ней нет в файле или их необходимо обновить)
+                {
+                    if (isSelected)
+                    {
+                        files.Add(Tuple.Create(pathOfVariable, true)); // указываем, что эту переменную надо перезагружать 
+                        variables.Add(variable);
+                    }
+                    else // в данном случае переменная неIsSelected и неIsSerialized => эту переменную не надо отрисовывать и что-то вообще с ней делать
+                        continue;
+                }
+            }
+
+            if (variables.Count != 0)
+            {
+                m_DE_DebuggerEvents.OnEnterBreakMode -= OnEnterBreakMode; // отписываемся от входа в дебаг мод, может отрицательно влиять на результат
+                                                                          // будут пропадать элементы из таблицы
+                SharedMemory sharedMemory = new SharedMemory(variables, m_DGV_Debugger.GetDTE()); // сюда мы отдаем только те переменные, которые выбраны и их надо пересериализировать
+                sharedMemory.CreateMessages();
+                sharedMemory.WriteToMemory();
+                sharedMemory.DoSerialize();
+                m_S_GlobalPath = sharedMemory.getResult();
+
+                m_DE_DebuggerEvents.OnEnterBreakMode += OnEnterBreakMode; // подписываемся на вход в дебаг мод обратно
+
+                foreach (var variable in variables)
+                {
+                    string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+                    bool isSelected = m_L_Paths[pathOfVariable].Item1;
+
+                    m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(isSelected, true);
+                }
+
+            }
+            m_CH_Host.reloadGeomView(files, m_S_GlobalPath);
+        }
         private void reorder()
         {
             List<Tuple<string, bool>> files = new List<Tuple<string, bool>>(); // переменные, порядок которых изменился
@@ -613,6 +592,25 @@ namespace GeometryDebugger.UI
             }
 
             m_CH_Host.reloadGeomView(files, m_S_GlobalPath); // отправляем файл на перезагрузку уже в нужном порядке
+        }
+        private void delete()
+        {
+            List<Tuple<string, bool>> files = new List<Tuple<string, bool>>();
+
+            foreach (var variable in m_OBOV_Variables)
+            {
+                string pathOfVariable = m_S_PathForFile + variable.m_S_Addres;
+
+                bool isSelected = m_L_Paths[pathOfVariable].Item1;
+                bool isSerialized = m_L_Paths[pathOfVariable].Item2;
+
+                if (isSerialized) // если переменная уже сериализована (то есть данные о ней записаны в файл){
+                    files.Add(Tuple.Create(pathOfVariable, isSelected));
+                else
+                    continue;
+            }
+
+            m_CH_Host.reloadGeomView(files, m_S_GlobalPath);
         }
     }
 }

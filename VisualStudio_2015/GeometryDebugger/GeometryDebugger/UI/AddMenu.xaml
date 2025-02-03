@@ -68,9 +68,9 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-            <TextBox Name="MySelfAddedVariables" Width="100"></TextBox>
-            <CheckBox Name="WL" Click="ButtonWatchList_Click" IsChecked="False">
+        <Grid Grid.Row="0" Grid.Column="0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <CheckBox Name="WL" Click="ButtonWatchList_Click" IsChecked="False">
                 <CheckBox.Template>
                     <ControlTemplate TargetType="CheckBox">
                         <Border Background="Transparent">
@@ -79,17 +79,17 @@
                         <ControlTemplate.Triggers>
                             <!-- Триггер для состояния IsChecked=True -->
                             <Trigger Property="IsChecked" Value="True">
-                                <!--<Setter TargetName="CheckBoxImage" Property="Source" Value="C:\dev\Source\GeomDebugger\images\wl.png"/>-->
+                                <Setter TargetName="CheckBoxImage" Property="Source" Value="../Images/W_On.png"/>
                             </Trigger>
                             <!-- Триггер для состояния IsChecked=False -->
                             <Trigger Property="IsChecked" Value="False">
-                                <!--<Setter TargetName="CheckBoxImage" Property="Source" Value="C:\dev\Source\GeomDebugger\images\nwl.png"/>-->
+                                <Setter TargetName="CheckBoxImage" Property="Source" Value="../Images/W_Off.png"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </CheckBox.Template>
             </CheckBox>
-            <CheckBox Name="CF" Click="ButtonCurrentStackFrame_Click" IsChecked="False">
+                <CheckBox Name="CF" Click="ButtonCurrentStackFrame_Click" IsChecked="False">
                 <CheckBox.Template>
                     <ControlTemplate TargetType="CheckBox">
                         <Border Background="Transparent">
@@ -98,18 +98,18 @@
                         <ControlTemplate.Triggers>
                             <!-- Триггер для состояния IsChecked=True -->
                             <Trigger Property="IsChecked" Value="True">
-                                <!--<Setter TargetName="CheckBoxImage" Property="Source" Value="C:\dev\Source\GeomDebugger\images\cf.png"/>-->
+                                <Setter TargetName="CheckBoxImage" Property="Source" Value="../Images/F_On.png"/>
                             </Trigger>
                             <!-- Триггер для состояния IsChecked=False -->
                             <Trigger Property="IsChecked" Value="False">
-                                <!--<Setter TargetName="CheckBoxImage" Property="Source" Value="C:\dev\Source\GeomDebugger\images\ncf.png"/>-->
+                                <Setter TargetName="CheckBoxImage" Property="Source" Value="../Images/F_Off.png"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </CheckBox.Template>
             </CheckBox>
-            <Button Click="ButtonImport_Click" Background="White" Width="50" Height="50">>
-                <!--<Image Width="32" Height="32" Source="C:\\dev\\Source\\GeomDebugger\\images\\export.png"/>-->
+                <Button Click="ButtonImport_Click" Background="White" Width="50" Height="50">
+                <Image Width="32" Height="32" Source="../Images/Export.png"/>
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
@@ -121,30 +121,34 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Button Content="Add variables from TextBox" Click="ButtonMyselfAdded_Click" Loaded="Loaded">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
-        </StackPanel>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Add variables from TextBox" Click="ButtonMyselfAdded_Click" Loaded="Loaded" HorizontalAlignment="Right">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <TextBox Name="MySelfAddedVariables" Width="100" HorizontalAlignment="Right"></TextBox>
+            </StackPanel>
+        </Grid>
         <DataGrid Grid.Row="1" Grid.Column="0" Name="dgAddVariables"  HeadersVisibility="Column" HorizontalAlignment="Left" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Select" Click="MenuItemAddForImport_Click">
                         <MenuItem.Icon>
-                            <Image Source="../Images/Watch.png" Width="16" Height="16"></Image>
+                            <Image Source="../Images/Select.png" Width="16" Height="16"></Image>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Unselect" Click="MenuItemAddForIsntImport_Click">
                         <MenuItem.Icon>
-                            <Image Source="../Images/NotWatch.png" Width="16" Height="16"></Image>
+                            <Image Source="../Images/Unselect.png" Width="16" Height="16"></Image>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Delete" Click="MenuItemDelete_Click">

@@ -104,6 +104,18 @@
     <Content Include="Command\Resources\CreateDubuggerWindowPackage.ico" />
     <Resource Include="Images\Cube.png" />
     <Resource Include="Images\AddVariables.png" />
+    <Resource Include="Images\W_Off.png" />
+    <Resource Include="Images\W_On.png" />
+    <Resource Include="Images\F_Off.png" />
+    <Resource Include="Images\F_On.png" />
+    <Resource Include="Images\Export.png" />
+    <Resource Include="Images\Delete.png" />
+    <Resource Include="Images\ToBottom.png" />
+    <Resource Include="Images\ToDown.png" />
+    <Resource Include="Images\ToTop.png" />
+    <Resource Include="Images\ToUp.png" />
+    <Resource Include="Images\Select.png" />
+    <Resource Include="Images\Unselect.png" />
     <Content Include="index.html" />
     <Content Include="stylesheet.css" />
   </ItemGroup>

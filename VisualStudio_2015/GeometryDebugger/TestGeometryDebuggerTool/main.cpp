@@ -102,7 +102,7 @@ int main() {
 	NetPoint point = NetPoint(0, 2.5, 4);
 
 	Net net = getFirstNet();
-	net = fixNet();
+	Net net2 = fixNet();
 
 	std::cout << "End" << std::endl;
 

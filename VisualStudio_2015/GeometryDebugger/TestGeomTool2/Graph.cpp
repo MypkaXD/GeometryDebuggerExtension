@@ -115,7 +115,7 @@ void Graph::fillRandom(int gr_size)
 //Поиск кратчайшего пути
 Path Graph::algDeikstra(int fromIndex, int toIndex)
 {
-	Graph gr(*this);
+	Graph b_gr(*this);
 	// Массив для хранения кратчайших расстояний от начальной вершины до всех остальных
 	std::vector<int> distance(nodes.size(), INT32_MAX);
 
@@ -159,30 +159,30 @@ Path Graph::algDeikstra(int fromIndex, int toIndex)
 		}
 	}
 
-	Path path_s;
+	Path a_path_s;
 	// Выводим кратчайшие расстояния
 	if (distance[toIndex] == INT32_MAX)
 	{
 		std::cout << "Path not found" << std::endl;
-		return path_s;
+		return a_path_s;
 	}
 
-	// Восстанавливаем пут
+	// Восстанавливаем путь
 	int index = toIndex;
 
 	while (index != -1)
 	{
-		path_s.AddNode(nodes[index]);
+		a_path_s.AddNode(nodes[index]);
 		index = prev[index];
 	}
 
 	// Выводим путь
 	std::cout << "Path: ";
-	for (int i = path_s.GetSize() - 1; i >= 0; i--) {
-		std::cout << nodes[path_s.path[i].top_id].top_id << " ";
+	for (int i = a_path_s.GetSize() - 1; i >= 0; i--) {
+		std::cout << nodes[a_path_s.path[i].top_id].top_id << " ";
 	}
 	std::cout << std::endl;
 	std::cout << "Distance: " << distance[toIndex] << std::endl;
 
-	return path_s;
+	return a_path_s;
 }

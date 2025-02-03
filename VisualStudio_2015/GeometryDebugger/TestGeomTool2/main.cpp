@@ -9,12 +9,12 @@ int main()
 	//graph.fillRandom(100);
 
 
-	graph.fillGrid(30, 30);
+	graph.fillGrid(7, 7);
 
 	//graph.fillRandom(50);
 
 
-	Path p_s = graph.algDeikstra(69, 893);
+	Path p_s = graph.algDeikstra(0, 38);
 
 
 	return 0;
