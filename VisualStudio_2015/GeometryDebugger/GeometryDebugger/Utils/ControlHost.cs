@@ -26,8 +26,6 @@ namespace GeometryDebugger.Utils
         [DllImport("C:\\dev\\Source\\LearningWPF\\VisualStudio_2015\\GeometryDebugger\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void visibilities(ref StringArrayData data);
 
-        private bool isFirst = true;
-
         public ControlHost()
         {
         }
@@ -74,7 +72,7 @@ namespace GeometryDebugger.Utils
             }
         }
 
-        public void reloadGeomView(List<Tuple<string, bool>> files, string globalPath)
+        public void reloadGeomView(List<Tuple<string, bool>> files, string globalPath, bool isResetCamera = false)
         {
             // Создаем массив указателей на строки
             IntPtr[] stringPtrs = new IntPtr[files.Count];
@@ -95,8 +93,7 @@ namespace GeometryDebugger.Utils
             };
 
             // Передаем структуру в C++
-            reload(ref data, isFirst);
-            isFirst = false;
+            reload(ref data, isResetCamera);
 
             // Освобождаем память
             foreach (IntPtr ptr in stringPtrs)

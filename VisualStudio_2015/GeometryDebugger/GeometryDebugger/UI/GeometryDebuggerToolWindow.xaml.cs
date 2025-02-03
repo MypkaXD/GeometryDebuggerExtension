@@ -22,6 +22,7 @@ namespace GeometryDebugger.UI
 
         private bool m_B_IsSet = false;
         private bool m_B_IsSubscribeOnBreakMod = false;
+        private bool m_B_IsFirst = true;
 
         private DebuggerGetterVariables m_DGV_Debugger;
         private AddMenu m_AM_AddMenu;
@@ -570,9 +571,11 @@ namespace GeometryDebugger.UI
 
                     m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(isSelected, true);
                 }
-
+                m_CH_Host.reloadGeomView(files, m_S_GlobalPath, m_B_IsFirst);
+                m_B_IsFirst = false;
             }
-            m_CH_Host.reloadGeomView(files, m_S_GlobalPath);
+            else
+                m_CH_Host.reloadGeomView(files, m_S_GlobalPath);
         }
         private void reorder()
         {
