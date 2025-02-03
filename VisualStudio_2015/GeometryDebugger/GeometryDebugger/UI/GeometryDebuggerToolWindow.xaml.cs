@@ -184,6 +184,22 @@ namespace GeometryDebugger.UI
         }
         private void OnAddWindowClosing(object sender, CancelEventArgs e)
         {
+            ObservableCollection<Variable> tempVariables = new ObservableCollection<Variable>();
+            foreach (var variable in m_OBOV_Variables)
+            {
+                Variable tempVariable = new Variable();
+
+                tempVariable.m_B_IsAdded = variable.m_B_IsAdded;
+                tempVariable.m_B_IsSelected = variable.m_B_IsAdded;
+                tempVariable.m_C_Color = new Utils.Color(variable.m_C_Color.m_i_R, variable.m_C_Color.m_i_G, variable.m_C_Color.m_i_B);
+                tempVariable.m_S_Addres = variable.m_S_Addres;
+                tempVariable.m_S_Name = variable.m_S_Name;
+                tempVariable.m_S_Source = variable.m_S_Source;
+                tempVariable.m_S_Type = variable.m_S_Type;
+
+                tempVariables.Add(tempVariable);
+            }
+
             m_OBOV_Variables = m_AM_AddMenu.GetVariables(); // получаем список всех переменных, которые пришли из окна AddVariables (их отличительное
                                                             // свойство в том, что они все isAdded
 
@@ -198,17 +214,28 @@ namespace GeometryDebugger.UI
                     m_L_Paths.Add(pathOfVariable, Tuple.Create(false, false)); // то создаем новую с флагами isSelected = false, isSerialized = false
                 else // иначе, то есть перменная была найдена в коллекции tempPaths
                 {
-                    Tuple<bool, bool> properties = new Tuple<bool, bool>(tempPaths[pathOfVariable].Item1, tempPaths[pathOfVariable].Item2); // сохраняем свойство isSelected и isSerialized
+                    Tuple<bool, bool> properties = new Tuple<bool, bool>(false, false);
+                    bool isFind = false;
+
+                    foreach (var tempVariable in tempVariables)
+                    {
+                        if (variable == tempVariable)
+                        {
+                            properties = new Tuple<bool, bool>(tempPaths[pathOfVariable].Item1, tempPaths[pathOfVariable].Item2); // сохраняем свойство isSelected и isSerialized
+                            isFind = true;
+                        }
+                    }
+
+                    if (!isFind)
+                        properties = new Tuple<bool, bool>(tempPaths[pathOfVariable].Item1, false); // сохраняем свойство isSelected и isSerialized
+
                     m_L_Paths.Add(pathOfVariable, properties); // добавляем обратно в m_L_Paths
                 }
             }
 
-            dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую
+            dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую 
 
-            /*
-             * Тут не надо вызывать draw, так как переменная, которая уже была добавлена (isAdded) и выбрана (isSelected), 
-             * она либо уже отрисована или не отрисована (зависит от флага isSelected)
-             */
+            draw();
         }
         private void ColorDisplay_Click(object sender, RoutedEventArgs e)
         {
