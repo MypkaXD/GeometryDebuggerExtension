@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using GeometryDebugger.Utils;
+using System.Collections.Specialized;
 using Microsoft.VisualStudio.Shell.Interop;
 
 namespace GeometryDebugger.UI
@@ -30,7 +31,6 @@ namespace GeometryDebugger.UI
         private DebuggerEvents m_DE_DebuggerEvents;
         private ControlHost m_CH_Host;
         private Dictionary<string, Tuple<bool, bool>> m_L_Paths;
-        private ObservableCollection<Variable> m_OBOV_TempVariables;
 
         private ObservableCollection<Variable> _m_OBOV_Variables;
         public ObservableCollection<Variable> m_OBOV_Variables
@@ -45,12 +45,14 @@ namespace GeometryDebugger.UI
                 if (_m_OBOV_Variables != null)
                 {
                     // Отписываемся от событий старой коллекции
+                    _m_OBOV_Variables.CollectionChanged -= Variables_CollectionChanged;
                     foreach (var variable in _m_OBOV_Variables)
                         variable.PropertyChanged -= Variable_PropertyChanged;
                 }
 
                 // Устанавливаем новую коллекцию
                 _m_OBOV_Variables = value;
+                _m_OBOV_Variables.CollectionChanged += Variables_CollectionChanged;
 
                 if (_m_OBOV_Variables != null)
                 {
@@ -168,91 +170,148 @@ namespace GeometryDebugger.UI
             }
         }
 
-        private void btnOpenAddMenu_Click(object sender, RoutedEventArgs e)
+        private void Variables_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (m_DGV_Debugger.IsDebugMode())
+            if (e.NewItems != null) // Добавлены новые элементы
             {
-                if (m_W_AddWindow == null || m_W_AddWindow.IsVisible == false)
-                {
+                foreach (Variable newItem in e.NewItems)
+                    newItem.PropertyChanged += Variable_PropertyChanged;
+            }
+
+            if (e.OldItems != null) // Удалены элементы
+            {
+                foreach (Variable oldItem in e.OldItems)
+                    oldItem.PropertyChanged -= Variable_PropertyChanged;
+            }
+        }
+
+
+        private void btnOpenAddMenu_Click(object sender, RoutedEventArgs e) // срабатывает при нажатии на кнопку с отркыть окно AddVariable
+        {
+            if (m_DGV_Debugger.IsDebugMode()) // проверка на DebugMode
+            {
+                if (m_W_AddWindow == null || m_W_AddWindow.IsVisible == false) // если окно еще не инициализировано
                     InitAddWindowComponent();
-                }
 
-                m_OBOV_TempVariables = new ObservableCollection<Variable>();
-                foreach (var variable in m_OBOV_Variables)
-                {
-                    Variable tempVariable = new Variable();
+                m_AM_AddMenu.BreakModDetected(); // обновляем переменные
+                m_W_AddWindow.ShowDialog(); // показываем диалог
 
-                    tempVariable.m_B_IsAdded = variable.m_B_IsAdded;
-                    tempVariable.m_B_IsSelected = variable.m_B_IsAdded;
-
-                    int R = variable.m_C_Color.m_i_R;
-                    int G = variable.m_C_Color.m_i_G;
-                    int B = variable.m_C_Color.m_i_B;
-
-                    tempVariable.m_C_Color = new Utils.Color(R, G, B);
-                    tempVariable.m_S_Addres = variable.m_S_Addres;
-                    tempVariable.m_S_Name = variable.m_S_Name;
-                    tempVariable.m_S_Source = variable.m_S_Source;
-                    tempVariable.m_S_Type = variable.m_S_Type;
-
-                    m_OBOV_TempVariables.Add(tempVariable);
-                }
-
-                m_AM_AddMenu.BreakModDetected();
-                m_OBOV_Variables = m_AM_AddMenu.GetVariables();
-                dgObjects.ItemsSource = m_OBOV_Variables;
-                m_W_AddWindow.ShowDialog();
+                //m_OBOV_Variables = m_AM_AddMenu.GetVariables();
+                //dgObjects.ItemsSource = m_OBOV_Variables;
             }
             else
             {
                 System.Windows.MessageBox.Show("ERROR: You need to start Debug mode.");
             }
         }
-        private void OnAddWindowClosing(object sender, CancelEventArgs e)
+        private void OnAddWindowClosing(object sender, CancelEventArgs e) // когда закрыли окно
         {
-            m_OBOV_Variables = m_AM_AddMenu.GetVariables(); // получаем список всех переменных, которые пришли из окна AddVariables (их отличительное
-                                                            // свойство в том, что они все isAdded
+            ObservableCollection<Variable> variablesFromAddMenu = m_AM_AddMenu.GetVariables(); // получаем список всех переменных, которые пришли из окна AddVariables (их отличительное
+                                                                                               // свойство в том, что они все isAdded
+            ObservableCollection<Variable> tempVariables = new ObservableCollection<Variable>(m_OBOV_Variables);
+            this.m_OBOV_Variables = new ObservableCollection<Variable>();
 
             Dictionary<string, Tuple<bool, bool>> tempPaths = new Dictionary<string, Tuple<bool, bool>>(m_L_Paths); // сохраняем старый список переменных, которые уже были до этого
             m_L_Paths.Clear(); // очищаем исходные данные
 
-            foreach (var variable in m_OBOV_Variables) // проходимся по каждой переменной в m_OBOV_Variables
+
+            foreach (var tempVariable in tempVariables)
             {
-                string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+                string pathOfVariable = m_S_PathForFile + tempVariable.m_S_Addres; // ключ в Dictionary m_L_Paths
 
-                if (!tempPaths.ContainsKey(pathOfVariable)) // если переменной нет в старой коллекции
-                    m_L_Paths.Add(pathOfVariable, Tuple.Create(false, false)); // то создаем новую с флагами isSelected = false, isSerialized = false
-                else // иначе, то есть перменная была найдена в коллекции tempPaths
+                foreach (var variableFromAddMenu in variablesFromAddMenu)
                 {
-                    Tuple<bool, bool> properties = new Tuple<bool, bool>(false, false);
-                    bool isFind = false;
-
-                    foreach (var tempVariable in m_OBOV_TempVariables)
+                    if (tempVariable.m_B_IsAdded == variableFromAddMenu.m_B_IsAdded &&
+                           tempVariable.m_B_IsSelected == variableFromAddMenu.m_B_IsSelected &&
+                           tempVariable.m_C_Color == variableFromAddMenu.m_C_Color &&
+                           tempVariable.m_S_Addres == variableFromAddMenu.m_S_Addres &&
+                           tempVariable.m_S_Name == variableFromAddMenu.m_S_Name &&
+                           tempVariable.m_S_Source == variableFromAddMenu.m_S_Source &&
+                           tempVariable.m_S_Type == variableFromAddMenu.m_S_Type)
                     {
-                        if (tempVariable.m_B_IsAdded == variable.m_B_IsAdded &&
-                           tempVariable.m_B_IsSelected == variable.m_B_IsSelected &&
-                           tempVariable.m_C_Color == variable.m_C_Color &&
-                           tempVariable.m_S_Addres == variable.m_S_Addres &&
-                           tempVariable.m_S_Name == variable.m_S_Name &&
-                           tempVariable.m_S_Source == variable.m_S_Source &&
-                           tempVariable.m_S_Type == variable.m_S_Type)
-                        {
-                            properties = new Tuple<bool, bool>(tempPaths[pathOfVariable].Item1, tempPaths[pathOfVariable].Item2); // сохраняем свойство isSelected и isSerialized
-                            isFind = true;
-                        }
+                        m_OBOV_Variables.Add(variableFromAddMenu);
+                        m_L_Paths.Add(pathOfVariable, tempPaths[pathOfVariable]);
+                        break;
                     }
+                    else if (tempVariable.m_B_IsAdded == variableFromAddMenu.m_B_IsAdded &&
+                           tempVariable.m_B_IsSelected == variableFromAddMenu.m_B_IsSelected &&
+                           tempVariable.m_C_Color != variableFromAddMenu.m_C_Color &&
+                           tempVariable.m_S_Addres == variableFromAddMenu.m_S_Addres &&
+                           tempVariable.m_S_Name == variableFromAddMenu.m_S_Name &&
+                           tempVariable.m_S_Source == variableFromAddMenu.m_S_Source &&
+                           tempVariable.m_S_Type == variableFromAddMenu.m_S_Type)
+                    {
+                        m_OBOV_Variables.Add(variableFromAddMenu);
+                        m_L_Paths.Add(pathOfVariable, new Tuple<bool, bool>(tempPaths[pathOfVariable].Item1, false));
+                        break;
+                    }
+                    else
+                        continue;
+                }
+            }
 
-                    if (!isFind)
-                        properties = new Tuple<bool, bool>(tempPaths[pathOfVariable].Item1, false);
+            foreach (var variableFromAddMenu in variablesFromAddMenu)
+            {
+                string pathOfVariable = m_S_PathForFile + variableFromAddMenu.m_S_Addres; // ключ в Dictionary m_L_Paths
 
-                    m_L_Paths.Add(pathOfVariable, properties); // добавляем обратно в m_L_Paths
+                bool isFind = false;
+
+                foreach (var variable in m_OBOV_Variables)
+                {
+                    if (variable.m_B_IsAdded == variableFromAddMenu.m_B_IsAdded &&
+                           variable.m_B_IsSelected == variableFromAddMenu.m_B_IsSelected &&
+                           variable.m_C_Color == variableFromAddMenu.m_C_Color &&
+                           variable.m_S_Addres == variableFromAddMenu.m_S_Addres &&
+                           variable.m_S_Name == variableFromAddMenu.m_S_Name &&
+                           variable.m_S_Source == variableFromAddMenu.m_S_Source &&
+                           variable.m_S_Type == variableFromAddMenu.m_S_Type)
+                    {
+                        isFind = true;
+                        break;
+                    }
+                }
+
+                if (!isFind)
+                {
+                    m_L_Paths.Add(pathOfVariable, Tuple.Create(variableFromAddMenu.m_B_IsSelected, false)); // то создаем новую с флагами isSelected = false, isSerialized = false
+                    m_OBOV_Variables.Add(variableFromAddMenu);
                 }
             }
 
             dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую 
 
             draw();
+
         }
+
+        private void OnEnterBreakMode(dbgEventReason reason, ref dbgExecutionAction action) // срабатывает при f5, f10, f11
+        {
+            m_AM_AddMenu.BreakModDetected(); // обновляем информацию о наших переменных, которые мы отслеживаем, валидны ли они
+            m_OBOV_Variables = m_AM_AddMenu.GetVariables(); // получаем итоговые данные с валидными переменными
+
+            /*
+             * Нам необходимо удалить все переменные из m_L_Paths, которые больше не валидны 
+             * Обновить у них всех isSerialized на false
+             * isSelected - оставить таким, каким было
+            */
+
+            Dictionary<string, Tuple<bool, bool>> tempPaths = new Dictionary<string, Tuple<bool, bool>>(m_L_Paths);
+            m_L_Paths.Clear();
+
+            foreach (var variable in m_OBOV_Variables)
+            {
+                string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
+
+                bool isSelected = tempPaths[pathOfVariable].Item1;
+                Tuple<bool, bool> tuple = new Tuple<bool, bool>(isSelected, false);
+                m_L_Paths.Add(pathOfVariable, tuple);
+            }
+
+            dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую
+
+            draw();
+        }
+
         private void ColorDisplay_Click(object sender, RoutedEventArgs e)
         {
             System.Windows.Controls.Button button = sender as System.Windows.Controls.Button; // получаем кнопку из DataGrid, на которую нажал пользователь
@@ -317,34 +376,6 @@ namespace GeometryDebugger.UI
                         return;
                 }
             }
-        }
-
-        private void OnEnterBreakMode(dbgEventReason reason, ref dbgExecutionAction action) // срабатывает при f5, f10, f11
-        {
-            m_AM_AddMenu.BreakModDetected(); // обновляем информацию о наших переменных, которые мы отслеживаем, валидны ли они
-            m_OBOV_Variables = m_AM_AddMenu.GetVariables(); // получаем итоговые данные с валидными переменными
-
-            /*
-             * Нам необходимо удалить все переменные из m_L_Paths, которые больше не валидны 
-             * Обновить у них всех isSerialized на false
-             * isSelected - оставить таким, каким было
-            */
-
-            Dictionary<string, Tuple<bool, bool>> tempPaths = new Dictionary<string, Tuple<bool, bool>>(m_L_Paths);
-            m_L_Paths.Clear();
-
-            foreach (var variable in m_OBOV_Variables)
-            {
-                string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
-
-                bool isSelected = tempPaths[pathOfVariable].Item1;
-                Tuple<bool, bool> tuple = new Tuple<bool, bool>(isSelected, false);
-                m_L_Paths.Add(pathOfVariable, tuple);
-            }
-
-            dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую
-
-            draw();
         }
         private void MenuItemAddForDrawing_Click(object sender, RoutedEventArgs e) // если с помощью контекстного меню выбрали isSelected переменные (одну или несколько)
         {
@@ -426,7 +457,7 @@ namespace GeometryDebugger.UI
                 {
                     string pathOfVariable = m_S_PathForFile + variable.m_S_Addres;
 
-                    m_L_Paths.Remove(m_S_PathForFile);
+                    m_L_Paths.Remove(pathOfVariable);
                     m_OBOV_Variables.Remove(variable);
                 }
 
@@ -555,10 +586,6 @@ namespace GeometryDebugger.UI
             reorder(); // изменяем порядок отрисовки
         }
 
-        private void changeVisibility()
-        {
-
-        }
         private void draw()
         {
             List<Variable> variablesForSerializations = new List<Variable>(); // переменные, которые нужно сериализировать заново

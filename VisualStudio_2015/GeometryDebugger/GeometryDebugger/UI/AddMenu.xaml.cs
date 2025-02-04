@@ -33,7 +33,7 @@ namespace GeometryDebugger.UI
         private ObservableCollection<Variable> m_OBOV_variablesFromWathList = new ObservableCollection<Variable>();
         private ObservableCollection<Variable> m_OBOV_variablseFromMyselfAdded = new ObservableCollection<Variable>();
 
-        private ObservableCollection<Variable> m_OBOV_Variables = new ObservableCollection<Variable>();
+        public ObservableCollection<Variable> m_OBOV_Variables = new ObservableCollection<Variable>();
 
         private DebuggerGetterVariables m_DGV_debugger;
 
@@ -46,20 +46,20 @@ namespace GeometryDebugger.UI
 
         public void BreakModDetected()
         {
-            ObservableCollection<Variable> variables = new ObservableCollection<Variable>(m_OBOV_Variables);
+            ObservableCollection<Variable> variables = new ObservableCollection<Variable>(m_OBOV_Variables); // новая коллекция из старой коллекции (сохранили её грубо говоря)
 
-            UpdateDataFromCurrentStackFrame();
-            UpdateDataFromWatchList();
-            UpdateDataFromMySelf();
+            UpdateDataFromCurrentStackFrame(); // Сохраняем в m_OBOV_variablseFromCurrentStackFrame новые переменные (их получают заново)
+            UpdateDataFromWatchList(); // ..// m_OBOV_variablesFromWathList
+            UpdateDataFromMySelf(); // обновляем данные о переменных, которые добавил пользователь руками
 
             m_OBOV_Variables = new ObservableCollection<Variable>(
                 m_OBOV_variablesFromWathList
                 .Union(m_OBOV_variablseFromCurrentStackFrame)
-                .Union(m_OBOV_variablseFromMyselfAdded));
+                .Union(m_OBOV_variablseFromMyselfAdded)); // объединяем их
 
-            foreach (var variable in variables)
+            foreach (var variable in variables) // проходим по старым переменным, чтобы найти те, которые еще остались живы и синхронизировать их с новыми (цвет, isSelected, isAdded)
             {
-                foreach (var variableInTable in m_OBOV_Variables)
+                foreach (var variableInTable in m_OBOV_Variables) // проходим каждый раз по новым переменным
                 {
                     if (variableInTable.m_S_Addres == variable.m_S_Addres &&
                         variableInTable.m_S_Name == variable.m_S_Name &&
@@ -74,8 +74,8 @@ namespace GeometryDebugger.UI
                 }
             }
 
-            dgAddVariables.ItemsSource = m_OBOV_Variables;
-            SetOnlyAddedVariable();
+            dgAddVariables.ItemsSource = m_OBOV_Variables; // обновляем визуальную состовляющую таблицы
+            //SetOnlyAddedVariable();
 
         }
 
@@ -114,9 +114,9 @@ namespace GeometryDebugger.UI
         }
         private void UpdateDataFromMySelf()
         {
-            ObservableCollection<Variable> variables = new ObservableCollection<Variable>();
+            ObservableCollection<Variable> variables = new ObservableCollection<Variable>(); // создаем новую коллекцию
 
-            foreach (var variable in m_OBOV_variablseFromMyselfAdded)
+            foreach (var variable in m_OBOV_variablseFromMyselfAdded) // проходимся по переменным, которые уже есть и проверяем их на валидность
             {
                 Variable currentVariable = m_DGV_debugger.GetElemetFromExpression(variable.m_S_Name);
 
@@ -132,7 +132,7 @@ namespace GeometryDebugger.UI
                     continue;
             }
 
-            m_OBOV_variablseFromMyselfAdded = new ObservableCollection<Variable>(variables);
+            m_OBOV_variablseFromMyselfAdded = new ObservableCollection<Variable>(variables); // обновляем данные
         }
 
         private void ButtonCurrentStackFrame_Click(object sender, RoutedEventArgs e)
@@ -205,7 +205,7 @@ namespace GeometryDebugger.UI
         }
         public ObservableCollection<Variable> GetVariables()
         {
-            SetOnlyAddedVariable();
+            SetOnlyAddedVariable(); // изменяем коллекцию только на те, которые isAdded
             return m_OBOV_Variables;
         }
 
