@@ -287,7 +287,8 @@ namespace GeometryDebugger.UI
         private void OnEnterBreakMode(dbgEventReason reason, ref dbgExecutionAction action) // срабатывает при f5, f10, f11
         {
             m_AM_AddMenu.BreakModDetected(); // обновляем информацию о наших переменных, которые мы отслеживаем, валидны ли они
-            m_OBOV_Variables = m_AM_AddMenu.GetVariables(); // получаем итоговые данные с валидными переменными
+            ObservableCollection<Variable> variablesFromAddMenu = m_AM_AddMenu.GetVariables(); // получаем итоговые данные с валидными переменными
+            ObservableCollection<Variable> tempVariables = new ObservableCollection<Variable>(m_OBOV_Variables);
 
             /*
              * Нам необходимо удалить все переменные из m_L_Paths, которые больше не валидны 
@@ -295,16 +296,37 @@ namespace GeometryDebugger.UI
              * isSelected - оставить таким, каким было
             */
 
-            Dictionary<string, Tuple<bool, bool>> tempPaths = new Dictionary<string, Tuple<bool, bool>>(m_L_Paths);
-            m_L_Paths.Clear();
-
-            foreach (var variable in m_OBOV_Variables)
+            foreach (var variable in tempVariables)
             {
                 string pathOfVariable = m_S_PathForFile + variable.m_S_Addres; // ключ в Dictionary m_L_Paths
 
-                bool isSelected = tempPaths[pathOfVariable].Item1;
-                Tuple<bool, bool> tuple = new Tuple<bool, bool>(isSelected, false);
-                m_L_Paths.Add(pathOfVariable, tuple);
+                bool isFind = false;
+
+                foreach (var variableFromAddMenu in variablesFromAddMenu)
+                {
+                    if (variable.m_B_IsAdded == variableFromAddMenu.m_B_IsAdded &&
+                               variable.m_B_IsSelected == variableFromAddMenu.m_B_IsSelected &&
+                               variable.m_C_Color == variableFromAddMenu.m_C_Color &&
+                               variable.m_S_Addres == variableFromAddMenu.m_S_Addres &&
+                               variable.m_S_Name == variableFromAddMenu.m_S_Name &&
+                               variable.m_S_Source == variableFromAddMenu.m_S_Source &&
+                               variable.m_S_Type == variableFromAddMenu.m_S_Type)
+                    {
+                        isFind = true;
+                        break;
+                    }
+                }
+
+
+                if (isFind)
+                {
+                    m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(variable.m_B_IsSelected, false);
+                }
+                else
+                {
+                    m_L_Paths.Remove(pathOfVariable);
+                    m_OBOV_Variables.Remove(variable);
+                }
             }
 
             dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую

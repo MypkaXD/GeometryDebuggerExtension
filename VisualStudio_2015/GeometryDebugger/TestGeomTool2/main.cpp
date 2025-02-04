@@ -17,5 +17,8 @@ int main()
 	Path p_s = graph.algDeikstra(0, 38);
 
 
+
+	std::cout << std::endl;
+
 	return 0;
 }
