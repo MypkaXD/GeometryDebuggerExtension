@@ -204,7 +204,7 @@ void writeMemoryMappedFile() {
 }
 
 template<typename T>
-void RegisterType(const Variable& o) {
+bool RegisterType(const Variable& o) {
 
 	std::string typeIdName = typeid(T).name();
 
@@ -246,24 +246,32 @@ void RegisterType(const Variable& o) {
 
 			if (file.is_open()) {
 				file << message;
+
+				return 1;
 			}
 		}
 	}
+	return 0;
 }
 
 std::string SerializeObjects(const std::vector<Variable>& objects) {
 
+	std::cout << message << std::endl;
+
 	for (const auto& o : objects) {
-		RegisterType<Point>(o);
-		RegisterType<Vector>(o);
-		RegisterType<Circle>(o);
-		RegisterType<std::vector<Circle>>(o);
-		RegisterType<Line>(o);
-		RegisterType<CoordinateSystem>(o);
-		RegisterType<Edge>(o);
-		RegisterType<NetPoint>(o);
-		RegisterType<NetEdge>(o);
-		RegisterType<Net>(o);
+
+		bool isSerialized = false;
+
+		isSerialized = RegisterType<Point>(o);
+		isSerialized = RegisterType<Vector>(o);
+		isSerialized = RegisterType<Circle>(o);
+		isSerialized = RegisterType<std::vector<Circle>>(o);
+		isSerialized = RegisterType<Line>(o);
+		isSerialized = RegisterType<CoordinateSystem>(o);
+		isSerialized = RegisterType<Edge>(o);
+		isSerialized = RegisterType<NetPoint>(o);
+		isSerialized = RegisterType<NetEdge>(o);
+		isSerialized = RegisterType<Net>(o);
 	}
 
 	return buffer;

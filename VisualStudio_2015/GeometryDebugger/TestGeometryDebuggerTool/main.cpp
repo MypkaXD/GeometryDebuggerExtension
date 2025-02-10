@@ -97,8 +97,10 @@ Net fixNet() {
 
 int main() {
 
-	CoordinateSystem cs = CoordinateSystem();
+	CoordinateSystem const cs = CoordinateSystem();
 	
+	const CoordinateSystem& cs2 = cs;
+
 	NetPoint point = NetPoint(0, 2.5, 4);
 
 	Net net = getFirstNet();

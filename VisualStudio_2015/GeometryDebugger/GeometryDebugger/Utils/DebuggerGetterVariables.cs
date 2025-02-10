@@ -10,6 +10,9 @@ using System.Windows.Automation;
 using System.Windows;
 using System.Windows.Media;
 using Microsoft.VisualStudio.Shell;
+using Accessibility;
+using System.Runtime.InteropServices;
+using System.Windows.Automation;
 
 namespace GeometryDebugger.Utils
 {
@@ -83,9 +86,70 @@ namespace GeometryDebugger.Utils
                 return;
             }
 
-            AutomationElement mainWindow = AutomationElement.FromHandle((IntPtr)customToolWindow.HWnd);
-            PrintAutomationElement(mainWindow, ref variables);
+            AutomationElement root = AutomationElement.FromHandle((IntPtr)customToolWindow.HWnd);
+            Guid guidIAccessible = typeof(IAccessible).GUID;
+
+            IAccessible window;
+
+            if (AccessibleObjectFromWindow((IntPtr)customToolWindow.HWnd, OBJID_CLIENT, ref guidIAccessible, out window) == 0 && window != null)
+            {
+                GetChildrenFromIAccessible(window);
+            }
+
         }
+
+        void GetChildrenFromIAccessible(IAccessible accessible)
+        {
+            int childCount = accessible.accChildCount;
+
+            if (childCount > 0)
+            {
+                object[] children = new object[childCount];
+                int fetched = 0;
+                if (AccessibleChildren(accessible, 0, childCount, children, out fetched) == 0)
+                {
+                    for (int i = 0; i < fetched; ++i)
+                    {
+                        if (children[i] is IAccessible)
+                        {
+                            IAccessible child = children[i] as IAccessible;
+                            System.Diagnostics.Debug.WriteLine($"Дочерний элемент: {child.accName}");
+                            GetChildrenFromIAccessible(child);
+                        }
+                        else if (children[i] is System.Int32)
+                        {
+                            System.Int32 childId = (System.Int32)(children[i]);
+
+                            // Получаем свойства
+                            string name = accessible.get_accName(childId); // 0 - это CHILDID_SELF
+                            try
+                            {
+                                string value = accessible.get_accValue(childId); // 0 означает CHILDID_SELF (сам элемент)
+                                System.Diagnostics.Debug.WriteLine(value);
+                            }
+                            catch
+                            {
+
+                            }
+                            System.Diagnostics.Debug.WriteLine(name);
+
+                        }
+                    }
+                }
+            }
+        }
+        [DllImport("Oleacc.dll")]
+        public static extern int WindowFromAccessibleObject(IAccessible pacc, out IntPtr phwnd);
+
+
+        [DllImport("oleacc.dll")]
+        private static extern int AccessibleObjectFromWindow(IntPtr hwnd, uint idObject, ref Guid riid, out IAccessible ppvObject);
+
+        private const uint OBJID_CLIENT = 0xFFFFFFFC;
+
+        [DllImport("oleacc.dll")]
+        private static extern int AccessibleChildren(IAccessible paccContainer, int iChildStart, int cChildren, [Out] object[] rgvarChildren, out int pcObtained);
+
 
         private bool isContainVariable(Variable variable, ObservableCollection<Variable> variables)
         {
@@ -100,6 +164,17 @@ namespace GeometryDebugger.Utils
         private void GetElementsFromTreeGreed(AutomationElement element, ref ObservableCollection<Variable> variables)
         {
             string name = element.Current.Name;
+
+            var rawViewWalker = TreeWalker.RawViewWalker;
+            AutomationElement child = rawViewWalker.GetFirstChild(element);
+
+            while (child != null)
+            {
+                if (child.Current.ClassName == "TreeGridItem")
+                    GetElementsFromTreeGreed(child, ref variables);
+
+                child = rawViewWalker.GetNextSibling(child);
+            }
 
             if (element.Current.ClassName == "TreeGridItem")
             {
@@ -130,12 +205,24 @@ namespace GeometryDebugger.Utils
         }
         private void PrintAutomationElement(AutomationElement element, ref ObservableCollection<Variable> variables)
         {
-            if (element.Current.ClassName == "TreeGrid")
+            
+
+            if (element.Current.ClassName == "TREEGRID")
             {
-                var children = element.FindAll(TreeScope.Children, System.Windows.Automation.Condition.TrueCondition);
-                foreach (AutomationElement child in children)
+                //var children = element.FindAll(TreeScope.Children, System.Windows.Automation.Condition.TrueCondition);
+                //foreach (AutomationElement child in children)
+                //    if (child.Current.ClassName == "TreeGridItem")
+                //        GetElementsFromTreeGreed(child, ref variables);
+                var rawViewWalker = TreeWalker.RawViewWalker;
+                AutomationElement child = rawViewWalker.GetFirstChild(element);
+
+                while (child != null)
+                {
                     if (child.Current.ClassName == "TreeGridItem")
                         GetElementsFromTreeGreed(child, ref variables);
+
+                    child = rawViewWalker.GetNextSibling(child);
+                }
             }
             else
             {
