@@ -86,58 +86,116 @@ namespace GeometryDebugger.Utils
                 return;
             }
 
-            AutomationElement root = AutomationElement.FromHandle((IntPtr)customToolWindow.HWnd);
             Guid guidIAccessible = typeof(IAccessible).GUID;
 
             IAccessible window;
 
             if (AccessibleObjectFromWindow((IntPtr)customToolWindow.HWnd, OBJID_CLIENT, ref guidIAccessible, out window) == 0 && window != null)
             {
-                GetChildrenFromIAccessible(window);
+                GetChildrenFromIAccessible(window, ref variables);
             }
 
         }
 
-        void GetChildrenFromIAccessible(IAccessible accessible)
+        void GetElementsFromTreeGridAccessibility(IAccessible treeGrid, ref ObservableCollection<Variable> variables)
         {
-            int childCount = accessible.accChildCount;
+            int childCount = treeGrid.accChildCount; // кол-во детей
 
             if (childCount > 0)
             {
-                object[] children = new object[childCount];
-                int fetched = 0;
-                if (AccessibleChildren(accessible, 0, childCount, children, out fetched) == 0)
-                {
-                    for (int i = 0; i < fetched; ++i)
-                    {
-                        if (children[i] is IAccessible)
-                        {
-                            IAccessible child = children[i] as IAccessible;
-                            System.Diagnostics.Debug.WriteLine($"Дочерний элемент: {child.accName}");
-                            GetChildrenFromIAccessible(child);
-                        }
-                        else if (children[i] is System.Int32)
-                        {
-                            System.Int32 childId = (System.Int32)(children[i]);
+                object[] childrens = new object[childCount];
+                int reciveChilds = 0; // число полученных детей
 
-                            // Получаем свойства
-                            string name = accessible.get_accName(childId); // 0 - это CHILDID_SELF
+                if (AccessibleChildren(treeGrid, 0, childCount, childrens, out reciveChilds) == 0)
+                {
+                    for (int i = 0; i < reciveChilds; ++i)
+                    {
+                        if (childrens[i] is System.Int32)
+                        {
+                            int childID = (System.Int32)childrens[i];
+
                             try
                             {
-                                string value = accessible.get_accValue(childId); // 0 означает CHILDID_SELF (сам элемент)
-                                System.Diagnostics.Debug.WriteLine(value);
-                            }
-                            catch
-                            {
+                                string name = treeGrid.get_accName(childID);
 
-                            }
-                            System.Diagnostics.Debug.WriteLine(name);
+                                if (name == "Name") { // мб проблема из-за разных языков
 
+                                    string value = treeGrid.get_accValue(childID).Split(' ')[0];
+
+                                    var expressionForTypeAndName = m_DTE_Dte.Debugger.GetExpression(value, true, 1);
+                                    var expressionForAddress = m_DTE_Dte.Debugger.GetExpression("&(" + value + ")", true, 1);
+
+                                    if (expressionForTypeAndName.IsValidValue && expressionForAddress.IsValidValue)
+                                    {
+                                        Variable variable = new Variable()
+                                        {
+                                            m_B_IsAdded = false,
+                                            m_B_IsSelected = false,
+                                            m_S_Name = expressionForTypeAndName.Name,
+                                            m_S_Source = "WatchWindow",
+                                            m_S_Type = expressionForTypeAndName.Type.Replace(" ", ""),
+                                            m_S_Addres = expressionForAddress.Value.Split(' ')[0],
+                                            m_C_Color = new Utils.Color(0, 255, 0)
+                                        };
+
+                                        if (!isContainVariable(variable, variables))
+                                            variables.Add(variable);
+                                        else
+                                            System.Windows.MessageBox.Show("ERROR: A variable with this address: " + variable.m_S_Addres + " is already in the table.\nIt will not be added to it.");
+                                    }
+                                }
+                            }
+                            catch { }
                         }
                     }
                 }
             }
         }
+
+        bool GetChildrenFromIAccessible(IAccessible accessible, ref ObservableCollection<Variable> variables)
+        {
+            try
+            {
+                string name = accessible.get_accName(0);
+
+                if (name == "Treegrid Accessibility")
+                {
+                    GetElementsFromTreeGridAccessibility(accessible, ref variables);
+                    return true;
+                }
+            }
+            catch { }
+
+
+            int childCount = accessible.accChildCount; // кол-во детей
+
+            if (childCount > 0)
+            {
+                object[] childrens = new object[childCount];
+                int reciveChilds = 0; // число полученных детей
+
+                if (AccessibleChildren(accessible, 0, childCount, childrens, out reciveChilds) == 0)
+                {
+                    bool isFind = false;
+
+                    for (int i = 0; i < reciveChilds; ++i)
+                    {
+                        if (childrens[i] is IAccessible)
+                        {
+                            IAccessible child = childrens[i] as IAccessible;
+
+                            isFind = GetChildrenFromIAccessible(child, ref variables);
+                        }
+
+                        if (isFind)
+                            return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         [DllImport("Oleacc.dll")]
         public static extern int WindowFromAccessibleObject(IAccessible pacc, out IntPtr phwnd);
 
