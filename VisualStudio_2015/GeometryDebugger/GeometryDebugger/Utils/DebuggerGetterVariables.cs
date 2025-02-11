@@ -108,6 +108,8 @@ namespace GeometryDebugger.Utils
 
                 if (AccessibleChildren(treeGrid, 0, childCount, childrens, out reciveChilds) == 0)
                 {
+                    Queue<Tuple<string, int>> container = new Queue<Tuple<string, int>>();
+
                     for (int i = 0; i < reciveChilds; ++i)
                     {
                         if (childrens[i] is System.Int32)
@@ -116,39 +118,77 @@ namespace GeometryDebugger.Utils
 
                             try
                             {
-                                string name = treeGrid.get_accName(childID);
+                                if (treeGrid.get_accValue(childID).Contains("@ tree depth"))
+                                {
+                                    string nameOfVariable = treeGrid.get_accValue(childID).Split(' ')[0];
+                                    int lvlOfVariable = System.Convert.ToInt32(treeGrid.get_accValue(childID).Split(' ')[4]);
 
-                                if (name == "Name") { // мб проблема из-за разных языков
-
-                                    string value = treeGrid.get_accValue(childID).Split(' ')[0];
-
-                                    var expressionForTypeAndName = m_DTE_Dte.Debugger.GetExpression(value, true, 1);
-                                    var expressionForAddress = m_DTE_Dte.Debugger.GetExpression("&(" + value + ")", true, 1);
-
-                                    if (expressionForTypeAndName.IsValidValue && expressionForAddress.IsValidValue)
-                                    {
-                                        Variable variable = new Variable()
-                                        {
-                                            m_B_IsAdded = false,
-                                            m_B_IsSelected = false,
-                                            m_S_Name = expressionForTypeAndName.Name,
-                                            m_S_Source = "WatchWindow",
-                                            m_S_Type = expressionForTypeAndName.Type.Replace(" ", ""),
-                                            m_S_Addres = expressionForAddress.Value.Split(' ')[0],
-                                            m_C_Color = new Utils.Color(0, 255, 0)
-                                        };
-
-                                        if (!isContainVariable(variable, variables))
-                                            variables.Add(variable);
-                                        else
-                                            System.Windows.MessageBox.Show("ERROR: A variable with this address: " + variable.m_S_Addres + " is already in the table.\nIt will not be added to it.");
-                                    }
+                                    container.Enqueue(Tuple.Create(nameOfVariable, lvlOfVariable));
                                 }
                             }
                             catch { }
                         }
                     }
+
+                    getVariablesFromQueue(ref container, ref variables);
+
                 }
+            }
+        }
+
+        void getVariablesFromQueue(ref Queue<Tuple<string, int>> container, ref ObservableCollection<Variable> variables, int minLvl = 1, string currentName = "")
+        {
+
+            int count = container.Count;
+
+            for (int i = 0; i < count; ++i)
+            {
+                if (container.Count == 0)
+                    return;
+                Tuple<string, int> currentVariable = container.Peek();
+
+                string currentNameOfVariable = currentVariable.Item1;
+                int currentLvlOfVariable = currentVariable.Item2;
+
+                if (currentLvlOfVariable == minLvl)
+                {
+                    getVariableFromString(currentName + currentNameOfVariable, ref variables);
+                    container.Dequeue();
+                }
+                else if (currentLvlOfVariable > minLvl)
+                {
+                    if (currentNameOfVariable.Contains("["))
+                        getVariablesFromQueue(ref container, ref variables, currentLvlOfVariable, variables[variables.Count - 1].m_S_Name);
+                    else
+                        getVariablesFromQueue(ref container, ref variables, currentLvlOfVariable, variables[variables.Count - 1].m_S_Name + ".");
+
+                }
+                else
+                {
+                    return;
+                }
+            }
+        }
+
+        void getVariableFromString(string value, ref ObservableCollection<Variable> variables)
+        {
+            var expressionForTypeAndName = m_DTE_Dte.Debugger.GetExpression(value, true, 1);
+            var expressionForAddress = m_DTE_Dte.Debugger.GetExpression("&(" + value + ")", true, 1);
+
+            if (expressionForTypeAndName.IsValidValue && expressionForAddress.IsValidValue)
+            {
+                Variable variable = new Variable()
+                {
+                    m_B_IsAdded = false,
+                    m_B_IsSelected = false,
+                    m_S_Name = expressionForTypeAndName.Name,
+                    m_S_Source = "WatchWindow",
+                    m_S_Type = expressionForTypeAndName.Type.Replace(" ", ""),
+                    m_S_Addres = expressionForAddress.Value.Split(' ')[0],
+                    m_C_Color = new Utils.Color(0, 255, 0)
+                };
+
+                variables.Add(variable);
             }
         }
 
@@ -219,76 +259,6 @@ namespace GeometryDebugger.Utils
             return false;
         }
 
-        private void GetElementsFromTreeGreed(AutomationElement element, ref ObservableCollection<Variable> variables)
-        {
-            string name = element.Current.Name;
-
-            var rawViewWalker = TreeWalker.RawViewWalker;
-            AutomationElement child = rawViewWalker.GetFirstChild(element);
-
-            while (child != null)
-            {
-                if (child.Current.ClassName == "TreeGridItem")
-                    GetElementsFromTreeGreed(child, ref variables);
-
-                child = rawViewWalker.GetNextSibling(child);
-            }
-
-            if (element.Current.ClassName == "TreeGridItem")
-            {
-                var expressionForTypeAndName = m_DTE_Dte.Debugger.GetExpression(name, true, 1);
-                var expressionForAddress = m_DTE_Dte.Debugger.GetExpression("&(" + name + ")", true, 1);
-
-                if (expressionForTypeAndName.IsValidValue && expressionForAddress.IsValidValue)
-                {
-                    Variable variable = new Variable()
-                    {
-                        m_B_IsAdded = false,
-                        m_B_IsSelected = false,
-                        m_S_Name = expressionForTypeAndName.Name,
-                        m_S_Source = "WatchWindow",
-                        m_S_Type = expressionForTypeAndName.Type.Replace(" ", ""),
-                        m_S_Addres = expressionForAddress.Value.Split(' ')[0],
-                        m_C_Color = new Utils.Color(0, 255, 0)
-                    };
-
-                    if (!isContainVariable(variable, variables))
-                        variables.Add(variable);
-                    else
-                        System.Windows.MessageBox.Show("ERROR: A variable with this address: " + variable.m_S_Addres + " is already in the table.\nIt will not be added to it.");
-                }
-            }
-            else
-                return;
-        }
-        private void PrintAutomationElement(AutomationElement element, ref ObservableCollection<Variable> variables)
-        {
-            
-
-            if (element.Current.ClassName == "TREEGRID")
-            {
-                //var children = element.FindAll(TreeScope.Children, System.Windows.Automation.Condition.TrueCondition);
-                //foreach (AutomationElement child in children)
-                //    if (child.Current.ClassName == "TreeGridItem")
-                //        GetElementsFromTreeGreed(child, ref variables);
-                var rawViewWalker = TreeWalker.RawViewWalker;
-                AutomationElement child = rawViewWalker.GetFirstChild(element);
-
-                while (child != null)
-                {
-                    if (child.Current.ClassName == "TreeGridItem")
-                        GetElementsFromTreeGreed(child, ref variables);
-
-                    child = rawViewWalker.GetNextSibling(child);
-                }
-            }
-            else
-            {
-                var children = element.FindAll(TreeScope.Children, System.Windows.Automation.Condition.TrueCondition);
-                foreach (AutomationElement child in children)
-                    PrintAutomationElement(child, ref variables); // Рекурсивный вызов для дочерних элементов
-            }
-        }
         public Variable GetElemetFromExpression(string name)
         {
             var expressionForTypeAndName = m_DTE_Dte.Debugger.GetExpression(name, true, 1);

@@ -2,23 +2,16 @@
 #include "Graph.h"
 #include <string>
 
+void f() {
+	int a = 13;
+}
 
 int main()
 {
+
 	Graph graph;
-	//graph.fillRandom(100);
 
-
-	graph.fillGrid(7, 7);
-
-	//graph.fillRandom(50);
-
-
-	Path p_s = graph.algDeikstra(0, 38);
-
-
-
-	std::cout << std::endl;
+	f();
 
 	return 0;
 }
