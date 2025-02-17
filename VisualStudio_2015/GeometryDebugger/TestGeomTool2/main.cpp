@@ -11,6 +11,8 @@ int main()
 
 	Graph graph;
 
+	graph.fillGrid(10, 10);
+
 	f();
 
 	return 0;

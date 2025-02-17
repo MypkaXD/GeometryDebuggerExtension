@@ -31,6 +31,7 @@ namespace GeometryDebugger.UI
         private DebuggerEvents m_DE_DebuggerEvents;
         private ControlHost m_CH_Host;
         private Dictionary<string, Tuple<bool, bool>> m_L_Paths;
+        private ThemeListener m_TL_ThemeListener;
 
         private ObservableCollection<Variable> _m_OBOV_Variables;
         public ObservableCollection<Variable> m_OBOV_Variables
@@ -68,6 +69,7 @@ namespace GeometryDebugger.UI
             InitializeComponent();
 
             m_DGV_Debugger = new DebuggerGetterVariables();
+            m_TL_ThemeListener = new ThemeListener();
 
             Loaded += GeometryDebuggerToolWindowLoaded;
             Unloaded += GeometryDebuggerToolWindowUnloaded;
@@ -96,7 +98,7 @@ namespace GeometryDebugger.UI
 
         public void GeometryDebuggerToolWindowLoaded(object sender, RoutedEventArgs e)
         {
-
+            m_TL_ThemeListener = new ThemeListener();
 
             m_CH_Host = new ControlHost();
             if (ControlHostElement.Child == null)
@@ -138,6 +140,7 @@ namespace GeometryDebugger.UI
 
         private void GeometryDebuggerToolWindowUnloaded(object sender, EventArgs e)
         {
+            m_TL_ThemeListener.Unsubscribe();
             ClearGeomViewWindow();
             if (m_B_IsSubscribeOnBreakMod)
             {
@@ -194,7 +197,7 @@ namespace GeometryDebugger.UI
                     InitAddWindowComponent();
 
                 m_AM_AddMenu.BreakModDetected(); // обновляем переменные
-                m_W_AddWindow.ShowDialog(); // показываем диалог
+                m_W_AddWindow.Show(); // показываем диалог
 
                 //m_OBOV_Variables = m_AM_AddMenu.GetVariables();
                 //dgObjects.ItemsSource = m_OBOV_Variables;

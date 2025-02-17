@@ -87,6 +87,7 @@
     <Compile Include="Utils\DebuggerGetterVariables.cs" />
     <Compile Include="Utils\GeometryDebuggerControl.cs" />
     <Compile Include="Utils\SharedMemory.cs" />
+    <Compile Include="Utils\ThemeListener.cs" />
     <Compile Include="Utils\Util.cs" />
     <Compile Include="Utils\Variable.cs" />
   </ItemGroup>
@@ -237,6 +238,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Style\Theme.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\AddMenu.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

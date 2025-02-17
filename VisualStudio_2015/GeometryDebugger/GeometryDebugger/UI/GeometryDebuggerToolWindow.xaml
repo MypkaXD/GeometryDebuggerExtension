@@ -13,61 +13,15 @@
              
              d:DesignHeight="450" d:DesignWidth="800" 
              >
-             
+
     <UserControl.Resources>
-        <local:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
-        
-        <!-- DataGrid Style -->
-        <Style TargetType="DataGrid">
-            <Setter Property="GridLinesVisibility" Value="All"/>
-            <Setter Property="Foreground"
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-            <Setter Property="Background"
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
-            <Setter Property="HorizontalGridLinesBrush"
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.GridLineBrushKey}}"/>
-            <Setter Property="RowBackground"
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
-            <Setter Property="AlternatingRowBackground"
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
-        </Style>
+        <ResourceDictionary>
+            <local:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Style/Theme.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
 
-        <!-- DataGridColumnHeader Style -->
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background"
-                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.GridHeadingBackgroundBrushKey}}"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.GridHeadingTextBrushKey}}"/>
-            <Setter Property="BorderBrush"
-                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.GridLineBrushKey}}"/>
-            <Setter Property="BorderThickness"
-                    Value="0.5"/>
-        </Style>
-
-        <Style TargetType="Button">
-            <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
-            <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarHoverBrushKey}}"/>
-                    <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-                    <Setter Property="BorderBrush" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarBorderBrushKey}}"/>
-                    <Setter Property="BorderThickness" Value="1"></Setter>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style TargetType="GridSplitter">
-            <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.FileTabInactiveBorderBrushKey}}"/>
-        </Style>
-
-        <Style TargetType="MenuItem">
-            <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
-            <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-        </Style>
-        
     </UserControl.Resources>
     
     <Grid Margin="10">
@@ -118,7 +72,7 @@
                     </MenuItem>
                     <MenuItem Header="Delete" Click="MenuItemDelete_Click">
                         <MenuItem.Icon>
-                            <Image Source="../Images/Delete.png" Width="16" Height="16"></Image>
+                            <Image Source="../Images/Delete.png" Width="Auto" Height="Auto"></Image>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="ToDown" Click="MenuItemToDown_Click">

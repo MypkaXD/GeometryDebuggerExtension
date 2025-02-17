@@ -9,55 +9,14 @@
              d:DesignHeight="800" d:DesignWidth="600">
     
     <UserControl.Resources>
-        <local:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
 
-        <!-- DataGrid Style -->
-        <Style TargetType="DataGrid">
-            <Setter Property="GridLinesVisibility" Value="All"/>
-            <Setter Property="Foreground"
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-            <Setter Property="Background"
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
-            <Setter Property="HorizontalGridLinesBrush"
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.GridLineBrushKey}}"/>
-            <Setter Property="RowBackground"
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
-            <Setter Property="AlternatingRowBackground"
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
-        </Style>
-
-        <!-- DataGridColumnHeader Style -->
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background"
-                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.GridHeadingBackgroundBrushKey}}"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.GridHeadingTextBrushKey}}"/>
-            <Setter Property="BorderBrush"
-                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.GridLineBrushKey}}"/>
-            <Setter Property="BorderThickness"
-                    Value="0.5"/>
-        </Style>
-
-        <Style TargetType="Button">
-            <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
-            <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarHoverBrushKey}}"/>
-                    <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-                    <Setter Property="BorderBrush" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarBorderBrushKey}}"/>
-                    <Setter Property="BorderThickness" Value="1"></Setter>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style TargetType="MenuItem">
-            <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
-            <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-        </Style>
-
+        <ResourceDictionary>
+            <local:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Style/Theme.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+        
     </UserControl.Resources>
     
     <Grid>
