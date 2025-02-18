@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColorPicker", "ColorPicker\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestGeomTool2", "TestGeomTool2\TestGeomTool2.vcxproj", "{EE3A8C75-F26C-44DD-B06E-F8222C0F6C9F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GeomEngine", "GeomEngine\GeomEngine.vcxproj", "{184E8B27-8C89-4393-ACE4-6149BA8E546E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,16 @@ Global
 		{EE3A8C75-F26C-44DD-B06E-F8222C0F6C9F}.Release|x64.Build.0 = Release|x64
 		{EE3A8C75-F26C-44DD-B06E-F8222C0F6C9F}.Release|x86.ActiveCfg = Release|Win32
 		{EE3A8C75-F26C-44DD-B06E-F8222C0F6C9F}.Release|x86.Build.0 = Release|Win32
+		{184E8B27-8C89-4393-ACE4-6149BA8E546E}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{184E8B27-8C89-4393-ACE4-6149BA8E546E}.Debug|x64.ActiveCfg = Debug|x64
+		{184E8B27-8C89-4393-ACE4-6149BA8E546E}.Debug|x64.Build.0 = Debug|x64
+		{184E8B27-8C89-4393-ACE4-6149BA8E546E}.Debug|x86.ActiveCfg = Debug|Win32
+		{184E8B27-8C89-4393-ACE4-6149BA8E546E}.Debug|x86.Build.0 = Debug|Win32
+		{184E8B27-8C89-4393-ACE4-6149BA8E546E}.Release|Any CPU.ActiveCfg = Release|Win32
+		{184E8B27-8C89-4393-ACE4-6149BA8E546E}.Release|x64.ActiveCfg = Release|x64
+		{184E8B27-8C89-4393-ACE4-6149BA8E546E}.Release|x64.Build.0 = Release|x64
+		{184E8B27-8C89-4393-ACE4-6149BA8E546E}.Release|x86.ActiveCfg = Release|Win32
+		{184E8B27-8C89-4393-ACE4-6149BA8E546E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

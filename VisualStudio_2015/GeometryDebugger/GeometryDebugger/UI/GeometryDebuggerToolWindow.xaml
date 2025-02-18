@@ -44,16 +44,6 @@
                         <TextBlock Text="Add" VerticalAlignment="Center"></TextBlock>
                     </StackPanel>
                 </Button.Content>
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
             </Button>
         </StackPanel>
         <GridSplitter Grid.Column="0" Grid.Row="2" Height="5" HorizontalAlignment="Stretch"/>
@@ -62,39 +52,42 @@
                 <ContextMenu>
                     <MenuItem Header="Select" Click="MenuItemAddForDrawing_Click">
                         <MenuItem.Icon>
-                            <Image Source="../Images/Select.png" Width="16" Height="16"></Image>
+                            <Image Source="../Images/Select.png" Width="16" Height="16" HorizontalAlignment="Left"></Image>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Unselect" Click="MenuItemAddForIsntDrawing_Click">
                         <MenuItem.Icon>
-                            <Image Source="../Images/Unselect.png" Width="16" Height="16"></Image>
+                            <Image Source="../Images/Unselect.png" Width="16" Height="16" HorizontalAlignment="Left"></Image>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Delete" Click="MenuItemDelete_Click">
                         <MenuItem.Icon>
-                            <Image Source="../Images/Delete.png" Width="Auto" Height="Auto"></Image>
+                            <Image Source="../Images/Delete.png" Width="Auto" Height="Auto" HorizontalAlignment="Left"></Image>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="ToDown" Click="MenuItemToDown_Click">
                         <MenuItem.Icon>
-                            <Image Source="../Images/ToDown.png" Width="16" Height="16"></Image>
+                            <Image Source="../Images/ToDown.png" Width="16" Height="16" HorizontalAlignment="Left"></Image>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="ToUp" Click="MenuItemToUp_Click">
                         <MenuItem.Icon>
-                            <Image Source="../Images/ToUp.png" Width="16" Height="16"></Image>
+                            <Image Source="../Images/ToUp.png" Width="16" Height="16" HorizontalAlignment="Left"></Image>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="ToTop" Click="MenuItemToTop_Click">
                         <MenuItem.Icon>
-                            <Image Source="../Images/ToTop.png" Width="16" Height="16"></Image>
+                            <Image Source="../Images/ToTop.png" Width="16" Height="16" HorizontalAlignment="Left"></Image>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="ToBottom" Click="MenuItemToBottom_Click">
                         <MenuItem.Icon>
-                            <Image Source="../Images/ToBottom.png" Width="16" Height="16"></Image>
+                            <Image Source="../Images/ToBottom.png" Width="16" Height="16" HorizontalAlignment="Left"></Image>
                         </MenuItem.Icon>
+                        
                     </MenuItem>
+                    
+                    
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>

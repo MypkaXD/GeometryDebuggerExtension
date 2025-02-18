@@ -68,31 +68,11 @@
                 </CheckBox.Template>
             </CheckBox>
                 <Button Click="ButtonImport_Click" Background="White" Width="50" Height="50">
-                <Image Width="32" Height="32" Source="../Images/Export.png"/>
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
+                    <Image Width="32" Height="32" Source="../Images/Export.png"/>
+                </Button>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Add variables from TextBox" Click="ButtonMyselfAdded_Click" Loaded="Loaded" HorizontalAlignment="Right">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}">
-                                <ContentPresenter HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"/>
-                            </Border>
-                        </ControlTemplate>
-                    </Button.Template>
                 </Button>
                 <TextBox Name="MySelfAddedVariables" Width="100" HorizontalAlignment="Right"></TextBox>
             </StackPanel>
