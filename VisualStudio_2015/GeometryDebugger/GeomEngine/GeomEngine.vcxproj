@@ -153,8 +153,10 @@
     <ClInclude Include="Curve.h" />
     <ClInclude Include="CustomCurve.h" />
     <ClInclude Include="CustomPlane.h" />
+    <ClInclude Include="Cylinder.h" />
     <ClInclude Include="Edge.h" />
     <ClInclude Include="Line.h" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="SerializedMessages.h" />

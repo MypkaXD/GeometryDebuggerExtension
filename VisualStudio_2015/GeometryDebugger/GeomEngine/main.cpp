@@ -12,13 +12,24 @@
 #include "Plane.h"
 #include "Surface.h"
 #include "CustomPlane.h"
+#include "Vector.h"
+#include "Sphere.h"
+#include "Cylinder.h"
 
 Point getPointForCustomCurve(double param) {
 	return Point(std::sin(param), std::cos(param), param);
 }
 
-Point getPointForParaboloid(double u, double v) {
-	return Point(u, v, u * u + v * v);
+Point getPointForSphere(double u, double v) {
+	return Point(std::cos(v)*std::cos(u), std::sin(u)*std::cos(v), std::sin(v));
+}
+
+Point getPointForSpiral(double u, double v) {
+	return Point(std::cos(u)*(std::cos(v) + 3), std::sin(u)*(std::cos(v) + 3), std::sin(v) + u);
+}
+
+Point getPointForMebius(double u, double v) {
+	return Point((1 + v / 2 * std::cos(u / 2))*std::cos(u), (1 + v / 2 * std::cos(u / 2))*std::sin(u) , v/2*std::sin(u/2));
 }
 
 int main() {
@@ -26,14 +37,23 @@ int main() {
 	Line line = Line(Point(0,0,0), Point(1,0,0));
 	CustomCurve customCurve = CustomCurve(Point(0, 0, 0), getPointForCustomCurve);
 	Circle circle = Circle(0.1, Point(0, 0, 0), Point(1, 0, 0));
+
 	Edge edge1 = Edge(&line, 0, 1);
 	Edge edge2 = Edge(&customCurve, 0, 10);
 	Edge edge3 = Edge(&circle, 0, 2 * M_PI);
 
-	Point point = Point(0, 0, 0);
+	Point origin = Point(0, 0, 0);
+	Point x = Point(1, 0, 0);
+	Point y = Point(0, 1, 0);
+	Point z = Point(0, 0, 1);
+	Vector ox = Vector(origin, x);
+	Vector oy = Vector(origin, y);
+	Vector oz = Vector(origin, z);
 
-	CustomPlane customPlane = CustomPlane(Point(1, 0, 0), Point(1, 0, 0), Point(0, 1, 0), getPointForParaboloid, -5, 5, -5, 5);
-	Plane plane = Plane(Point(0, 0, 0), Point(1, 1, 0), Point(0, 1, 0), -5, 5, -5, 5);
+	CustomPlane customPlane = CustomPlane(Point(-10, 0, 0), Point(1, 0, 0), Point(0, 0, 1), getPointForMebius, 0, 2 * M_PI, -1, 1);
+	Plane plane = Plane(Point(0, 0, 0), Point(1, 0, 0), Point(0, 1, 0), -2 * M_PI, 2 * M_PI, -M_PI, M_PI);
+	Sphere sphere = Sphere(Point(0, 10, 0), Point(1, 0, 0), Point(0, 1, 0), 1, -M_PI, M_PI, -M_PI / 2, M_PI / 2);
+	Cylinder cylinder = Cylinder(Point(10, 0, 0), Point(1, 0, 0), Point(0, 1, 0), 1, 0, 2 * M_PI, -5, 5);
 
 	return 0;
 }

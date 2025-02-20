@@ -1,38 +1,40 @@
 #include "Surface.h"
 
-#ifndef CUSTOMPLANE
-#define CUSTOMPLANE
+#ifndef CYLINDER_H
+#define CYLINDER_H
 
-class CustomPlane : public Surface
+class Cylinder : public Surface
 {
 private:
 
-	Point(*getPointPtr)(double, double);
+	double m_r;
 
 	double uMin, uMax; // Ограничения параметра U
 	double vMin, vMax; // Ограничения параметра V
 
-public:
+	Point getPointInLocal(const double& u, const double& v) {
+		return Point(m_r *std::cos(u), m_r * std::sin(u), v);
+	}
 
-	CustomPlane(Point origin, Point ox, Point oy,
-		Point(*getPointPtr)(double, double),
-		double uMin, double uMax, double vMin, double vMax)
-		: Surface(origin, ox, oy), getPointPtr(getPointPtr),
-		uMin(uMin), uMax(uMax), vMin(vMin), vMax(vMax) {}
+public:
+	Cylinder(Point origin, Point ox, Point oy, double r, double uMin, double uMax, double vMin, double vMax)
+		: Surface(origin, ox, oy), uMin(uMin), uMax(uMax), vMin(vMin), vMax(vMax), m_r(r)
+	{}
 
 	Point getPoint(const double& u, const double& v) override {
-		Point localPoint = getPointPtr(u, v);
+
+		Point localPoint = getPointInLocal(u, v);
 		Point globalPoint = Point(localPoint.getX()*getOX().getX() + localPoint.getY()*getOY().getX() + localPoint.getZ()*getOZ().getX() + get_Origin().getX(),
 			localPoint.getX()*getOX().getY() + localPoint.getY()*getOY().getY() + localPoint.getZ()*getOZ().getY() + get_Origin().getY(),
 			localPoint.getX()*getOX().getZ() + localPoint.getY()*getOY().getZ() + localPoint.getZ()*getOZ().getZ() + get_Origin().getZ());
 		return globalPoint;
 	}
 
-	// Геттеры для границ
 	double getUMin() const { return uMin; }
 	double getUMax() const { return uMax; }
 	double getVMin() const { return vMin; }
 	double getVMax() const { return vMax; }
 };
 
-#endif // !CUSTOMPLANE
+
+#endif // !CYLINDER_H
