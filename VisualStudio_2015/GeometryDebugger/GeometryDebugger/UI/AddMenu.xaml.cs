@@ -20,6 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GeometryDebugger.Utils;
+using Microsoft.VisualStudio.PlatformUI;
 
 namespace GeometryDebugger.UI
 {
@@ -140,6 +141,7 @@ namespace GeometryDebugger.UI
             UpdateDataFromCurrentStackFrame();
             UpdateData();
         }
+
         private void ButtonWatchList_Click(object sender, RoutedEventArgs e)
         {
             UpdateDataFromWatchList();

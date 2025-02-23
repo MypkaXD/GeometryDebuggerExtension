@@ -21,6 +21,7 @@ namespace GeometryDebugger.Utils
         private const string m_S_MemoryFileName = "VariablesMemory"; // Общее имя памяти
         private MemoryMappedFile m_MMF_mmf;
         private string m_S_message = "";
+        private string m_S_response = "";
         private DTE m_DTE;
         private List<Variable> m_variables;
         private bool isReadyMessages = false;
@@ -80,77 +81,30 @@ namespace GeometryDebugger.Utils
         public void DoSerialize()
         {
             if (isReadyMessages)
-                m_DTE.Debugger.GetExpression("Serialize()", true, 1);
-        }
-        public string getResult()
-        {
-            if (isReadyMessages)
             {
-                string mmfName = "SharedMemory";
-                int retryCount = 0;
-                int maxRetries = 60; // максимальное количество попыток (например, 1 минута)
-
-                while (retryCount < maxRetries)
-                {
-                    try
-                    {
-                        using (MemoryMappedFile mmf = MemoryMappedFile.OpenExisting(m_S_MemoryFileName))
-                        {
-                            using (MemoryMappedViewStream stream = mmf.CreateViewStream())
-                            {
-                                // Проверяем первый байт, чтобы узнать, есть ли данные
-                                int firstByte = stream.ReadByte();
-
-                                // Если первый байт пустой (0), продолжаем ожидание
-                                if (firstByte == 0)
-                                {
-                                    retryCount++;
-                                    System.Threading.Thread.Sleep(1000); // Пауза 1 секунда перед повторной проверкой
-                                    continue;
-                                }
-
-                                // Считываем данные до нуль-терминатора
-                                StringBuilder result = new StringBuilder();
-                                result.Append((char)firstByte); // добавляем первый байт
-
-                                int b;
-                                while ((b = stream.ReadByte()) > 0) // Чтение до '\0'
-                                {
-                                    result.Append((char)b);
-                                }
-
-                                // Выводим результат и завершаем цикл ожидания
-                                System.Diagnostics.Debug.WriteLine("Прочитано из MMF: " + result.ToString());
-
-                                if (!result.ToString().Contains(":"))
-                                {
-                                    continue;
-                                }
-                                else
-                                    return result.ToString();
-                            }
-                        }
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        System.Diagnostics.Debug.WriteLine("MemoryMappedFile не найден.");
-                        retryCount++;
-                        System.Threading.Thread.Sleep(1000);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Произошла ошибка: " + ex.Message);
-                        retryCount++;
-                        System.Threading.Thread.Sleep(1000);
-                    }
-                }
-
-                if (retryCount >= maxRetries)
-                {
-                    System.Diagnostics.Debug.WriteLine("Превышено максимальное количество попыток.");
-                }
+                EnvDTE.Expression expr = m_DTE.Debugger.GetExpression($"Serialize()", true, -1);
+                m_S_response = expr.Value;
             }
-            return "";
+            else
+                m_S_response =  "";
+        }
+        public void CheckResulst()
+        {
+            for (int i = 1; i < m_S_response.Length; ++i)
+            {
+                if (m_S_response[i] != '|')
+                {
+                    if (m_S_response[i] == '0')
+                        MessageBox.Show("Type " + m_variables[i - 1].m_S_Type + " of variable " + m_variables[i - 1].m_S_Name + " wasn't serialized", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                    break;
+
+            }
+        }
+        public string getPath()
+        {
+            return m_S_response.Substring(m_S_response.IndexOf('|') + 1, m_S_response.IndexOf('\"', m_S_response.IndexOf('|') + 1) - m_S_response.IndexOf('|') - 1);
         }
     }
 }

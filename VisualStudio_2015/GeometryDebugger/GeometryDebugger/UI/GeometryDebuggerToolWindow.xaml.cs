@@ -12,6 +12,8 @@ using System.Windows.Media;
 using GeometryDebugger.Utils;
 using System.Collections.Specialized;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.PlatformUI;
+using System.Windows.Media.Imaging;
 
 namespace GeometryDebugger.UI
 {
@@ -31,7 +33,16 @@ namespace GeometryDebugger.UI
         private DebuggerEvents m_DE_DebuggerEvents;
         private ControlHost m_CH_Host;
         private Dictionary<string, Tuple<bool, bool>> m_L_Paths;
-        private ThemeListener m_TL_ThemeListener;
+
+        private ResourceDictionary lightTheme = new ResourceDictionary
+        {
+            Source = new Uri("pack://application:,,,/GeometryDebugger;component/Style/Light_Theme.xaml", UriKind.RelativeOrAbsolute)
+        };
+
+        //private ResourceDictionary darkTheme = new ResourceDictionary
+        //{
+        //    Source = new Uri("Dark_Theme.xaml", UriKind.RelativeOrAbsolute)
+        //};
 
         private ObservableCollection<Variable> _m_OBOV_Variables;
         public ObservableCollection<Variable> m_OBOV_Variables
@@ -69,8 +80,8 @@ namespace GeometryDebugger.UI
             InitializeComponent();
 
             m_DGV_Debugger = new DebuggerGetterVariables();
-            m_TL_ThemeListener = new ThemeListener();
 
+            VSColorTheme.ThemeChanged += OnThemeChanged;
             Loaded += GeometryDebuggerToolWindowLoaded;
             Unloaded += GeometryDebuggerToolWindowUnloaded;
 
@@ -79,6 +90,8 @@ namespace GeometryDebugger.UI
             m_OBOV_Variables = new ObservableCollection<Variable>();
 
             InitAddWindowComponent();
+
+            resetTheme();
         }
 
         private void InitAddWindowComponent()
@@ -93,12 +106,97 @@ namespace GeometryDebugger.UI
                 WindowStartupLocation = WindowStartupLocation.CenterScreen
             };
 
+            m_W_AddWindow.Loaded += OnAddWindowLoaded;
             m_W_AddWindow.Closing += OnAddWindowClosing;
+        }
+
+        private void OnAddWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            if (lightTheme["CheckBoxStyle_Light"] is Style)
+            {
+                System.Diagnostics.Debug.WriteLine("CheckBoxStyle_Light найден в словаре.");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("CheckBoxStyle_Light НЕ найден в словаре!");
+            }
+
+
+            if (m_AM_AddMenu.WL.Style == lightTheme["CheckBoxStyle_Light"])
+            {
+                System.Diagnostics.Debug.WriteLine("Стиль уже установлен.");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Устанавливаем стиль...");
+                m_AM_AddMenu.WL.Style = lightTheme["CheckBoxStyle_Light"] as Style;
+            }
+
+
+        }
+
+        private void OnThemeChanged(ThemeChangedEventArgs e)
+        {
+            resetTheme();
+        }
+
+        public void resetTheme()
+        {
+            System.Drawing.Color newBackgroundColor = VSColorTheme.GetThemedColor(EnvironmentColors.ToolWindowBackgroundBrushKey);
+
+            var menuItems = this.dgObjects.ContextMenu.Items.OfType<MenuItem>();
+
+            foreach (var menuItem in menuItems)
+            {
+                string fileName = menuItem.Header.ToString();
+
+                if (newBackgroundColor.R >= 155 || newBackgroundColor.G >= 155 || newBackgroundColor.G >= 155)
+                    fileName += "_Light";
+                else
+                    fileName += "_Dark";
+
+                var imageSource = new BitmapImage(new Uri("../Images/" + fileName + ".png", UriKind.Relative));
+
+                var image = new Image
+                {
+                    Source = imageSource,
+                    Width = 16,
+                    Height = 16,
+                    HorizontalAlignment = HorizontalAlignment.Left
+                };
+
+                menuItem.Icon = image;
+            }
+
+            var menuItemsAddMenu = this.m_AM_AddMenu.dgAddVariables.ContextMenu.Items.OfType<MenuItem>();
+
+            foreach (var menuItem in menuItemsAddMenu)
+            {
+                string fileName = menuItem.Header.ToString();
+
+                if (newBackgroundColor.R >= 155 || newBackgroundColor.G >= 155 || newBackgroundColor.B >= 155)
+                    fileName += "_Light";
+                else
+                    fileName += "_Dark";
+
+                var imageSource = new BitmapImage(new Uri("../Images/" + fileName + ".png", UriKind.Relative));
+
+                var image = new Image
+                {
+                    Source = imageSource,
+                    Width = 16,
+                    Height = 16,
+                    HorizontalAlignment = HorizontalAlignment.Left
+                };
+
+                menuItem.Icon = image;
+            }
+
         }
 
         public void GeometryDebuggerToolWindowLoaded(object sender, RoutedEventArgs e)
         {
-            m_TL_ThemeListener = new ThemeListener();
+            VSColorTheme.ThemeChanged += OnThemeChanged;
 
             m_CH_Host = new ControlHost();
             if (ControlHostElement.Child == null)
@@ -140,7 +238,8 @@ namespace GeometryDebugger.UI
 
         private void GeometryDebuggerToolWindowUnloaded(object sender, EventArgs e)
         {
-            m_TL_ThemeListener.Unsubscribe();
+            VSColorTheme.ThemeChanged -= OnThemeChanged;
+
             ClearGeomViewWindow();
             if (m_B_IsSubscribeOnBreakMod)
             {
@@ -431,6 +530,9 @@ namespace GeometryDebugger.UI
                     }
                 }
 
+                dgObjects.CommitEdit();
+                dgObjects.CommitEdit();
+
                 dgObjects.Items.Refresh(); // обновляем визуальную составляющую
 
                 draw();
@@ -463,6 +565,9 @@ namespace GeometryDebugger.UI
                         }
                     }
                 }
+
+                dgObjects.CommitEdit();
+                dgObjects.CommitEdit();
 
                 dgObjects.Items.Refresh(); // обновляем визуальную составляющую
 
@@ -650,7 +755,8 @@ namespace GeometryDebugger.UI
                 sharedMemory.CreateMessages();
                 sharedMemory.WriteToMemory();
                 sharedMemory.DoSerialize();
-                m_S_GlobalPath = sharedMemory.getResult();
+                sharedMemory.CheckResulst();
+                m_S_GlobalPath = sharedMemory.getPath();
 
                 m_DE_DebuggerEvents.OnEnterBreakMode += OnEnterBreakMode; // подписываемся на вход в дебаг мод обратно
 

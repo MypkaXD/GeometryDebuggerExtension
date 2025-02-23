@@ -87,7 +87,6 @@
     <Compile Include="Utils\DebuggerGetterVariables.cs" />
     <Compile Include="Utils\GeometryDebuggerControl.cs" />
     <Compile Include="Utils\SharedMemory.cs" />
-    <Compile Include="Utils\ThemeListener.cs" />
     <Compile Include="Utils\Util.cs" />
     <Compile Include="Utils\Variable.cs" />
   </ItemGroup>
@@ -106,18 +105,29 @@
     <Content Include="Command\Resources\CreateDubuggerWindowPackage.ico" />
     <Resource Include="Images\Cube.png" />
     <Resource Include="Images\AddVariables.png" />
-    <Resource Include="Images\W_Off.png" />
-    <Resource Include="Images\W_On.png" />
-    <Resource Include="Images\F_Off.png" />
-    <Resource Include="Images\F_On.png" />
     <Resource Include="Images\Export.png" />
-    <Resource Include="Images\Delete.png" />
-    <Resource Include="Images\ToBottom.png" />
-    <Resource Include="Images\ToDown.png" />
-    <Resource Include="Images\ToTop.png" />
-    <Resource Include="Images\ToUp.png" />
-    <Resource Include="Images\Select.png" />
-    <Resource Include="Images\Unselect.png" />
+    <Resource Include="Images\ToBottom_Dark.png" />
+    <Resource Include="Images\ToBottom_Light.png" />
+    <Resource Include="Images\ToDown_Dark.png" />
+    <Resource Include="Images\ToDown_Light.png" />
+    <Resource Include="Images\ToTop_Dark.png" />
+    <Resource Include="Images\ToTop_Light.png" />
+    <Resource Include="Images\ToUp_Dark.png" />
+    <Resource Include="Images\ToUp_Light.png" />
+    <Resource Include="Images\Delete_Dark.png" />
+    <Resource Include="Images\Delete_Light.png" />
+    <Resource Include="Images\Select_Dark.png" />
+    <Resource Include="Images\Select_Light.png" />
+    <Resource Include="Images\Unselect_Dark.png" />
+    <Resource Include="Images\Unselect_Light.png" />
+    <Resource Include="Images\F_On_Dark.png" />
+    <Resource Include="Images\F_On_Light.png" />
+    <Resource Include="Images\W_On_Dark.png" />
+    <Resource Include="Images\W_On_Light.png" />
+    <Resource Include="Images\F_Off_Dark.png" />
+    <Resource Include="Images\F_Off_Light.png" />
+    <Resource Include="Images\W_Off_Dark.png" />
+    <Resource Include="Images\W_Off_Light.png" />
     <Content Include="index.html" />
     <Content Include="stylesheet.css" />
   </ItemGroup>
@@ -238,6 +248,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Style\Light_Theme.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Style\Theme.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

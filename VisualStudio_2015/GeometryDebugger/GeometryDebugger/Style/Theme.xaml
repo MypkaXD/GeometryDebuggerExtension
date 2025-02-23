@@ -64,13 +64,29 @@
         <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.FileTabInactiveBorderBrushKey}}"/>
     </Style>
 
-    <Style TargetType="MenuItem">
-        <Setter Property="Foreground" 
-            Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-        <Setter Property="Background" 
+    <Style TargetType="ContextMenu">
+        <Setter Property="Background"
             Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
-        <Setter Property="Padding" Value="5,2"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
     </Style>
+
+    <Style TargetType="MenuItem">
+        <Setter Property="Foreground"
+            Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+        <Setter Property="Background"
+            Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="5,2"/>
+
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarHoverBrushKey}}"/>
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
 
 
 </ResourceDictionary>

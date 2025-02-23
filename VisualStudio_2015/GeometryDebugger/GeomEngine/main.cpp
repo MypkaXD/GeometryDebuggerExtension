@@ -32,6 +32,10 @@ Point getPointForMebius(double u, double v) {
 	return Point((1 + v / 2 * std::cos(u / 2))*std::cos(u), (1 + v / 2 * std::cos(u / 2))*std::sin(u) , v/2*std::sin(u/2));
 }
 
+Point getPointForDini(double u, double v) {
+	return Point(std::cos(u)*std::sin(v), std::sin(u)*std::sin(v), std::cos(v)+std::log10(std::tan(v/2)) + 0.2*u-4);
+}
+
 int main() {
 
 	Line line = Line(Point(0,0,0), Point(1,0,0));
@@ -51,9 +55,14 @@ int main() {
 	Vector oz = Vector(origin, z);
 
 	CustomPlane customPlane = CustomPlane(Point(-10, 0, 0), Point(1, 0, 0), Point(0, 0, 1), getPointForMebius, 0, 2 * M_PI, -1, 1);
+	CustomPlane customPlane1 = CustomPlane(Point(-10, 0, 0), Point(1, 0, 0), Point(0, 0, 1), getPointForSpiral, -2 * M_PI, 2 * M_PI, -M_PI, M_PI);
+	CustomPlane customPlane2 = CustomPlane(Point(-10, 0, 0), Point(1, 0, 0), Point(0, 0, 1), getPointForDini, 0, 4 * M_PI, 0.001, 2);
+
 	Plane plane = Plane(Point(0, 0, 0), Point(1, 0, 0), Point(0, 1, 0), -2 * M_PI, 2 * M_PI, -M_PI, M_PI);
 	Sphere sphere = Sphere(Point(0, 10, 0), Point(1, 0, 0), Point(0, 1, 0), 1, -M_PI, M_PI, -M_PI / 2, M_PI / 2);
 	Cylinder cylinder = Cylinder(Point(10, 0, 0), Point(1, 0, 0), Point(0, 1, 0), 1, 0, 2 * M_PI, -5, 5);
+
+	Cylinder &cylinder2 = cylinder;
 
 	return 0;
 }

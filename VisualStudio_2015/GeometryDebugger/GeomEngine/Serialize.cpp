@@ -14,6 +14,7 @@
 std::string nameOfMemorySection = "VariablesMemory";
 std::string message = "";
 std::string buffer = "";
+std::string response = "";
 
 class Variable {
 public:
@@ -81,6 +82,7 @@ void readMemoryMappedFile() {
 		message += ptr[i];
 	}
 }
+
 void parser() {
 
 	m_VOV_Variables.clear();
@@ -124,17 +126,17 @@ void parser() {
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
 			R = std::stof(message.substr(i, pos - i));
 			i += message.substr(i, pos - i).size() + 1;
-			std::cout << R << std::endl;
+			//std::cout << R << std::endl;
 
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
 			G = std::stof(message.substr(i, pos - i));
 			i += message.substr(i, pos - i).size() + 1;
-			std::cout << G << std::endl;
+			//std::cout << G << std::endl;
 
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
 			B = std::stof(message.substr(i, pos - i));
 			i += message.substr(i, pos - i).size();
-			std::cout << B << std::endl;
+			//std::cout << B << std::endl;
 
 			m_VOV_Variables.push_back(Variable(name, type, addres, R, G, B));
 
@@ -158,51 +160,6 @@ std::string getCurrentDir() {
 		return "";
 }
 
-void writeMemoryMappedFile() {
-
-	std::string path = getCurrentDir();
-
-	size_t dataSize = path.size() + 1;
-
-	// Создаем или открываем MMF
-	HANDLE hMapFile = CreateFileMapping(
-		INVALID_HANDLE_VALUE,    // использование файла подкачки
-		NULL,                 // безопасность по умолчанию
-		PAGE_READWRITE,          // доступ для чтения и записи
-		0,                       // максимальный размер (старшее слово)
-		static_cast<DWORD>(dataSize), // максимальный размер (младшее слово)
-		L"VariablesMemory"
-	);
-
-	if (hMapFile == nullptr) {
-		std::cerr << "Не удалось создать MMF. Код ошибки: " << GetLastError() << std::endl;
-		return;
-	}
-
-	// Спроецируем представление в адресное пространство процесса
-	LPVOID pBuf = MapViewOfFile(
-		hMapFile,          // дескриптор MMF
-		FILE_MAP_ALL_ACCESS, // доступ для чтения и записи
-		0,
-		0,
-		dataSize
-	);
-
-	if (pBuf == NULL) {
-		std::cerr << "Не удалось спроецировать представление. Код ошибки: " << GetLastError() << std::endl;
-		CloseHandle(hMapFile);
-		return;
-	}
-
-	// Копируем строку в проецированную память
-	memcpy(pBuf, path.c_str(), dataSize);
-
-	// Освобождаем ресурсы
-	UnmapViewOfFile(pBuf);
-	CloseHandle(hMapFile);
-
-}
-
 template<typename T>
 bool RegisterType(const Variable& o) {
 
@@ -219,6 +176,13 @@ bool RegisterType(const Variable& o) {
 
 		size_t pos = typeIdName.find("struct");
 		size_t offset = std::string("struct").size();
+		typeIdName.erase(pos, offset);
+	}
+
+	while (typeIdName.find("const") != std::string::npos) {
+
+		size_t pos = typeIdName.find("const");
+		size_t offset = std::string("const").size();
 		typeIdName.erase(pos, offset);
 	}
 
@@ -247,37 +211,43 @@ bool RegisterType(const Variable& o) {
 			if (file.is_open()) {
 				file << message;
 
-				return 1;
+				return true;
 			}
 		}
 	}
-	return 0;
+	return false;
 }
 
 std::string SerializeObjects(const std::vector<Variable>& objects) {
 
-	std::cout << message << std::endl;
+	std::string serializingVariables = "";
 
 	for (const auto& o : objects) {
 
 		bool isSerialized = false;
 
-		isSerialized = RegisterType<Point>(o);
-		isSerialized = RegisterType<Edge>(o);
-		isSerialized = RegisterType<Vector>(o);
-		isSerialized = RegisterType<CustomPlane>(o);
-		isSerialized = RegisterType<Plane>(o);
-		isSerialized = RegisterType<Sphere>(o);
-		isSerialized = RegisterType<Cylinder>(o);
+		isSerialized |= RegisterType<Point>(o);
+		isSerialized |= RegisterType<Edge>(o);
+		isSerialized |= RegisterType<Vector>(o);
+		isSerialized |= RegisterType<CustomPlane>(o);
+		isSerialized |= RegisterType<Plane>(o);
+		isSerialized |= RegisterType<Sphere>(o);
+		isSerialized |= RegisterType<Cylinder>(o);
+		isSerialized |= RegisterType<Cylinder*>(o);
+
+		serializingVariables += isSerialized ? "1" : "0";
 	}
 
-	return buffer;
+	return serializingVariables;
 }
 
-void Serialize() {
+std::string Serialize() {
+
 	readMemoryMappedFile();
 	parser();
-	SerializeObjects(m_VOV_Variables);
-	writeMemoryMappedFile();
+	std::cout << message << std::endl;
+	response = SerializeObjects(m_VOV_Variables);
+
+	return response + "|" + getCurrentDir();
 }
 
