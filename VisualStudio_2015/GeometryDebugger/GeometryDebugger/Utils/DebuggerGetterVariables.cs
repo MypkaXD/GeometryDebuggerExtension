@@ -3,16 +3,9 @@ using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Automation;
-using System.Windows;
-using System.Windows.Media;
 using Microsoft.VisualStudio.Shell;
 using Accessibility;
 using System.Runtime.InteropServices;
-using System.Windows.Automation;
 
 namespace GeometryDebugger.Utils
 {
@@ -23,7 +16,7 @@ namespace GeometryDebugger.Utils
         public DebuggerGetterVariables()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            m_DTE_Dte = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE)) as EnvDTE.DTE;
+            m_DTE_Dte = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE)) as EnvDTE.DTE; // получаем EnvDTE
         }
         public DTE GetDTE()
         {

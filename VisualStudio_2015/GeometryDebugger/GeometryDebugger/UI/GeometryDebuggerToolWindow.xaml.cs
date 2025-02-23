@@ -19,12 +19,11 @@ namespace GeometryDebugger.UI
 {
     public partial class GeometryDebuggerToolWindow : UserControl
     {
-        private string m_S_PathForFile = "vis_dbg_";
-        private string m_S_GlobalPath = "";
-        private string m_S_Message { get; set; }
+        private string m_S_PathForFile = "vis_dbg_"; // приписка к файлу
+        private string m_S_GlobalPath = ""; // глобальный путь до файла
+        private string m_S_Message { get; set; } // сообщение, которое будет записано в MMF
 
-        private bool m_B_IsSet = false;
-        private bool m_B_IsSubscribeOnBreakMod = false;
+        private bool m_B_IsSubscribeOnBreakMod = false; // подписаны на дебаг ивенты
         private bool m_B_IsFirst = true;
 
         private DebuggerGetterVariables m_DGV_Debugger;
@@ -38,11 +37,10 @@ namespace GeometryDebugger.UI
         {
             Source = new Uri("pack://application:,,,/GeometryDebugger;component/Style/Light_Theme.xaml", UriKind.RelativeOrAbsolute)
         };
-
-        //private ResourceDictionary darkTheme = new ResourceDictionary
-        //{
-        //    Source = new Uri("Dark_Theme.xaml", UriKind.RelativeOrAbsolute)
-        //};
+        private ResourceDictionary darkTheme = new ResourceDictionary
+        {
+            Source = new Uri("pack://application:,,,/GeometryDebugger;component/Style/Dark_Theme.xaml", UriKind.RelativeOrAbsolute)
+        };
 
         private ObservableCollection<Variable> _m_OBOV_Variables;
         public ObservableCollection<Variable> m_OBOV_Variables
@@ -77,175 +75,39 @@ namespace GeometryDebugger.UI
 
         public GeometryDebuggerToolWindow()
         {
-            InitializeComponent();
+            InitializeComponent(); // инициализация компонент
 
-            m_DGV_Debugger = new DebuggerGetterVariables();
+            m_DGV_Debugger = new DebuggerGetterVariables(); // создаем объект класса DebuggerGetterVariables для получения переменных в будущем (иниц. DTE)
 
-            VSColorTheme.ThemeChanged += OnThemeChanged;
-            Loaded += GeometryDebuggerToolWindowLoaded;
-            Unloaded += GeometryDebuggerToolWindowUnloaded;
+            Loaded += GeometryDebuggerToolWindowLoaded; // срабатывает при собитии загрузки основного окна
+            Unloaded += GeometryDebuggerToolWindowUnloaded; // срабатывает при событии выгрузки основного окна
 
-            m_AM_AddMenu = new AddMenu(m_DGV_Debugger);
-            m_L_Paths = new Dictionary<string, Tuple<bool, bool>>();
-            m_OBOV_Variables = new ObservableCollection<Variable>();
+            m_AM_AddMenu = new AddMenu(m_DGV_Debugger); // инициализируем второе окно для добавления переменных из CF (CurrentStackFrame), WL (WatchList), MyS (MySelfAdded)
+            m_L_Paths = new Dictionary<string, Tuple<bool, bool>>(); // создаем словарь с ключем string - уникальное название переменной и знчением Tuple<bool, bool> (isSerialized, isVisible - записана ли информация о переменной в файл, видна ли переменная на сцене)
+            m_OBOV_Variables = new ObservableCollection<Variable>(); // хранилище для переменных, которые будут в DataGrid
 
-            InitAddWindowComponent();
+            InitAddWindowComponent(); // инициализация второго окна (для добавления переменных)
 
-            resetTheme();
+            ResetTheme();
         }
 
-        private void InitAddWindowComponent()
-        {
-            m_W_AddWindow = new System.Windows.Window
-            {
-                Title = "Add Variable",
-                Content = m_AM_AddMenu,
-                Height = 800,
-                Width = 600,
-                SizeToContent = SizeToContent.Height,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
-            };
-
-            m_W_AddWindow.Loaded += OnAddWindowLoaded;
-            m_W_AddWindow.Closing += OnAddWindowClosing;
-        }
-
-        private void OnAddWindowLoaded(object sender, RoutedEventArgs e)
-        {
-            if (lightTheme["CheckBoxStyle_Light"] is Style)
-            {
-                System.Diagnostics.Debug.WriteLine("CheckBoxStyle_Light найден в словаре.");
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("CheckBoxStyle_Light НЕ найден в словаре!");
-            }
-
-
-            if (m_AM_AddMenu.WL.Style == lightTheme["CheckBoxStyle_Light"])
-            {
-                System.Diagnostics.Debug.WriteLine("Стиль уже установлен.");
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("Устанавливаем стиль...");
-                m_AM_AddMenu.WL.Style = lightTheme["CheckBoxStyle_Light"] as Style;
-            }
-
-
-        }
-
-        private void OnThemeChanged(ThemeChangedEventArgs e)
-        {
-            resetTheme();
-        }
-
-        public void resetTheme()
+        
+        private bool isLightTheme()
         {
             System.Drawing.Color newBackgroundColor = VSColorTheme.GetThemedColor(EnvironmentColors.ToolWindowBackgroundBrushKey);
 
-            var menuItems = this.dgObjects.ContextMenu.Items.OfType<MenuItem>();
-
-            foreach (var menuItem in menuItems)
-            {
-                string fileName = menuItem.Header.ToString();
-
-                if (newBackgroundColor.R >= 155 || newBackgroundColor.G >= 155 || newBackgroundColor.G >= 155)
-                    fileName += "_Light";
-                else
-                    fileName += "_Dark";
-
-                var imageSource = new BitmapImage(new Uri("../Images/" + fileName + ".png", UriKind.Relative));
-
-                var image = new Image
-                {
-                    Source = imageSource,
-                    Width = 16,
-                    Height = 16,
-                    HorizontalAlignment = HorizontalAlignment.Left
-                };
-
-                menuItem.Icon = image;
-            }
-
-            var menuItemsAddMenu = this.m_AM_AddMenu.dgAddVariables.ContextMenu.Items.OfType<MenuItem>();
-
-            foreach (var menuItem in menuItemsAddMenu)
-            {
-                string fileName = menuItem.Header.ToString();
-
-                if (newBackgroundColor.R >= 155 || newBackgroundColor.G >= 155 || newBackgroundColor.B >= 155)
-                    fileName += "_Light";
-                else
-                    fileName += "_Dark";
-
-                var imageSource = new BitmapImage(new Uri("../Images/" + fileName + ".png", UriKind.Relative));
-
-                var image = new Image
-                {
-                    Source = imageSource,
-                    Width = 16,
-                    Height = 16,
-                    HorizontalAlignment = HorizontalAlignment.Left
-                };
-
-                menuItem.Icon = image;
-            }
-
+            if (newBackgroundColor.R >= 155 || newBackgroundColor.G >= 155 || newBackgroundColor.G >= 155)
+                return true;
+            else
+                return false;
         }
-
-        public void GeometryDebuggerToolWindowLoaded(object sender, RoutedEventArgs e)
-        {
-            VSColorTheme.ThemeChanged += OnThemeChanged;
-
-            m_CH_Host = new ControlHost();
-            if (ControlHostElement.Child == null)
-                ControlHostElement.Child = m_CH_Host;
-
-            if (!m_B_IsSubscribeOnBreakMod)
-            {
-                SubscribeOnDebugEvents();
-                m_B_IsSubscribeOnBreakMod = true;
-            }
-        }
-
+        
         private void ClearGeomViewWindow()
         {
             m_OBOV_Variables.Clear();
             dgObjects.ItemsSource = m_OBOV_Variables;
 
             m_CH_Host.reloadGeomView(new List<Tuple<string, bool>> { }, m_S_GlobalPath);
-        }
-
-        public void SubscribeOnDebugEvents()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (m_DGV_Debugger.GetDTE() == null)
-                return;
-
-            m_DE_DebuggerEvents = m_DGV_Debugger.GetDTE().Events.DebuggerEvents;
-            m_DE_DebuggerEvents.OnEnterBreakMode += OnEnterBreakMode;
-        }
-
-        public void UnsubscribeFromDebugEvents()
-        {
-            if (m_DE_DebuggerEvents != null)
-            {
-                m_DE_DebuggerEvents.OnEnterBreakMode -= OnEnterBreakMode;
-            }
-        }
-
-        private void GeometryDebuggerToolWindowUnloaded(object sender, EventArgs e)
-        {
-            VSColorTheme.ThemeChanged -= OnThemeChanged;
-
-            ClearGeomViewWindow();
-            if (m_B_IsSubscribeOnBreakMod)
-            {
-                UnsubscribeFromDebugEvents();
-                m_B_IsSubscribeOnBreakMod = false;
-            }
         }
 
         private void Variable_PropertyChanged(object sender, PropertyChangedEventArgs e) // срабатывает, если какой-то элемент в таблице изменил своё свойство (пример, CheckBox на m_B_IsSelected)
@@ -306,86 +168,6 @@ namespace GeometryDebugger.UI
                 System.Windows.MessageBox.Show("ERROR: You need to start Debug mode.");
             }
         }
-        private void OnAddWindowClosing(object sender, CancelEventArgs e) // когда закрыли окно
-        {
-            ObservableCollection<Variable> variablesFromAddMenu = m_AM_AddMenu.GetVariables(); // получаем список всех переменных, которые пришли из окна AddVariables (их отличительное
-                                                                                               // свойство в том, что они все isAdded
-            ObservableCollection<Variable> tempVariables = new ObservableCollection<Variable>(m_OBOV_Variables);
-            this.m_OBOV_Variables = new ObservableCollection<Variable>();
-
-            Dictionary<string, Tuple<bool, bool>> tempPaths = new Dictionary<string, Tuple<bool, bool>>(m_L_Paths); // сохраняем старый список переменных, которые уже были до этого
-            m_L_Paths.Clear(); // очищаем исходные данные
-
-
-            foreach (var tempVariable in tempVariables)
-            {
-                string pathOfVariable = m_S_PathForFile + tempVariable.m_S_Addres; // ключ в Dictionary m_L_Paths
-
-                foreach (var variableFromAddMenu in variablesFromAddMenu)
-                {
-                    if (tempVariable.m_B_IsAdded == variableFromAddMenu.m_B_IsAdded &&
-                           tempVariable.m_B_IsSelected == variableFromAddMenu.m_B_IsSelected &&
-                           tempVariable.m_C_Color == variableFromAddMenu.m_C_Color &&
-                           tempVariable.m_S_Addres == variableFromAddMenu.m_S_Addres &&
-                           tempVariable.m_S_Name == variableFromAddMenu.m_S_Name &&
-                           tempVariable.m_S_Source == variableFromAddMenu.m_S_Source &&
-                           tempVariable.m_S_Type == variableFromAddMenu.m_S_Type)
-                    {
-                        m_OBOV_Variables.Add(variableFromAddMenu);
-                        m_L_Paths.Add(pathOfVariable, tempPaths[pathOfVariable]);
-                        break;
-                    }
-                    else if (tempVariable.m_B_IsAdded == variableFromAddMenu.m_B_IsAdded &&
-                           tempVariable.m_B_IsSelected == variableFromAddMenu.m_B_IsSelected &&
-                           tempVariable.m_C_Color != variableFromAddMenu.m_C_Color &&
-                           tempVariable.m_S_Addres == variableFromAddMenu.m_S_Addres &&
-                           tempVariable.m_S_Name == variableFromAddMenu.m_S_Name &&
-                           tempVariable.m_S_Source == variableFromAddMenu.m_S_Source &&
-                           tempVariable.m_S_Type == variableFromAddMenu.m_S_Type)
-                    {
-                        m_OBOV_Variables.Add(variableFromAddMenu);
-                        m_L_Paths.Add(pathOfVariable, new Tuple<bool, bool>(tempPaths[pathOfVariable].Item1, false));
-                        break;
-                    }
-                    else
-                        continue;
-                }
-            }
-
-            foreach (var variableFromAddMenu in variablesFromAddMenu)
-            {
-                string pathOfVariable = m_S_PathForFile + variableFromAddMenu.m_S_Addres; // ключ в Dictionary m_L_Paths
-
-                bool isFind = false;
-
-                foreach (var variable in m_OBOV_Variables)
-                {
-                    if (variable.m_B_IsAdded == variableFromAddMenu.m_B_IsAdded &&
-                           variable.m_B_IsSelected == variableFromAddMenu.m_B_IsSelected &&
-                           variable.m_C_Color == variableFromAddMenu.m_C_Color &&
-                           variable.m_S_Addres == variableFromAddMenu.m_S_Addres &&
-                           variable.m_S_Name == variableFromAddMenu.m_S_Name &&
-                           variable.m_S_Source == variableFromAddMenu.m_S_Source &&
-                           variable.m_S_Type == variableFromAddMenu.m_S_Type)
-                    {
-                        isFind = true;
-                        break;
-                    }
-                }
-
-                if (!isFind)
-                {
-                    m_L_Paths.Add(pathOfVariable, Tuple.Create(variableFromAddMenu.m_B_IsSelected, false)); // то создаем новую с флагами isSelected = false, isSerialized = false
-                    m_OBOV_Variables.Add(variableFromAddMenu);
-                }
-            }
-
-            dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую 
-
-            draw();
-
-        }
-
         private void OnEnterBreakMode(dbgEventReason reason, ref dbgExecutionAction action) // срабатывает при f5, f10, f11
         {
             m_AM_AddMenu.BreakModDetected(); // обновляем информацию о наших переменных, которые мы отслеживаем, валидны ли они
@@ -815,5 +597,247 @@ namespace GeometryDebugger.UI
 
             m_CH_Host.reloadGeomView(files, m_S_GlobalPath);
         }
+        //////////
+        // methods for (Un)Loaded second window
+        private void InitAddWindowComponent()
+        {
+            // создаем окно
+            m_W_AddWindow = new System.Windows.Window
+            {
+                Title = "Add Variable",
+                Content = m_AM_AddMenu,
+                Height = 800,
+                Width = 600,
+                SizeToContent = SizeToContent.Height,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
+
+            m_W_AddWindow.Loaded += OnAddWindowLoaded; // подписываемся на событие загрузки второго окна
+            m_W_AddWindow.Closing += OnAddWindowClosing; // подписываемся на события выгрузки второго окна
+        }
+        private void OnAddWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            if (isLightTheme())
+            {
+                m_AM_AddMenu.WL.Style = lightTheme["CheckBoxStyleWL_Light"] as Style;
+                m_AM_AddMenu.CF.Style = lightTheme["CheckBoxStyleCF_Light"] as Style;
+            }
+            else
+            {
+                m_AM_AddMenu.WL.Style = darkTheme["CheckBoxStyleWL_Dark"] as Style;
+                m_AM_AddMenu.CF.Style = darkTheme["CheckBoxStyleCF_Dark"] as Style;
+
+            }
+
+            var imageSource = new BitmapImage(new Uri("../Images/Export_" + (isLightTheme() ? "Light" : "Dark") + ".png", UriKind.Relative));
+
+            var image = new Image
+            {
+                Source = imageSource,
+                Width = 16,
+                Height = 16,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+
+            m_AM_AddMenu.ButtonImport.Content = new Image()
+            {
+                Source = imageSource
+            };
+        }
+        private void OnAddWindowClosing(object sender, CancelEventArgs e) // когда закрыли окно
+        {
+            ObservableCollection<Variable> variablesFromAddMenu = m_AM_AddMenu.GetVariables(); // получаем список всех переменных, которые пришли из окна AddVariables (их отличительное
+                                                                                               // свойство в том, что они все isAdded
+            ObservableCollection<Variable> tempVariables = new ObservableCollection<Variable>(m_OBOV_Variables);
+            this.m_OBOV_Variables = new ObservableCollection<Variable>();
+
+            Dictionary<string, Tuple<bool, bool>> tempPaths = new Dictionary<string, Tuple<bool, bool>>(m_L_Paths); // сохраняем старый список переменных, которые уже были до этого
+            m_L_Paths.Clear(); // очищаем исходные данные
+
+
+            foreach (var tempVariable in tempVariables)
+            {
+                string pathOfVariable = m_S_PathForFile + tempVariable.m_S_Addres; // ключ в Dictionary m_L_Paths
+
+                foreach (var variableFromAddMenu in variablesFromAddMenu)
+                {
+                    if (tempVariable.m_B_IsAdded == variableFromAddMenu.m_B_IsAdded &&
+                           tempVariable.m_B_IsSelected == variableFromAddMenu.m_B_IsSelected &&
+                           tempVariable.m_C_Color == variableFromAddMenu.m_C_Color &&
+                           tempVariable.m_S_Addres == variableFromAddMenu.m_S_Addres &&
+                           tempVariable.m_S_Name == variableFromAddMenu.m_S_Name &&
+                           tempVariable.m_S_Source == variableFromAddMenu.m_S_Source &&
+                           tempVariable.m_S_Type == variableFromAddMenu.m_S_Type)
+                    {
+                        m_OBOV_Variables.Add(variableFromAddMenu);
+                        m_L_Paths.Add(pathOfVariable, tempPaths[pathOfVariable]);
+                        break;
+                    }
+                    else if (tempVariable.m_B_IsAdded == variableFromAddMenu.m_B_IsAdded &&
+                           tempVariable.m_B_IsSelected == variableFromAddMenu.m_B_IsSelected &&
+                           tempVariable.m_C_Color != variableFromAddMenu.m_C_Color &&
+                           tempVariable.m_S_Addres == variableFromAddMenu.m_S_Addres &&
+                           tempVariable.m_S_Name == variableFromAddMenu.m_S_Name &&
+                           tempVariable.m_S_Source == variableFromAddMenu.m_S_Source &&
+                           tempVariable.m_S_Type == variableFromAddMenu.m_S_Type)
+                    {
+                        m_OBOV_Variables.Add(variableFromAddMenu);
+                        m_L_Paths.Add(pathOfVariable, new Tuple<bool, bool>(tempPaths[pathOfVariable].Item1, false));
+                        break;
+                    }
+                    else
+                        continue;
+                }
+            }
+
+            foreach (var variableFromAddMenu in variablesFromAddMenu)
+            {
+                string pathOfVariable = m_S_PathForFile + variableFromAddMenu.m_S_Addres; // ключ в Dictionary m_L_Paths
+
+                bool isFind = false;
+
+                foreach (var variable in m_OBOV_Variables)
+                {
+                    if (variable.m_B_IsAdded == variableFromAddMenu.m_B_IsAdded &&
+                           variable.m_B_IsSelected == variableFromAddMenu.m_B_IsSelected &&
+                           variable.m_C_Color == variableFromAddMenu.m_C_Color &&
+                           variable.m_S_Addres == variableFromAddMenu.m_S_Addres &&
+                           variable.m_S_Name == variableFromAddMenu.m_S_Name &&
+                           variable.m_S_Source == variableFromAddMenu.m_S_Source &&
+                           variable.m_S_Type == variableFromAddMenu.m_S_Type)
+                    {
+                        isFind = true;
+                        break;
+                    }
+                }
+
+                if (!isFind)
+                {
+                    m_L_Paths.Add(pathOfVariable, Tuple.Create(variableFromAddMenu.m_B_IsSelected, false)); // то создаем новую с флагами isSelected = false, isSerialized = false
+                    m_OBOV_Variables.Add(variableFromAddMenu);
+                }
+            }
+
+            dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую 
+
+            draw();
+
+        }
+        //////////
+        ////////////////////////////////////////////////////////////
+        //////////
+        // methods for (Un)LoadedMainWindow
+        public void GeometryDebuggerToolWindowLoaded(object sender, RoutedEventArgs e) // срабатывает, когда основное окно загружено (доступны элементы управления - кнопки, dataGrid и т.д)
+        {
+            VSColorTheme.ThemeChanged += OnThemeChanged; // подписываемся на событие смены темы VisualStudio
+
+            // создаем GeomView Context
+            m_CH_Host = new ControlHost();
+            if (ControlHostElement.Child == null)
+                ControlHostElement.Child = m_CH_Host;
+
+            if (!m_B_IsSubscribeOnBreakMod) // в случае если мы не подписаны на срабатывание BreakMod'a
+            {
+                SubscribeOnDebugEvents(); // подписываемся на дебаг ивенты
+                m_B_IsSubscribeOnBreakMod = true; // boolева переменная m_B_IsSubscribeOnBreakMod в true (подписаны на дебаг ивенты)
+            }
+        }
+        private void GeometryDebuggerToolWindowUnloaded(object sender, EventArgs e) // срабатывает, когда основное окно выгружено (срабатывает, когда мы вытаскиваем окно из MVS или наоборот)
+        {
+            VSColorTheme.ThemeChanged -= OnThemeChanged; // отписываемся от событий по смене темы
+
+            // ??????????????????????????????????
+            // удаляем сцену с GeomView и очищаем таблицу. 
+            ClearGeomViewWindow();
+
+            if (m_B_IsSubscribeOnBreakMod) // в случае, если мы не подписаны на дебаг ивенты
+            {
+                UnsubscribeFromDebugEvents(); // отписываемся
+                m_B_IsSubscribeOnBreakMod = false; // усатанвливаем флаг, что не подписаны
+            }
+        }
+        //
+        //////////
+        ////////////////////////////////////////////////////////////
+        //////////
+        //methods for (Un)Subscribe on DebugEvets
+        public void SubscribeOnDebugEvents() // подписываемся на "дебаг" ивенты
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (m_DGV_Debugger.GetDTE() == null) // в случае, если наш DTE не инициализировался из класса DebuggerGetterVariables
+                return;
+
+            m_DE_DebuggerEvents = m_DGV_Debugger.GetDTE().Events.DebuggerEvents;
+            m_DE_DebuggerEvents.OnEnterBreakMode += OnEnterBreakMode; // подписываемся на срабатаываение f10, f11, f5.
+        }
+        public void UnsubscribeFromDebugEvents()
+        {
+            if (m_DE_DebuggerEvents != null)
+            {
+                m_DE_DebuggerEvents.OnEnterBreakMode -= OnEnterBreakMode;
+            }
+        }
+        //
+        //////////
+        ////////////////////////////////////////////////////////////
+        ////////// 
+        //methods for Themes:
+        private void OnThemeChanged(ThemeChangedEventArgs e)
+        {
+            ResetTheme(); // перезагружаем цветовую палитру элементов
+        }
+        public void ResetTheme()
+        {
+            var menuItems = this.dgObjects.ContextMenu.Items.OfType<MenuItem>(); // получаем MenuItems-элементы из dataGrid - dgObjects
+
+            foreach (var menuItem in menuItems) // проходимся по каждому элементу
+            {
+                string fileName = menuItem.Header.ToString(); // получаем заголовок
+
+                if (isLightTheme()) 
+                    fileName += "_Light";
+                else
+                    fileName += "_Dark";
+
+                var imageSource = new BitmapImage(new Uri("../Images/" + fileName + ".png", UriKind.Relative)); // получаем путь до картинки
+
+                var image = new Image
+                {
+                    Source = imageSource,
+                    Width = 16,
+                    Height = 16,
+                    HorizontalAlignment = HorizontalAlignment.Left
+                }; // создаем изображение с заданными характеристиками
+
+                menuItem.Icon = image; 
+            }
+
+            var menuItemsAddMenu = this.m_AM_AddMenu.dgAddVariables.ContextMenu.Items.OfType<MenuItem>(); // получаем MenuItems-элементы из dataGrid AddMenuWindow
+
+            foreach (var menuItem in menuItemsAddMenu)
+            {
+                string fileName = menuItem.Header.ToString();
+
+                if (isLightTheme())
+                    fileName += "_Light";
+                else
+                    fileName += "_Dark";
+
+                var imageSource = new BitmapImage(new Uri("../Images/" + fileName + ".png", UriKind.Relative));
+
+                var image = new Image
+                {
+                    Source = imageSource,
+                    Width = 16,
+                    Height = 16,
+                    HorizontalAlignment = HorizontalAlignment.Left
+                };
+
+                menuItem.Icon = image;
+            }
+        }
+        //
+        //////////
     }
 }

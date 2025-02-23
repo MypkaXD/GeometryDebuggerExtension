@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Style x:Key="CheckBoxStyleWL_Light" TargetType="CheckBox">
+    <Style x:Key="CheckBoxStyleWL_Dark" TargetType="CheckBox">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
@@ -9,17 +9,17 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="CheckBoxImage" Property="Source" Value="../Images/W_On_Light.png"/>
+                            <Setter TargetName="CheckBoxImage" Property="Source" Value="../Images/W_On_Dark.png"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="False">
-                            <Setter TargetName="CheckBoxImage" Property="Source" Value="../Images/W_Off_Light.png"/>
+                            <Setter TargetName="CheckBoxImage" Property="Source" Value="../Images/W_Off_Dark.png"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
-    <Style x:Key="CheckBoxStyleCF_Light" TargetType="CheckBox">
+    <Style x:Key="CheckBoxStyleCF_Dark" TargetType="CheckBox">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
@@ -28,10 +28,10 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="CheckBoxImage" Property="Source" Value="../Images/F_On_Light.png"/>
+                            <Setter TargetName="CheckBoxImage" Property="Source" Value="../Images/F_On_Dark.png"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="False">
-                            <Setter TargetName="CheckBoxImage" Property="Source" Value="../Images/F_Off_Light.png"/>
+                            <Setter TargetName="CheckBoxImage" Property="Source" Value="../Images/F_Off_Dark.png"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

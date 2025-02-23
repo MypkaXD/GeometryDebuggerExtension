@@ -33,12 +33,12 @@
                 </CheckBox>
                 <CheckBox Name="CF" Click="ButtonCurrentStackFrame_Click" IsChecked="False">
                 </CheckBox>
-                <Button Click="ButtonImport_Click" Background="White" Width="50" Height="50">
-                    <Image Width="32" Height="32" Source="../Images/Export.png"/>
+                <Button Click="ButtonImport_Click" Width="50" Height="50" Name="ButtonImport">
+                    <Image Width="32" Height="32" Source="../Images/Export_Light.png"/>
                 </Button>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Add variables from TextBox" Click="ButtonMyselfAdded_Click" Loaded="Loaded" HorizontalAlignment="Right">
+                <Button Content="Add variables from TextBox" Click="ButtonMyselfAdded_Click" HorizontalAlignment="Right">
                 </Button>
                 <TextBox Name="MySelfAddedVariables" Width="100" HorizontalAlignment="Right"></TextBox>
             </StackPanel>

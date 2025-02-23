@@ -105,7 +105,6 @@
     <Content Include="Command\Resources\CreateDubuggerWindowPackage.ico" />
     <Resource Include="Images\Cube.png" />
     <Resource Include="Images\AddVariables.png" />
-    <Resource Include="Images\Export.png" />
     <Resource Include="Images\ToBottom_Dark.png" />
     <Resource Include="Images\ToBottom_Light.png" />
     <Resource Include="Images\ToDown_Dark.png" />
@@ -128,6 +127,8 @@
     <Resource Include="Images\F_Off_Light.png" />
     <Resource Include="Images\W_Off_Dark.png" />
     <Resource Include="Images\W_Off_Light.png" />
+    <Resource Include="Images\Export_Dark.png" />
+    <Resource Include="Images\Export_Light.png" />
     <Content Include="index.html" />
     <Content Include="stylesheet.css" />
   </ItemGroup>
@@ -248,6 +249,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Style\Dark_Theme.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Style\Light_Theme.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

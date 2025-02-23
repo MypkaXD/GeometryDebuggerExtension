@@ -1,26 +1,8 @@
-﻿using EnvDTE;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Drawing;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Automation;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using GeometryDebugger.Utils;
-using Microsoft.VisualStudio.PlatformUI;
 
 namespace GeometryDebugger.UI
 {
@@ -30,19 +12,19 @@ namespace GeometryDebugger.UI
     public partial class AddMenu : System.Windows.Controls.UserControl
     {
 
-        private ObservableCollection<Variable> m_OBOV_variablseFromCurrentStackFrame = new ObservableCollection<Variable>();
-        private ObservableCollection<Variable> m_OBOV_variablesFromWathList = new ObservableCollection<Variable>();
-        private ObservableCollection<Variable> m_OBOV_variablseFromMyselfAdded = new ObservableCollection<Variable>();
+        private ObservableCollection<Variable> m_OBOV_variablseFromCurrentStackFrame = new ObservableCollection<Variable>(); // переменные из CF
+        private ObservableCollection<Variable> m_OBOV_variablesFromWathList = new ObservableCollection<Variable>(); // переменные из WL
+        private ObservableCollection<Variable> m_OBOV_variablseFromMyselfAdded = new ObservableCollection<Variable>(); // переменные MyS
 
-        public ObservableCollection<Variable> m_OBOV_Variables = new ObservableCollection<Variable>();
+        public ObservableCollection<Variable> m_OBOV_Variables = new ObservableCollection<Variable>(); // все переменные
 
-        private DebuggerGetterVariables m_DGV_debugger;
+        private DebuggerGetterVariables m_DGV_debugger; // объект для получения переменных из CF, WL и MyS
 
         public AddMenu(DebuggerGetterVariables debugger)
         {
-            InitializeComponent();
+            InitializeComponent(); // инициализируем компоненты
 
-            m_DGV_debugger = debugger;
+            m_DGV_debugger = debugger; // сохраняем объект для получения переменных из CF, WL и MyS
         }
 
         public void BreakModDetected()
@@ -209,10 +191,6 @@ namespace GeometryDebugger.UI
         {
             SetOnlyAddedVariable(); // изменяем коллекцию только на те, которые isAdded
             return m_OBOV_Variables;
-        }
-
-        private void Loaded(object sender, RoutedEventArgs e)
-        {
         }
 
         private void ColorDisplay_Click(object sender, RoutedEventArgs e)
