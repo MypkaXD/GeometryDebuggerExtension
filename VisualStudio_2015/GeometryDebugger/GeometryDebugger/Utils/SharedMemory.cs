@@ -47,7 +47,7 @@ namespace GeometryDebugger.Utils
                         string G = ((float)m_variables[i].m_C_Color.m_i_G / 255).ToString().Replace(",", ".");
                         string B = ((float)m_variables[i].m_C_Color.m_i_B / 255).ToString().Replace(",", ".");
 
-                        m_S_message += $"{m_variables[i].m_S_Name}|{m_variables[i].m_S_Type}|{m_variables[i].m_S_Addres}|{R}|{G}|{B}";
+                        m_S_message += $"{m_variables[i].m_S_Name}|{m_variables[i].m_S_Type}|{m_variables[i].m_S_Source}|{m_variables[i].m_S_Addres}|{R}|{G}|{B}";
                         if (i < m_variables.Count - 1)
                             m_S_message += "|";
                     }

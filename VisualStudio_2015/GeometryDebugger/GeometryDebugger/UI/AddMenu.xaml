@@ -40,7 +40,7 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Add variables from TextBox" Click="ButtonMyselfAdded_Click" HorizontalAlignment="Right">
                 </Button>
-                <TextBox Name="MySelfAddedVariables" Width="100" HorizontalAlignment="Right"></TextBox>
+                <TextBox Name="MySelfAddedVariables" Width="100" HorizontalAlignment="Right" FontSize="20"></TextBox>
             </StackPanel>
         </Grid>
         <DataGrid Grid.Row="1" Grid.Column="0" Name="dgAddVariables"  HeadersVisibility="Column" HorizontalAlignment="Left" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">

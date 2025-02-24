@@ -22,14 +22,15 @@ public:
 	std::string m_S_Addres;
 	std::string m_S_Name;
 	std::string m_S_Type;
+	std::string m_S_Source;
 	float m_I_R;
 	float m_I_G;
 	float m_I_B;
 
 
 	Variable(std::string name, std::string type,
-		std::string addres, float r, float g, float b) :
-		m_S_Name(name), m_S_Type(type), m_S_Addres(addres),
+		std::string addres, std::string source, float r, float g, float b) :
+		m_S_Name(name), m_S_Type(type), m_S_Addres(addres), m_S_Source(source),
 		m_I_R(r), m_I_G(g), m_I_B(b)
 	{
 	}
@@ -38,6 +39,7 @@ enum statesOfGettingVariables {
 	GET_NAME,
 	GET_TYPE,
 	GET_ADDRES,
+	GET_SOURCE,
 	GET_COLOR
 };
 
@@ -81,6 +83,7 @@ void readMemoryMappedFile() {
 	{
 		message += ptr[i];
 	}
+	std::cout << message;
 }
 
 void parser() {
@@ -92,6 +95,7 @@ void parser() {
 	std::string name;
 	std::string type;
 	std::string addres;
+	std::string source;
 	float R, G, B = 1;
 
 	for (int i = 0; i < message.size(); ++i) {
@@ -110,6 +114,14 @@ void parser() {
 			pos = message.find('|', i) == std::string::npos ? message.size() - 1 : message.find('|', i);
 			type = message.substr(i, pos - i);
 			i += type.size();
+			states = statesOfGettingVariables::GET_SOURCE;
+			break;
+		}
+		case GET_SOURCE:
+		{
+			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
+			source = message.substr(i, pos - i);
+			i += source.size();
 			states = statesOfGettingVariables::GET_ADDRES;
 			break;
 		}
@@ -138,7 +150,7 @@ void parser() {
 			i += message.substr(i, pos - i).size();
 			//std::cout << B << std::endl;
 
-			m_VOV_Variables.push_back(Variable(name, type, addres, R, G, B));
+			m_VOV_Variables.push_back(Variable(name, type, addres, source, R, G, B));
 
 			states = statesOfGettingVariables::GET_NAME;
 			break;
@@ -147,6 +159,9 @@ void parser() {
 			break;
 		}
 	}
+	std::cout << std::endl;
+	std::cout << name << " " << type << " " << source <<
+		" " << addres << " " << R << " " << G << " " << B << std::endl;
 }
 
 std::string getCurrentDir() {
@@ -206,7 +221,7 @@ bool RegisterType(const Variable& o) {
 		if (message.size() != 0) {
 
 			std::fstream file;
-			file.open("vis_dbg_" + o.m_S_Type + "_" + o.m_S_Name + "_" + o.m_S_Addres + ".txt", std::ios::out);
+			file.open("vis_dbg_" + o.m_S_Type + "_" + o.m_S_Name + "_" + o.m_S_Source + "_" + o.m_S_Addres + ".txt", std::ios::out);
 
 			if (file.is_open()) {
 				file << message;

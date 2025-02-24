@@ -340,10 +340,22 @@ namespace GeometryDebugger.UI
                 bool isSelected = m_L_Paths[pathOfVariable].Item1;
                 bool isSerialized = m_L_Paths[pathOfVariable].Item2;
 
-                if (isSerialized) // если переменная уже сериализована (то есть данные о ней записаны в файл){
-                    files.Add(Tuple.Create(pathOfVariable, isSelected));
+                if (isSerialized)
+                {
+                    if (isSelected) // в случае, если переменная уже сериализована (данные о ней есть в файле) и надо менять визибилити
+                        files.Add(Tuple.Create(pathOfVariable, false)); // указываем, что эту переменную НЕ надо перезагружать 
+                    else // в случае, если переменная уже сериализована (данные о ней есть в файле) и ей НЕ надо менять визибилити, то мы ничего с ней не делаем
+                        continue;
+                }
                 else
-                    continue;
+                {
+                    if (isSelected)
+                    {
+                        files.Add(Tuple.Create(pathOfVariable, true)); // указываем, что эту переменную надо перезагружать 
+                    }
+                    else
+                        continue;
+                }
             }
 
             m_CH_Host.reloadGeomView(files, m_S_GlobalPath);
@@ -360,9 +372,21 @@ namespace GeometryDebugger.UI
                 bool isSerialized = m_L_Paths[pathOfVariable].Item2; // получаем, сериализована ли переменная (то есть данные о ней записаны в файл)
 
                 if (isSerialized)
-                    files.Add(Tuple.Create(pathOfVariable, isSelected)); // в зависимости от того, выбрана ли переменная, говорим, что её isSelected перегружать
-                else // если переменная несериализована (данных о ней нет в файле или их необходимо обновить)
-                    continue;
+                {
+                    if (isSelected) // в случае, если переменная уже сериализована (данные о ней есть в файле) и надо менять визибилити
+                        files.Add(Tuple.Create(pathOfVariable, false)); // указываем, что эту переменную НЕ надо перезагружать 
+                    else // в случае, если переменная уже сериализована (данные о ней есть в файле) и ей НЕ надо менять визибилити, то мы ничего с ней не делаем
+                        continue;
+                }
+                else
+                {
+                    if (isSelected)
+                    {
+                        files.Add(Tuple.Create(pathOfVariable, true)); // указываем, что эту переменную надо перезагружать 
+                    }
+                    else
+                        continue;
+                }
             }
 
             m_CH_Host.reloadGeomView(files, m_S_GlobalPath); // отправляем файл на перезагрузку уже в нужном порядке
@@ -671,7 +695,7 @@ namespace GeometryDebugger.UI
                 dgObjects.CommitEdit();
                 dgObjects.CommitEdit();
 
-                dgObjects.Items.Refresh(); // обновляем визуальную составляющую
+                //dgObjects.Items.Refresh(); // обновляем визуальную составляющую
 
                 draw();
             }
@@ -709,7 +733,7 @@ namespace GeometryDebugger.UI
                 dgObjects.CommitEdit();
                 dgObjects.CommitEdit();
 
-                dgObjects.Items.Refresh(); // обновляем визуальную составляющую
+                //dgObjects.Items.Refresh(); // обновляем визуальную составляющую
 
                 draw();
             }

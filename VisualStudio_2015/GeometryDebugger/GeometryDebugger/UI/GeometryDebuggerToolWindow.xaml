@@ -36,11 +36,11 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
             <Button Click="btnOpenAddMenu_Click"
-                Width="70" Height="25"
+                Width="80" Height="30"
                 Name="btnAddMenu">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="../Images/AddVariables.png" Width="32" Height="16"/>
+                        <Image Source="../Images/AddVariables.png" Width="40" Height="20"/>
                         <TextBlock Text="Add" VerticalAlignment="Center"></TextBlock>
                     </StackPanel>
                 </Button.Content>
@@ -108,7 +108,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Image Source="../Images/Cube.png" Width="16" Height="16"/>
+                                <Image Source="../Images/Cube.png" Width="32" Height="16"/>
                                 <TextBlock Text="{Binding m_S_Name}"/>
                             </StackPanel>
                         </DataTemplate>
