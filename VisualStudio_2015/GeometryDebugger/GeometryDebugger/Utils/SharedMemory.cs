@@ -35,7 +35,7 @@ namespace GeometryDebugger.Utils
         }
         public void CreateMessages()
         {
-            if (m_variables.Count > 0)
+            if (m_variables.Count > 0) // если число переменных на сериализацию больше 0
             {
                 m_S_message = "";
 
@@ -88,23 +88,13 @@ namespace GeometryDebugger.Utils
             else
                 m_S_response =  "";
         }
-        public void CheckResulst()
-        {
-            for (int i = 1; i < m_S_response.Length; ++i)
-            {
-                if (m_S_response[i] != '|')
-                {
-                    if (m_S_response[i] == '0')
-                        MessageBox.Show("Type " + m_variables[i - 1].m_S_Type + " of variable " + m_variables[i - 1].m_S_Name + " wasn't serialized", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                else
-                    break;
-
-            }
-        }
         public string getPath()
         {
             return m_S_response.Substring(m_S_response.IndexOf('|') + 1, m_S_response.IndexOf('\"', m_S_response.IndexOf('|') + 1) - m_S_response.IndexOf('|') - 1);
+        }
+        public string getResponse()
+        {
+            return m_S_response;
         }
     }
 }

@@ -206,7 +206,7 @@ bool RegisterType(const Variable& o) {
 		if (message.size() != 0) {
 
 			std::fstream file;
-			file.open("vis_dbg_" + o.m_S_Addres + ".txt", std::ios::out);
+			file.open("vis_dbg_" + o.m_S_Type + "_" + o.m_S_Name + "_" + o.m_S_Addres + ".txt", std::ios::out);
 
 			if (file.is_open()) {
 				file << message;

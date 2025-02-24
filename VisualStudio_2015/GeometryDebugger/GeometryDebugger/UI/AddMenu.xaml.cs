@@ -27,41 +27,6 @@ namespace GeometryDebugger.UI
             m_DGV_debugger = debugger; // сохраняем объект для получения переменных из CF, WL и MyS
         }
 
-        public void BreakModDetected()
-        {
-            ObservableCollection<Variable> variables = new ObservableCollection<Variable>(m_OBOV_Variables); // новая коллекция из старой коллекции (сохранили её грубо говоря)
-
-            UpdateDataFromCurrentStackFrame(); // Сохраняем в m_OBOV_variablseFromCurrentStackFrame новые переменные (их получают заново)
-            UpdateDataFromWatchList(); // ..// m_OBOV_variablesFromWathList
-            UpdateDataFromMySelf(); // обновляем данные о переменных, которые добавил пользователь руками
-
-            m_OBOV_Variables = new ObservableCollection<Variable>(
-                m_OBOV_variablesFromWathList
-                .Union(m_OBOV_variablseFromCurrentStackFrame)
-                .Union(m_OBOV_variablseFromMyselfAdded)); // объединяем их
-
-            foreach (var variable in variables) // проходим по старым переменным, чтобы найти те, которые еще остались живы и синхронизировать их с новыми (цвет, isSelected, isAdded)
-            {
-                foreach (var variableInTable in m_OBOV_Variables) // проходим каждый раз по новым переменным
-                {
-                    if (variableInTable.m_S_Addres == variable.m_S_Addres &&
-                        variableInTable.m_S_Name == variable.m_S_Name &&
-                        variableInTable.m_S_Type == variable.m_S_Type &&
-                        variableInTable.m_S_Source == variable.m_S_Source)
-                    {
-                        variableInTable.m_C_Color = variable.m_C_Color;
-                        variableInTable.m_B_IsAdded = variable.m_B_IsAdded;
-                        variableInTable.m_B_IsSelected = variable.m_B_IsSelected;
-                        break;
-                    }
-                }
-            }
-
-            dgAddVariables.ItemsSource = m_OBOV_Variables; // обновляем визуальную состовляющую таблицы
-            //SetOnlyAddedVariable();
-
-        }
-
         private void UpdateData()
         {
 
@@ -72,52 +37,6 @@ namespace GeometryDebugger.UI
 
             dgAddVariables.ItemsSource = m_OBOV_Variables;
         }
-
-        private void UpdateDataFromCurrentStackFrame()
-        {
-            if (this.CF.IsChecked == true)
-            {
-                m_DGV_debugger.GetVariablesFromCurrentStackFrame(ref m_OBOV_variablseFromCurrentStackFrame);
-            }
-            else
-            {
-                m_OBOV_variablseFromCurrentStackFrame = new ObservableCollection<Variable>();
-            }
-        }
-        private void UpdateDataFromWatchList()
-        {
-            if (this.WL.IsChecked == true)
-            {
-                m_DGV_debugger.GetVariablesFromWatchList(ref m_OBOV_variablesFromWathList);
-            }
-            else
-            {
-                m_OBOV_variablesFromWathList = new ObservableCollection<Variable>();
-            }
-        }
-        private void UpdateDataFromMySelf()
-        {
-            ObservableCollection<Variable> variables = new ObservableCollection<Variable>(); // создаем новую коллекцию
-
-            foreach (var variable in m_OBOV_variablseFromMyselfAdded) // проходимся по переменным, которые уже есть и проверяем их на валидность
-            {
-                Variable currentVariable = m_DGV_debugger.GetElemetFromExpression(variable.m_S_Name);
-
-                if (currentVariable != null)
-                {
-                    currentVariable.m_B_IsAdded = variable.m_B_IsAdded;
-                    currentVariable.m_B_IsSelected = variable.m_B_IsSelected;
-                    currentVariable.m_C_Color = variable.m_C_Color;
-
-                    variables.Add(currentVariable);
-                }
-                else
-                    continue;
-            }
-
-            m_OBOV_variablseFromMyselfAdded = new ObservableCollection<Variable>(variables); // обновляем данные
-        }
-
         private void ButtonCurrentStackFrame_Click(object sender, RoutedEventArgs e)
         {
             UpdateDataFromCurrentStackFrame();
@@ -131,19 +50,16 @@ namespace GeometryDebugger.UI
         }
         private void ButtonMyselfAdded_Click(object sender, RoutedEventArgs e)
         {
-            Variable variable = m_DGV_debugger.GetElemetFromExpression(MySelfAddedVariables.Text);
+            Variable variable = m_DGV_debugger.GetElemetFromExpression(MySelfAddedVariables.Text, "AddedMySelf", new Utils.Color(0, 0, 255), true);
 
-            ObservableCollection<Variable> variables = new ObservableCollection<Variable>(
+            ObservableCollection <Variable> variables = new ObservableCollection<Variable>(
                 m_OBOV_variablesFromWathList
                 .Union(m_OBOV_variablseFromCurrentStackFrame)
                 .Union(m_OBOV_variablseFromMyselfAdded));
 
             if (variable != null)
             {
-                if (!isContainVariable(variable, variables))
-                    m_OBOV_variablseFromMyselfAdded.Add(variable);
-                else
-                    System.Windows.MessageBox.Show("ERROR: A variable with this address: " + variable.m_S_Addres + " is already in the table.\nIt will not be added to it.");
+                m_OBOV_variablseFromMyselfAdded.Add(variable);
             }
             else
             {
@@ -155,42 +71,9 @@ namespace GeometryDebugger.UI
             UpdateData();
         }
 
-        private bool isContainVariable(Variable variable, ObservableCollection<Variable> variables)
-        {
-            foreach (var currentVariable in variables)
-            {
-                if (currentVariable.m_S_Addres == variable.m_S_Addres)
-                    return true;
-            }
-            return false;
-        }
-
-        private void SetOnlyAddedVariable()
-        {
-            m_OBOV_Variables = new ObservableCollection<Variable>();
-
-            ObservableCollection<Variable> temp = new ObservableCollection<Variable>(
-                m_OBOV_variablesFromWathList
-                .Union(m_OBOV_variablseFromCurrentStackFrame)
-                .Union(m_OBOV_variablseFromMyselfAdded));
-
-            foreach (var variable in temp)
-            {
-                if (variable.m_B_IsAdded && !isContainVariable(variable, m_OBOV_Variables))
-                {
-                    m_OBOV_Variables.Add(variable);
-                }
-            }
-        }
-
         private void ButtonImport_Click(object sender, RoutedEventArgs e)
         {
             System.Windows.Window.GetWindow(this).Close();
-        }
-        public ObservableCollection<Variable> GetVariables()
-        {
-            SetOnlyAddedVariable(); // изменяем коллекцию только на те, которые isAdded
-            return m_OBOV_Variables;
         }
 
         private void ColorDisplay_Click(object sender, RoutedEventArgs e)
@@ -305,5 +188,120 @@ namespace GeometryDebugger.UI
 
             UpdateData();
         }
+        //////////
+        ////////////////////////////////////////////////////////////
+        //////////
+        // method for breakMod (f5, f10, f11)
+        private void UpdateDataFromCurrentStackFrame() // обновляем переменные из CurrentStackFrame
+        {
+            if (this.CF.IsChecked == true) // если стоит флаг на доблавение переменных из CF
+            {
+                m_DGV_debugger.GetVariablesFromCurrentStackFrame(ref m_OBOV_variablseFromCurrentStackFrame);
+            }
+            else
+            {
+                m_OBOV_variablseFromCurrentStackFrame = new ObservableCollection<Variable>(); // иначе просто обнуляем
+            }
+        }
+        private void UpdateDataFromWatchList() // обновляем переменные из WatchList
+        {
+            if (this.WL.IsChecked == true) // если стоит флаг на доблавение переменных из WL
+            {
+                m_DGV_debugger.GetVariablesFromWatchList(ref m_OBOV_variablesFromWathList);
+            }
+            else // иначе просто обнуляем
+            {
+                m_OBOV_variablesFromWathList = new ObservableCollection<Variable>();
+            }
+        }
+        private void UpdateDataFromMySelf()
+        {
+            ObservableCollection<Variable> variables = new ObservableCollection<Variable>(); // создаем новую коллекцию
+
+            foreach (var variable in m_OBOV_variablseFromMyselfAdded) // проходимся по переменным, которые уже есть и проверяем их на валидность
+            {
+                Variable currentVariable = m_DGV_debugger.GetElemetFromExpression(variable.m_S_Name, "AddedMySelf", new Utils.Color(0, 0, 255), true);
+
+                if (currentVariable != null)
+                {
+                    currentVariable.m_B_IsAdded = variable.m_B_IsAdded;
+                    currentVariable.m_B_IsSelected = variable.m_B_IsSelected;
+                    currentVariable.m_C_Color = variable.m_C_Color;
+
+                    variables.Add(currentVariable);
+                }
+                else
+                    continue;
+            }
+
+            m_OBOV_variablseFromMyselfAdded = new ObservableCollection<Variable>(variables); // обновляем данные
+        }
+        public void BreakModDetected()
+        {
+            ObservableCollection<Variable> variables = new ObservableCollection<Variable>(m_OBOV_Variables); // новая коллекция из старой коллекции (сохранили её грубо говоря), ведь GetVariables вернул только те переменные, которые isSelected
+
+            UpdateDataFromCurrentStackFrame(); // Сохраняем в m_OBOV_variablseFromCurrentStackFrame новые переменные (их получают заново)
+            UpdateDataFromWatchList(); // ..// m_OBOV_variablesFromWathList
+            UpdateDataFromMySelf(); // обновляем данные о переменных, которые добавил пользователь руками
+
+            m_OBOV_Variables = new ObservableCollection<Variable>(
+                m_OBOV_variablesFromWathList
+                .Union(m_OBOV_variablseFromCurrentStackFrame)
+                .Union(m_OBOV_variablseFromMyselfAdded)); // объединяем их
+
+            foreach (var variable in variables) // проходим по старым переменным, чтобы найти те, которые еще остались живы и синхронизировать их с новыми (цвет, isSelected, isAdded)
+            {
+                // число элементов в m_OBOV_Variables <= чем в variables
+                foreach (var variableInTable in m_OBOV_Variables) // проходим каждый раз по новым переменным
+                {
+                    if (variableInTable.m_S_Addres == variable.m_S_Addres &&
+                        variableInTable.m_S_Name == variable.m_S_Name &&
+                        variableInTable.m_S_Type == variable.m_S_Type &&
+                        variableInTable.m_S_Source == variable.m_S_Source)
+                    {
+                        variableInTable.m_C_Color = variable.m_C_Color;
+                        variableInTable.m_B_IsAdded = variable.m_B_IsAdded;
+                        variableInTable.m_B_IsSelected = variable.m_B_IsSelected;
+                        break;
+                    }
+                }
+            }
+
+            dgAddVariables.ItemsSource = m_OBOV_Variables; // обновляем визуальную состовляющую таблицы
+        }
+        //
+        //////////
+        ////////////////////////////////////////////////////////////
+        //////////
+        //
+        public ObservableCollection<Variable> GetVariables() // получаем переменные
+        {
+            SetOnlyAddedVariable(); // изменяем коллекцию только на те, которые isAdded
+            return m_OBOV_Variables; // получаем все переменные
+        }
+        //
+        //////////
+        ////////////////////////////////////////////////////////////
+        //////////
+        //
+        private void SetOnlyAddedVariable()
+        {
+            m_OBOV_Variables = new ObservableCollection<Variable>(); // очищаем текущие переменные
+
+            // объединяем переменные
+            ObservableCollection<Variable> temp = new ObservableCollection<Variable>(
+                m_OBOV_variablesFromWathList
+                .Union(m_OBOV_variablseFromCurrentStackFrame)
+                .Union(m_OBOV_variablseFromMyselfAdded));
+
+            foreach (var variable in temp)
+            {
+                if (variable.m_B_IsAdded)
+                    m_OBOV_Variables.Add(variable); // сохраняем только те переменные, которые isAdded
+            }
+        }
+        //
+        //////////
+        ////////////////////////////////////////////////////////////
     }
 }

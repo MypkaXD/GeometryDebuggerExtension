@@ -1,5 +1,6 @@
 ﻿using EnvDTE;
-using Microsoft.VisualStudio.Shell.Interop;
+using System.Windows;
+using System.Windows.Media;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,6 +12,15 @@ namespace GeometryDebugger.Utils
 {
     public class DebuggerGetterVariables
     {
+        [DllImport("Oleacc.dll")]
+        public static extern int WindowFromAccessibleObject(IAccessible pacc, out IntPtr phwnd);
+        [DllImport("oleacc.dll")]
+        private static extern int AccessibleObjectFromWindow(IntPtr hwnd, uint idObject, ref Guid riid, out IAccessible ppvObject);
+        [DllImport("oleacc.dll")]
+        private static extern int AccessibleChildren(IAccessible paccContainer, int iChildStart, int cChildren, [Out] object[] rgvarChildren, out int pcObtained);
+
+        private const uint OBJID_CLIENT = 0xFFFFFFFC;
+
         private DTE m_DTE_Dte;
 
         public DebuggerGetterVariables()
@@ -28,6 +38,34 @@ namespace GeometryDebugger.Utils
                 return true;
             return false;
         }
+
+        public Variable GetElemetFromExpression(string name, string source, Utils.Color color, bool isAdded)
+        {
+            var expressionForTypeAndName = m_DTE_Dte.Debugger.GetExpression(name, true, 1);
+            var expressionForAddress = m_DTE_Dte.Debugger.GetExpression("&(" + name + ")", true, 1);
+
+            if (expressionForTypeAndName.IsValidValue && expressionForAddress.IsValidValue)
+            {
+                Variable variable = new Variable()
+                {
+                    m_B_IsAdded = isAdded,
+                    m_B_IsSelected = false,
+                    m_S_Name = expressionForTypeAndName.Name,
+                    m_S_Source = source,
+                    m_S_Type = expressionForTypeAndName.Type.Replace(" ", ""),
+                    m_S_Addres = expressionForAddress.Value.Split(' ')[0],
+                    m_C_Color = color
+                };
+
+                return variable;
+            }
+            return null;
+        }
+        //
+        //////////
+        ////////////////////////////////////////////////////////////
+        //////////
+        // method for get variables from CurrentStackFrame
         public void GetVariablesFromCurrentStackFrame(ref ObservableCollection<Variable> variables)
         {
             variables = new ObservableCollection<Variable>();
@@ -37,9 +75,7 @@ namespace GeometryDebugger.Utils
             foreach (EnvDTE.Expression localVariable in currentFrame.Locals)
             {
 
-                EnvDTE.Expression expression = m_DTE_Dte.Debugger.GetExpression("&(" + localVariable.Name + ")", true, 1); // get addres of variable
-
-                System.Diagnostics.Debug.WriteLine(localVariable.Type.GetHashCode());
+                EnvDTE.Expression expression = m_DTE_Dte.Debugger.GetExpression("&(" + localVariable.Name + ")", true, 1); // get address of variable
 
                 if (expression.IsValidValue)
                 {
@@ -54,15 +90,17 @@ namespace GeometryDebugger.Utils
                         m_C_Color = new Utils.Color(255, 0, 0)
                     };
 
-                    if (!isContainVariable(currentVariable, variables))
-                        variables.Add(currentVariable);
-                    else
-                        System.Windows.MessageBox.Show("ERROR: A variable with this address: " + currentVariable.m_S_Addres + " is already in the table.\nIt will not be added to it.");
+                    variables.Add(currentVariable);
                 }
                 else
-                    System.Diagnostics.Debug.WriteLine($"ERROR: Can't get addres for value {localVariable.Name}");
+                    MessageBox.Show($"ERROR: Can't get addres for value {localVariable.Name}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        //
+        //////////
+        ////////////////////////////////////////////////////////////
+        //////////
+        // method for get variables from WatchWindow
         public void GetVariablesFromWatchList(ref ObservableCollection<Variable> variables)
         {
             variables = new ObservableCollection<Variable>();
@@ -75,119 +113,22 @@ namespace GeometryDebugger.Utils
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Watch window didn't find");
+                MessageBox.Show($"ERROR: \"Watch 1\" window didn't find. Try to open window \"Watch 1\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             Guid guidIAccessible = typeof(IAccessible).GUID;
-
             IAccessible window;
 
             if (AccessibleObjectFromWindow((IntPtr)customToolWindow.HWnd, OBJID_CLIENT, ref guidIAccessible, out window) == 0 && window != null)
-            {
-                GetChildrenFromIAccessible(window, ref variables);
-            }
-
-        }
-
-        void GetElementsFromTreeGridAccessibility(IAccessible treeGrid, ref ObservableCollection<Variable> variables)
-        {
-            int childCount = treeGrid.accChildCount; // кол-во детей
-
-            if (childCount > 0)
-            {
-                object[] childrens = new object[childCount];
-                int reciveChilds = 0; // число полученных детей
-
-                if (AccessibleChildren(treeGrid, 0, childCount, childrens, out reciveChilds) == 0)
+                if (!GetChildrenFromIAccessible(window, ref variables))
                 {
-                    Queue<Tuple<string, int>> container = new Queue<Tuple<string, int>>();
-
-                    for (int i = 0; i < reciveChilds; ++i)
-                    {
-                        if (childrens[i] is System.Int32)
-                        {
-                            int childID = (System.Int32)childrens[i];
-
-                            try
-                            {
-                                if (treeGrid.get_accValue(childID).Contains("@ tree depth"))
-                                {
-                                    string nameOfVariable = treeGrid.get_accValue(childID).Split(' ')[0];
-                                    int lvlOfVariable = System.Convert.ToInt32(treeGrid.get_accValue(childID).Split(' ')[4]);
-
-                                    container.Enqueue(Tuple.Create(nameOfVariable, lvlOfVariable));
-                                }
-                            }
-                            catch { }
-                        }
-                    }
-
-                    getVariablesFromQueue(ref container, ref variables);
-
+                    MessageBox.Show($"ERROR: Treegrid wasn't find in window \"Watch 1\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-            }
         }
-
-        void getVariablesFromQueue(ref Queue<Tuple<string, int>> container, ref ObservableCollection<Variable> variables, int minLvl = 1, string currentName = "")
-        {
-
-            int count = container.Count;
-
-            for (int i = 0; i < count; ++i)
-            {
-                if (container.Count == 0)
-                    return;
-                Tuple<string, int> currentVariable = container.Peek();
-
-                string currentNameOfVariable = currentVariable.Item1;
-                int currentLvlOfVariable = currentVariable.Item2;
-
-                if (currentLvlOfVariable == minLvl)
-                {
-                    getVariableFromString(currentName + currentNameOfVariable, ref variables);
-                    container.Dequeue();
-                }
-                else if (currentLvlOfVariable > minLvl)
-                {
-                    if (currentNameOfVariable.Contains("["))
-                        getVariablesFromQueue(ref container, ref variables, currentLvlOfVariable, variables[variables.Count - 1].m_S_Name);
-                    else
-                        getVariablesFromQueue(ref container, ref variables, currentLvlOfVariable, variables[variables.Count - 1].m_S_Name + ".");
-
-                }
-                else
-                {
-                    return;
-                }
-            }
-        }
-
-        void getVariableFromString(string value, ref ObservableCollection<Variable> variables)
-        {
-            var expressionForTypeAndName = m_DTE_Dte.Debugger.GetExpression(value, true, 1);
-            var expressionForAddress = m_DTE_Dte.Debugger.GetExpression("&(" + value + ")", true, 1);
-
-            if (expressionForTypeAndName.IsValidValue && expressionForAddress.IsValidValue)
-            {
-                Variable variable = new Variable()
-                {
-                    m_B_IsAdded = false,
-                    m_B_IsSelected = false,
-                    m_S_Name = expressionForTypeAndName.Name,
-                    m_S_Source = "WatchWindow",
-                    m_S_Type = expressionForTypeAndName.Type.Replace(" ", ""),
-                    m_S_Addres = expressionForAddress.Value.Split(' ')[0],
-                    m_C_Color = new Utils.Color(0, 255, 0)
-                };
-
-                variables.Add(variable);
-            }
-        }
-
         bool GetChildrenFromIAccessible(IAccessible accessible, ref ObservableCollection<Variable> variables)
         {
-            try
+            try // приходится делать через try так как не все элементы имееют название, следовательно выбрасывает ошибку
             {
                 string name = accessible.get_accName(0);
 
@@ -228,51 +169,85 @@ namespace GeometryDebugger.Utils
 
             return false;
         }
-
-        [DllImport("Oleacc.dll")]
-        public static extern int WindowFromAccessibleObject(IAccessible pacc, out IntPtr phwnd);
-
-
-        [DllImport("oleacc.dll")]
-        private static extern int AccessibleObjectFromWindow(IntPtr hwnd, uint idObject, ref Guid riid, out IAccessible ppvObject);
-
-        private const uint OBJID_CLIENT = 0xFFFFFFFC;
-
-        [DllImport("oleacc.dll")]
-        private static extern int AccessibleChildren(IAccessible paccContainer, int iChildStart, int cChildren, [Out] object[] rgvarChildren, out int pcObtained);
-
-
-        private bool isContainVariable(Variable variable, ObservableCollection<Variable> variables)
+        void GetElementsFromTreeGridAccessibility(IAccessible treeGrid, ref ObservableCollection<Variable> variables)
         {
-            foreach (var currentVariable in variables)
-            {
-                if (variable.m_S_Addres == currentVariable.m_S_Addres)
-                    return true;
-            }
-            return false;
-        }
+            int childCount = treeGrid.accChildCount; // кол-во детей
 
-        public Variable GetElemetFromExpression(string name)
-        {
-            var expressionForTypeAndName = m_DTE_Dte.Debugger.GetExpression(name, true, 1);
-            var expressionForAddress = m_DTE_Dte.Debugger.GetExpression("&(" + name + ")", true, 1);
-
-            if (expressionForTypeAndName.IsValidValue && expressionForAddress.IsValidValue)
+            if (childCount > 0)
             {
-                Variable variable = new Variable()
+                object[] childrens = new object[childCount];
+                int reciveChilds = 0; // число полученных детей
+
+                if (AccessibleChildren(treeGrid, 0, childCount, childrens, out reciveChilds) == 0)
                 {
-                    m_B_IsAdded = true,
-                    m_B_IsSelected = false,
-                    m_S_Name = expressionForTypeAndName.Name,
-                    m_S_Source = "AddedMySelf",
-                    m_S_Type = expressionForTypeAndName.Type.Replace(" ", ""),
-                    m_S_Addres = expressionForAddress.Value.Split(' ')[0],
-                    m_C_Color = new Utils.Color(0, 0, 255)
-                };
+                    Queue<Tuple<string, int>> container = new Queue<Tuple<string, int>>();
 
-                return variable;
+                    for (int i = 0; i < reciveChilds; ++i)
+                    {
+                        if (childrens[i] is System.Int32)
+                        {
+                            int childID = (System.Int32)childrens[i];
+
+                            try
+                            {
+                                if (treeGrid.get_accValue(childID).Contains("@ tree depth"))
+                                {
+                                    string nameOfVariable = treeGrid.get_accValue(childID).Split(' ')[0];
+                                    int lvlOfVariable = System.Convert.ToInt32(treeGrid.get_accValue(childID).Split(' ')[4]);
+
+                                    container.Enqueue(Tuple.Create(nameOfVariable, lvlOfVariable));
+                                }
+                            }
+                            catch { }
+                        }
+                    }
+
+                    getVariablesFromQueue(ref container, ref variables);
+
+                }
             }
-            return null;
         }
+        void getVariablesFromQueue(ref Queue<Tuple<string, int>> container, ref ObservableCollection<Variable> variables, int minLvl = 1, string currentName = "")
+        {
+
+            int count = container.Count;
+
+            for (int i = 0; i < count; ++i)
+            {
+                if (container.Count == 0)
+                    return;
+                Tuple<string, int> currentVariable = container.Peek();
+
+                string currentNameOfVariable = currentVariable.Item1;
+                int currentLvlOfVariable = currentVariable.Item2;
+
+                if (currentLvlOfVariable == minLvl)
+                {
+                    Variable variable = GetElemetFromExpression(currentName + currentNameOfVariable, "WatchWindow", new Utils.Color(0, 255, 0), false);
+
+                    if (variable != null)
+                        variables.Add(variable);
+                    container.Dequeue();
+                }
+                else if (currentLvlOfVariable > minLvl)
+                {
+                    if (currentNameOfVariable.Contains("["))
+                        getVariablesFromQueue(ref container, ref variables, currentLvlOfVariable, variables[variables.Count - 1].m_S_Name);
+                    else
+                        getVariablesFromQueue(ref container, ref variables, currentLvlOfVariable, variables[variables.Count - 1].m_S_Name + ".");
+
+                }
+                else
+                {
+                    return;
+                }
+            }
+        }
+
+        //
+        //////////
+        ////////////////////////////////////////////////////////////
+        //////////
+
     }
 }
