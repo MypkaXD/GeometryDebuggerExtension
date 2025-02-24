@@ -52,21 +52,25 @@ namespace GeometryDebugger.UI
         {
             Variable variable = m_DGV_debugger.GetElemetFromExpression(MySelfAddedVariables.Text, "AddedMySelf", new Utils.Color(0, 0, 255), true);
 
-            ObservableCollection <Variable> variables = new ObservableCollection<Variable>(
-                m_OBOV_variablesFromWathList
-                .Union(m_OBOV_variablseFromCurrentStackFrame)
-                .Union(m_OBOV_variablseFromMyselfAdded));
-
             if (variable != null)
             {
+                foreach (var currentVariable in m_OBOV_variablseFromMyselfAdded)
+                {
+                    if (currentVariable.m_S_Name == variable.m_S_Name && currentVariable.m_S_Type == variable.m_S_Type &&
+                        currentVariable.m_S_Addres == variable.m_S_Addres && currentVariable.m_S_Source == variable.m_S_Source)
+                    {
+                        MessageBox.Show("Error: A variable with name: " + variable.m_S_Name + " contains in table.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+
                 m_OBOV_variablseFromMyselfAdded.Add(variable);
             }
             else
             {
-                System.Windows.MessageBox.Show("ERROR: A variable with name: " + MySelfAddedVariables.Text + " isn't find.");
+                MessageBox.Show("Error: A variable with name: " + MySelfAddedVariables.Text + " isn't find.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
 
             UpdateData();
         }
@@ -228,7 +232,10 @@ namespace GeometryDebugger.UI
                     currentVariable.m_B_IsSelected = variable.m_B_IsSelected;
                     currentVariable.m_C_Color = variable.m_C_Color;
 
-                    variables.Add(currentVariable);
+                    if (m_OBOV_variablseFromMyselfAdded.Contains(currentVariable))
+                        MessageBox.Show("Error: A variable with name: " + currentVariable.m_S_Name + " contains in table.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    else
+                        variables.Add(currentVariable);
                 }
                 else
                     continue;

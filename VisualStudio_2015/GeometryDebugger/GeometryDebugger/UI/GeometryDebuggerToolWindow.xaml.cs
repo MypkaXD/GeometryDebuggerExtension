@@ -116,10 +116,7 @@ namespace GeometryDebugger.UI
 
                     m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(isSelected, isSerialized);
 
-                    if (isSerialized)
-                        m_CH_Host.visibilityGeomView(m_S_GlobalPath + "\\" + pathOfVariable, isSelected); // если переменная выбрана для показа (isSelected)
-                    else
-                        draw();
+                    draw();
                 }
             }
         }
@@ -155,7 +152,7 @@ namespace GeometryDebugger.UI
             }
             else
             {
-                System.Windows.MessageBox.Show("ERROR: You need to start Debug mode.");
+                MessageBox.Show("Error: You need to start Debug mode.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         private void ColorDisplay_Click(object sender, RoutedEventArgs e)
@@ -278,7 +275,7 @@ namespace GeometryDebugger.UI
                 // проверям результат
                 if (!response.Contains("\\")) // в случае если не получил ответ, что-то плохое произошло (все переменные неиницализированы)
                 {
-                    MessageBox.Show("Can't serialize variables", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Error: Can't serialize variables", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
                     for (int i = 0; i < variablesForSerializations.Count; ++i)
                     {
@@ -699,9 +696,11 @@ namespace GeometryDebugger.UI
                             */
                             string pathOfVariable = Util.getPathOfVariable(m_S_PathForFile, variable); // ключ в Dictionary m_L_Paths
                             bool isSerialized = m_L_Paths[pathOfVariable].Item2; // получаем информацию, сериализована ли переменная
+
                             variable.PropertyChanged -= Variable_PropertyChanged; // отписваемся от изменений, из-за них вызовется лишняя функция
                             variable.m_B_IsSelected = false;
                             variable.PropertyChanged += Variable_PropertyChanged; // подписываемся обратно
+
                             m_L_Paths[pathOfVariable] = new Tuple<bool, bool>(false, isSerialized); // ставим, что переменная неIsSelected, isSerialized - сохраняем старый
                         }
                     }

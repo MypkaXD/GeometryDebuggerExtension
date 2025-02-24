@@ -121,10 +121,12 @@ namespace GeometryDebugger.Utils
             IAccessible window;
 
             if (AccessibleObjectFromWindow((IntPtr)customToolWindow.HWnd, OBJID_CLIENT, ref guidIAccessible, out window) == 0 && window != null)
+            {
                 if (!GetChildrenFromIAccessible(window, ref variables))
                 {
                     MessageBox.Show($"ERROR: Treegrid wasn't find in window \"Watch 1\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
         }
         bool GetChildrenFromIAccessible(IAccessible accessible, ref ObservableCollection<Variable> variables)
         {
@@ -225,8 +227,24 @@ namespace GeometryDebugger.Utils
                 {
                     Variable variable = GetElemetFromExpression(currentName + currentNameOfVariable, "WatchWindow", new Utils.Color(0, 255, 0), false);
 
+                    bool isFind = false;
+
                     if (variable != null)
-                        variables.Add(variable);
+                    {
+                        foreach (var tempVariable in variables)
+                        {
+                            if (tempVariable.m_S_Name == variable.m_S_Name && tempVariable.m_S_Type == variable.m_S_Type &&
+                                tempVariable.m_S_Addres == variable.m_S_Addres && tempVariable.m_S_Source == variable.m_S_Source)
+                            {
+                                MessageBox.Show("Error: the variable with name \"" + variable.m_S_Name + "\" contains in table.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                isFind = true;
+                            }
+                        }
+
+                        if (!isFind)
+                            variables.Add(variable);
+                    }
+
                     container.Dequeue();
                 }
                 else if (currentLvlOfVariable > minLvl)

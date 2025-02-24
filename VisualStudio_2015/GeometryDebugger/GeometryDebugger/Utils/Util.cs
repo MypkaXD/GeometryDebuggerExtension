@@ -29,7 +29,7 @@ namespace GeometryDebugger.Utils
 
         static public string getPathOfVariable(string path, Variable variable)
         {
-            return path + variable.m_S_Type + "_" + variable.m_S_Name + "_" + variable.m_S_Addres;
+            return path + variable.m_S_Type + "_" + variable.m_S_Name + "_" + variable.m_S_Source + "_" + variable.m_S_Addres;
         }
     }
 }
