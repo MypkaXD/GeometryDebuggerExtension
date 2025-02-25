@@ -47,7 +47,9 @@
             </Button>
         </StackPanel>
         <GridSplitter Grid.Column="0" Grid.Row="2" Height="5" HorizontalAlignment="Stretch"/>
-        <DataGrid Grid.Row="1" Grid.Column="0" Name="dgObjects" HeadersVisibility="Column" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" HorizontalAlignment="Left" SelectionMode="Extended">
+        <DataGrid Grid.Row="1" Grid.Column="0" Name="dgObjects" HeadersVisibility="Column" AutoGenerateColumns="False"
+                  CanUserAddRows="False" CanUserDeleteRows="False" HorizontalAlignment="Left" SelectionMode="Extended"
+                  Sorting="dgObjects_Sorting">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Select" Click="MenuItemAddForDrawing_Click">
@@ -103,7 +105,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="*" Header="Name">
+                <DataGridTemplateColumn Width="*" Header="Name" SortMemberPath="m_S_Name">
                     <!-- Шаблон ячейки для данных -->
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

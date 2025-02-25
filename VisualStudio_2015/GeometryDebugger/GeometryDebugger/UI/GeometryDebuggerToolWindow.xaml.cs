@@ -96,6 +96,8 @@ namespace GeometryDebugger.UI
         {
             m_OBOV_Variables.Clear();
             dgObjects.ItemsSource = m_OBOV_Variables;
+            m_AM_AddMenu.m_OBOV_Variables.Clear();
+            m_AM_AddMenu.dgAddVariables.ItemsSource = m_AM_AddMenu.m_OBOV_Variables;
 
             m_CH_Host.reloadGeomView(new List<Tuple<string, bool>> { }, m_S_GlobalPath);
         }
@@ -879,6 +881,71 @@ namespace GeometryDebugger.UI
                 dgObjects.SelectedItems.Add(variable);
 
             reorder(); // изменяем порядок отрисовки
+        }
+
+        private List<bool> isDownSorting = new List<bool>(){ true, true, true, true, true, true };
+
+        private void dgObjects_Sorting(object sender, DataGridSortingEventArgs e)
+        {
+            DataGrid dataGrid = sender as DataGrid;
+
+            int indexOfSort = getIndexOfColumn(e.Column.SortMemberPath);
+
+            if (m_OBOV_Variables != null && indexOfSort != -1)
+            {
+                // Определяем направление сортировки
+                ListSortDirection sortDirection = (isDownSorting[indexOfSort] == true ? ListSortDirection.Ascending
+                    : ListSortDirection.Descending);
+
+                // Устанавливаем направление сортировки для столбца
+                e.Column.SortDirection = sortDirection;
+
+                // Получаем имя свойства для сортировки
+                string sortPropertyName = e.Column.SortMemberPath;
+
+                // Сортируем коллекцию
+                var sortedCollection = new ObservableCollection<Variable>(
+                    sortDirection == ListSortDirection.Ascending
+                        ? m_OBOV_Variables.OrderBy(x => GetPropertyValue(x, sortPropertyName))
+                        : m_OBOV_Variables.OrderByDescending(x => GetPropertyValue(x, sortPropertyName)));
+
+                // Заменяем исходную коллекцию на отсортированную
+                dataGrid.ItemsSource = sortedCollection;
+                m_OBOV_Variables = sortedCollection;
+
+                if (isDownSorting[indexOfSort])
+                    isDownSorting[indexOfSort] = false;
+                else
+                    isDownSorting[indexOfSort] = true;
+
+                reorder();
+            }
+
+            // Отменяем стандартную сортировку
+            e.Handled = true;
+        }
+
+        // Вспомогательный метод для получения значения свойства по имени
+        private object GetPropertyValue(Variable obj, string propertyName)
+        {
+            return obj.GetType().GetProperty(propertyName)?.GetValue(obj, null);
+        }
+        private int getIndexOfColumn(string name)
+        {
+            if (name == "m_B_IsSelected")
+                return 0;
+            else if (name == "m_C_Color")
+                return 1;
+            else if (name == "m_S_Name")
+                return 2;
+            if (name == "m_S_Type")
+                return 3;
+            else if (name == "m_S_Addres")
+                return 4;
+            else if (name == "m_S_Source")
+                return 5;
+            else
+                return -1;
         }
     }
 }

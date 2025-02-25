@@ -248,7 +248,6 @@ std::string SerializeObjects(const std::vector<Variable>& objects) {
 		isSerialized |= RegisterType<Plane>(o);
 		isSerialized |= RegisterType<Sphere>(o);
 		isSerialized |= RegisterType<Cylinder>(o);
-		isSerialized |= RegisterType<Cylinder*>(o);
 
 		serializingVariables += isSerialized ? "1" : "0";
 	}
