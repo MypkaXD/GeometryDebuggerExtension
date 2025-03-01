@@ -21,6 +21,10 @@ public:
 	}
 
 	Point virtual getPoint(const double& u_param, const double& v_param) = 0;
+	virtual double getUMax() const = 0;
+	virtual double getUMin() const = 0;
+	virtual double getVMax() const = 0;
+	virtual double getVMin() const = 0;
 
 	Point getOX() {
 		return m_ox;

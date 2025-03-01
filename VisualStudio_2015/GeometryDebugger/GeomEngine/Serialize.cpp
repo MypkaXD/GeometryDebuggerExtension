@@ -159,9 +159,6 @@ void parser() {
 			break;
 		}
 	}
-	std::cout << std::endl;
-	std::cout << name << " " << type << " " << source <<
-		" " << addres << " " << R << " " << G << " " << B << std::endl;
 }
 
 std::string getCurrentDir() {
@@ -221,7 +218,7 @@ bool RegisterType(const Variable& o) {
 		if (message.size() != 0) {
 
 			std::fstream file;
-			file.open("vis_dbg_" + o.m_S_Type + "_" + o.m_S_Name + "_" + o.m_S_Source + "_" + o.m_S_Addres + ".txt", std::ios::out);
+			file.open("vis_dbg_" + o.m_S_Name + "_" + o.m_S_Source + "_" + o.m_S_Addres + ".txt", std::ios::out);
 
 			if (file.is_open()) {
 				file << message;
@@ -248,6 +245,9 @@ std::string SerializeObjects(const std::vector<Variable>& objects) {
 		isSerialized |= RegisterType<Plane>(o);
 		isSerialized |= RegisterType<Sphere>(o);
 		isSerialized |= RegisterType<Cylinder>(o);
+		isSerialized |= RegisterType<Face>(o);
+		isSerialized |= RegisterType<std::vector<Edge>>(o);
+		isSerialized |= RegisterType<std::vector<Point>>(o);
 
 		serializingVariables += isSerialized ? "1" : "0";
 	}
@@ -259,7 +259,7 @@ std::string Serialize() {
 
 	readMemoryMappedFile();
 	parser();
-	std::cout << message << std::endl;
+	//std::cout << message << std::endl;
 	response = SerializeObjects(m_VOV_Variables);
 
 	return response + "|" + getCurrentDir();

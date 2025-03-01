@@ -30,10 +30,10 @@ public:
 		return globalPoint;
 	}
 
-	double getUMin() const { return uMin; }
-	double getUMax() const { return uMax; }
-	double getVMin() const { return vMin; }
-	double getVMax() const { return vMax; }
+	double getUMax() const override { return uMax; }
+	double getUMin() const override { return uMin; }
+	double getVMax() const override { return vMax; }
+	double getVMin() const override { return vMin; }
 };
 
 #endif // !SPHERE_H

@@ -100,6 +100,7 @@ namespace GeometryDebugger.UI
             m_AM_AddMenu.dgAddVariables.ItemsSource = m_AM_AddMenu.m_OBOV_Variables;
 
             m_CH_Host.reloadGeomView(new List<Tuple<string, bool>> { }, m_S_GlobalPath);
+            m_CH_Host.destroyOpenGLWindow();
         }
 
         private void Variable_PropertyChanged(object sender, PropertyChangedEventArgs e) // срабатывает, если какой-то элемент в таблице изменил своё свойство (пример, CheckBox на m_B_IsSelected)

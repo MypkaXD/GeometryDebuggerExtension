@@ -38,10 +38,6 @@ DLL_EXPORT void reload(StringArrayData* data, bool resetCamera) {
 		files[i] = std::make_pair(std::string(data->StringArray[i]), data->BoolArray[i]);
 	}
 
-	for (int i = 0; i < files.size(); ++i) {
-		std::cout << files[i].first << " " << files[i].second << std::endl;
-	}
-
 	tool->reload(files, resetCamera);
 }
 
