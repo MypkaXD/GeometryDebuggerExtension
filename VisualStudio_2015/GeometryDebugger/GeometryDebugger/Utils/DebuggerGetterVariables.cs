@@ -66,7 +66,7 @@ namespace GeometryDebugger.Utils
         ////////////////////////////////////////////////////////////
         //////////
         // method for get variables from CurrentStackFrame
-        public void GetVariablesFromCurrentStackFrame(ref ObservableCollection<Variable> variables)
+        public void GetVariablesFromCurrentStackFrame(ref ObservableCollection<Variable> variables, bool isShowNotification = true)
         {
             variables = new ObservableCollection<Variable>();
 
@@ -93,7 +93,10 @@ namespace GeometryDebugger.Utils
                     variables.Add(currentVariable);
                 }
                 else
-                    MessageBox.Show($"ERROR: Can't get addres for value {localVariable.Name}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                {
+                    if (isShowNotification)
+                        MessageBox.Show($"ERROR: Can't get addres for value {localVariable.Name}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
         //
@@ -101,7 +104,7 @@ namespace GeometryDebugger.Utils
         ////////////////////////////////////////////////////////////
         //////////
         // method for get variables from WatchWindow
-        public void GetVariablesFromWatchList(ref ObservableCollection<Variable> variables)
+        public void GetVariablesFromWatchList(ref ObservableCollection<Variable> variables, bool isShowNotification = true)
         {
             variables = new ObservableCollection<Variable>();
 
@@ -113,7 +116,8 @@ namespace GeometryDebugger.Utils
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ERROR: \"Watch 1\" window didn't find. Try to open window \"Watch 1\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (isShowNotification)
+                    MessageBox.Show($"ERROR: \"Watch 1\" window didn't find. Try to open window \"Watch 1\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -124,7 +128,8 @@ namespace GeometryDebugger.Utils
             {
                 if (!GetChildrenFromIAccessible(window, ref variables))
                 {
-                    MessageBox.Show($"ERROR: Treegrid wasn't find in window \"Watch 1\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (isShowNotification)
+                        MessageBox.Show($"ERROR: Treegrid wasn't find in window \"Watch 1\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -193,6 +198,7 @@ namespace GeometryDebugger.Utils
                             try
                             {
                                 if (treeGrid.get_accValue(childID).Contains("@ tree depth"))
+                                //if (treeGrid.get_accValue(childID) != null)
                                 {
                                     string nameOfVariable = treeGrid.get_accValue(childID).Split(' ')[0];
                                     int lvlOfVariable = System.Convert.ToInt32(treeGrid.get_accValue(childID).Split(' ')[4]);
@@ -209,23 +215,23 @@ namespace GeometryDebugger.Utils
                 }
             }
         }
-        void getVariablesFromQueue(ref Queue<Tuple<string, int>> container, ref ObservableCollection<Variable> variables, int minLvl = 1, string currentName = "")
+        void getVariablesFromQueue(ref Queue<Tuple<string, int>> container, ref ObservableCollection<Variable> variables, int minLvl = 1, string currentName = "", string typeOfVariableFromPrevDepth = "")
         {
 
-            int count = container.Count;
+            int count = container.Count; // число в очереди
 
             for (int i = 0; i < count; ++i)
             {
-                if (container.Count == 0)
+                if (container.Count == 0) // если число переменных в очереде == 0, то return
                     return;
-                Tuple<string, int> currentVariable = container.Peek();
+                Tuple<string, int> currentVariable = container.Peek(); // смотрим первый элемент на выход из очереди
 
-                string currentNameOfVariable = currentVariable.Item1;
-                int currentLvlOfVariable = currentVariable.Item2;
+                string currentNameOfVariable = currentVariable.Item1; // название переменной
+                int currentLvlOfVariable = currentVariable.Item2; // глубина переменной
 
-                if (currentLvlOfVariable == minLvl)
+                if (currentLvlOfVariable == minLvl) // если глубина переменной совпадает с минимальным, то есть мы не опустилиь и не поднялись, то
                 {
-                    Variable variable = GetElemetFromExpression(currentName + currentNameOfVariable, "WatchWindow", new Utils.Color(0, 255, 0), false);
+                    Variable variable = GetElemetFromExpression(currentName + currentNameOfVariable, "WatchWindow", new Utils.Color(0, 255, 0), false); // получаем переменную
 
                     bool isFind = false;
 
@@ -242,18 +248,32 @@ namespace GeometryDebugger.Utils
                         }
 
                         if (!isFind)
+                        {
                             variables.Add(variable);
+                            //typeOfVariableFromPrevDepth = variable.m_S_Type;
+                        }
                     }
 
-                    container.Dequeue();
+                    container.Dequeue(); // убираем этот элемент из очереди
                 }
-                else if (currentLvlOfVariable > minLvl)
+                else if (currentLvlOfVariable > minLvl) // если мы опустились глубже
                 {
-                    if (currentNameOfVariable.Contains("["))
-                        getVariablesFromQueue(ref container, ref variables, currentLvlOfVariable, variables[variables.Count - 1].m_S_Name);
-                    else
-                        getVariablesFromQueue(ref container, ref variables, currentLvlOfVariable, variables[variables.Count - 1].m_S_Name + ".");
+                    typeOfVariableFromPrevDepth = variables[variables.Count - 1].m_S_Type;
+                    string nameOnNextLvl = "(" + variables[variables.Count - 1].m_S_Name + ")";
 
+                    if (currentNameOfVariable.Contains("["))
+                    {
+
+                    }
+                    else
+                    {
+                        if (typeOfVariableFromPrevDepth.Contains("*"))
+                            nameOnNextLvl += "->";
+                        else
+                            nameOnNextLvl += ".";
+                    }
+
+                    getVariablesFromQueue(ref container, ref variables, currentLvlOfVariable, nameOnNextLvl, typeOfVariableFromPrevDepth);
                 }
                 else
                 {

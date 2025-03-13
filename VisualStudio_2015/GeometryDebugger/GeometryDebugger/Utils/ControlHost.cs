@@ -25,7 +25,6 @@ namespace GeometryDebugger.Utils
 
         [DllImport("C:\\dev\\Source\\LearningWPF\\VisualStudio_2015\\GeometryDebugger\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void visibilities(ref StringArrayData data);
-
         [DllImport("user32.dll", EntryPoint = "DestroyWindow", CharSet = CharSet.Unicode)]
         internal static extern bool DestroyWindow(IntPtr hwnd);
 
@@ -46,6 +45,7 @@ namespace GeometryDebugger.Utils
         protected override void DestroyWindowCore(HandleRef hwnd)
         {
             DestroyWindow(hwnd.Handle);
+            //destroyGLtoolWindow(m_Hwnd);
         }
 
         public void destroyOpenGLWindow()

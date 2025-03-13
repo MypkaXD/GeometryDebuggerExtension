@@ -131,7 +131,7 @@ int main() {
 
 	Sphere sphere = Sphere(Point(0, 0, 0), Point(1, 0, 0), Point(0, 1, 0), 1, -M_PI, M_PI, -M_PI / 2, M_PI / 2);
 	Plane plane = Plane(Point(0, 0, 0), Point(1, 0, 0), Point(0, 1, 0), -3, 3, -3, 3);
-	Face face = Face(&plane, edges);
+	Face face = Face(&sphere, edges);
 
 	double u = 0.5, v = 0.5;
 

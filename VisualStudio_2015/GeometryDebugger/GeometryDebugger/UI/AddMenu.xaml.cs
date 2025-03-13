@@ -196,29 +196,29 @@ namespace GeometryDebugger.UI
         ////////////////////////////////////////////////////////////
         //////////
         // method for breakMod (f5, f10, f11)
-        private void UpdateDataFromCurrentStackFrame() // обновляем переменные из CurrentStackFrame
+        private void UpdateDataFromCurrentStackFrame(bool isShowNotification = true) // обновляем переменные из CurrentStackFrame
         {
             if (this.CF.IsChecked == true) // если стоит флаг на доблавение переменных из CF
             {
-                m_DGV_debugger.GetVariablesFromCurrentStackFrame(ref m_OBOV_variablseFromCurrentStackFrame);
+                m_DGV_debugger.GetVariablesFromCurrentStackFrame(ref m_OBOV_variablseFromCurrentStackFrame, isShowNotification);
             }
             else
             {
                 m_OBOV_variablseFromCurrentStackFrame = new ObservableCollection<Variable>(); // иначе просто обнуляем
             }
         }
-        private void UpdateDataFromWatchList() // обновляем переменные из WatchList
+        private void UpdateDataFromWatchList(bool isShowNotification = true) // обновляем переменные из WatchList
         {
             if (this.WL.IsChecked == true) // если стоит флаг на доблавение переменных из WL
             {
-                m_DGV_debugger.GetVariablesFromWatchList(ref m_OBOV_variablesFromWathList);
+                m_DGV_debugger.GetVariablesFromWatchList(ref m_OBOV_variablesFromWathList, isShowNotification);
             }
             else // иначе просто обнуляем
             {
                 m_OBOV_variablesFromWathList = new ObservableCollection<Variable>();
             }
         }
-        private void UpdateDataFromMySelf()
+        private void UpdateDataFromMySelf(bool isShowNotification = true)
         {
             ObservableCollection<Variable> variables = new ObservableCollection<Variable>(); // создаем новую коллекцию
 
@@ -233,7 +233,11 @@ namespace GeometryDebugger.UI
                     currentVariable.m_C_Color = variable.m_C_Color;
 
                     if (m_OBOV_variablseFromMyselfAdded.Contains(currentVariable))
-                        MessageBox.Show("Error: A variable with name: " + currentVariable.m_S_Name + " contains in table.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    {
+                        if (isShowNotification)
+                            MessageBox.Show("Error: A variable with name: " + currentVariable.m_S_Name + " contains in table.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                    }
                     else
                         variables.Add(currentVariable);
                 }
@@ -247,9 +251,9 @@ namespace GeometryDebugger.UI
         {
             ObservableCollection<Variable> variables = new ObservableCollection<Variable>(m_OBOV_Variables); // новая коллекция из старой коллекции (сохранили её грубо говоря), ведь GetVariables вернул только те переменные, которые isSelected
 
-            UpdateDataFromCurrentStackFrame(); // Сохраняем в m_OBOV_variablseFromCurrentStackFrame новые переменные (их получают заново)
-            UpdateDataFromWatchList(); // ..// m_OBOV_variablesFromWathList
-            UpdateDataFromMySelf(); // обновляем данные о переменных, которые добавил пользователь руками
+            UpdateDataFromCurrentStackFrame(false); // Сохраняем в m_OBOV_variablseFromCurrentStackFrame новые переменные (их получают заново)
+            UpdateDataFromWatchList(false); // ..// m_OBOV_variablesFromWathList
+            UpdateDataFromMySelf(false); // обновляем данные о переменных, которые добавил пользователь руками
 
             m_OBOV_Variables = new ObservableCollection<Variable>(
                 m_OBOV_variablesFromWathList
@@ -261,8 +265,7 @@ namespace GeometryDebugger.UI
                 // число элементов в m_OBOV_Variables <= чем в variables
                 foreach (var variableInTable in m_OBOV_Variables) // проходим каждый раз по новым переменным
                 {
-                    if (variableInTable.m_S_Addres == variable.m_S_Addres &&
-                        variableInTable.m_S_Name == variable.m_S_Name &&
+                    if (variableInTable.m_S_Name == variable.m_S_Name &&
                         variableInTable.m_S_Type == variable.m_S_Type &&
                         variableInTable.m_S_Source == variable.m_S_Source)
                     {
@@ -275,6 +278,23 @@ namespace GeometryDebugger.UI
             }
 
             dgAddVariables.ItemsSource = m_OBOV_Variables; // обновляем визуальную состовляющую таблицы
+        }
+        public ObservableCollection<Variable> UpdateVariableAfterBreakMod(ObservableCollection<Variable> variables)
+        {
+
+            ObservableCollection<Variable> newVariables = new ObservableCollection<Variable>();
+
+            foreach (var variable in variables)
+            {
+                Variable currentVariable = m_DGV_debugger.GetElemetFromExpression(variable.m_S_Name, variable.m_S_Source, variable.m_C_Color, variable.m_B_IsAdded);
+
+                if (currentVariable != null)
+                    newVariables.Add(currentVariable);
+                else
+                    MessageBox.Show($"ERROR: Can't get variable {variable.m_S_Name}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            return newVariables;
         }
         //
         //////////

@@ -99,8 +99,11 @@ namespace GeometryDebugger.UI
             m_AM_AddMenu.m_OBOV_Variables.Clear();
             m_AM_AddMenu.dgAddVariables.ItemsSource = m_AM_AddMenu.m_OBOV_Variables;
 
-            m_CH_Host.reloadGeomView(new List<Tuple<string, bool>> { }, m_S_GlobalPath);
+            //m_CH_Host.reloadGeomView(new List<Tuple<string, bool>> { }, m_S_GlobalPath);
             m_CH_Host.destroyOpenGLWindow();
+
+            //ControlHostElement.Child = null;
+            //m_CH_Host = null;
         }
 
         private void Variable_PropertyChanged(object sender, PropertyChangedEventArgs e) // срабатывает, если какой-то элемент в таблице изменил своё свойство (пример, CheckBox на m_B_IsSelected)
@@ -520,13 +523,14 @@ namespace GeometryDebugger.UI
         {
             VSColorTheme.ThemeChanged += OnThemeChanged; // подписываемся на событие смены темы VisualStudio
 
-            // создаем GeomView Context
-            m_CH_Host = new ControlHost();
-            if (ControlHostElement.Child == null)
-                ControlHostElement.Child = m_CH_Host;
 
             if (!m_B_IsSubscribeOnBreakMod) // в случае если мы не подписаны на срабатывание BreakMod'a
             {
+                // создаем GeomView Context
+                m_CH_Host = new ControlHost();
+                if (ControlHostElement.Child == null)
+                    ControlHostElement.Child = m_CH_Host;
+
                 SubscribeOnDebugEvents(); // подписываемся на дебаг ивенты
                 m_B_IsSubscribeOnBreakMod = true; // boolева переменная m_B_IsSubscribeOnBreakMod в true (подписаны на дебаг ивенты)
             }
@@ -537,10 +541,10 @@ namespace GeometryDebugger.UI
 
             // ??????????????????????????????????
             // удаляем сцену с GeomView и очищаем таблицу. 
-            ClearGeomViewWindow();
 
             if (m_B_IsSubscribeOnBreakMod) // в случае, если мы не подписаны на дебаг ивенты
             {
+                ClearGeomViewWindow();
                 UnsubscribeFromDebugEvents(); // отписываемся
                 m_B_IsSubscribeOnBreakMod = false; // усатанвливаем флаг, что не подписаны
             }
@@ -569,24 +573,15 @@ namespace GeometryDebugger.UI
         }
         private void OnEnterBreakMode(dbgEventReason reason, ref dbgExecutionAction action) // срабатывает при f5, f10, f11
         {
-            m_AM_AddMenu.BreakModDetected(); // обновляем информацию о наших переменных, которые мы отслеживаем, валидны ли они
-
-            m_OBOV_Variables = new ObservableCollection<Variable>(m_AM_AddMenu.GetVariables()); // получаем итоговые данные с валидными переменными и которые isAdded = true
+            m_OBOV_Variables = new ObservableCollection<Variable>(m_AM_AddMenu.UpdateVariableAfterBreakMod(m_OBOV_Variables)); // получаем итоговые данные с валидными переменными и которые isAdded = true
             Dictionary<string, Tuple<bool, bool>> oldPaths = new Dictionary<string, Tuple<bool, bool>>(m_L_Paths);
             m_L_Paths.Clear();
 
-            // Кол-во новых переменных меньши или равно кол-ву старых переменных
-
-            /*
-             * Нам необходимо удалить все переменные из m_L_Paths, которые больше не валидны 
-             * Обновить у них всех isSerialized на false
-             * isSelected - оставить таким, каким было
-            */
 
             foreach (var variable in m_OBOV_Variables)
             {
                 string pathOfVariable = Util.getPathOfVariable(m_S_PathForFile, variable); // ключ в Dictionary m_L_Paths
-                m_L_Paths.Add(pathOfVariable, new Tuple<bool, bool>(oldPaths[pathOfVariable].Item1, false));
+                m_L_Paths.Add(pathOfVariable, new Tuple<bool, bool>(true, false));
             }
 
             dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую
