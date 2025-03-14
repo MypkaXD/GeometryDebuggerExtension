@@ -1,4 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using System;
+using System.IO;
+using System.Text;
 
 namespace GeometryDebugger.Utils
 {
@@ -17,6 +20,7 @@ namespace GeometryDebugger.Utils
         {
             if (left.m_B_IsAdded == right.m_B_IsAdded &&
                            left.m_B_IsSelected == right.m_B_IsSelected &&
+                           left.m_B_IsSerialized == right.m_B_IsSerialized &&
                            left.m_C_Color == right.m_C_Color &&
                            left.m_S_Addres == right.m_S_Addres &&
                            left.m_S_Name == right.m_S_Name &&
@@ -27,9 +31,23 @@ namespace GeometryDebugger.Utils
                 return false;
         }
 
+        static string SanitizeFileName(string name)
+        {
+            var forbiddenChars = Path.GetInvalidFileNameChars();
+            var result = new StringBuilder(name);
+
+            foreach (var ch in forbiddenChars)
+            {
+                result.Replace(ch, '_'); // Заменяем на подчёркивание
+            }
+
+            return result.ToString();
+        }
+
         static public string getPathOfVariable(string path, Variable variable)
         {
-            return path + variable.m_S_Name + "_" + variable.m_S_Source + "_" + variable.m_S_Addres;
+            string name = SanitizeFileName(variable.m_S_Name);
+            return path + name + "_" + variable.m_S_Source + "_" + variable.m_S_Addres;
         }
     }
 }

@@ -53,12 +53,12 @@ namespace GeometryDebugger.Utils
             DestroyWindowCore(new HandleRef(this, m_Hwnd));
         }
 
-        public void visibilityGeomView(string path, bool isVisible)
+        public void visibilityGeomView(string path, string globalPath,  bool isVisible)
         {
             IntPtr[] stringPtrs = new IntPtr[1];
             bool[] bools = new bool[1];
 
-            stringPtrs[0] = Marshal.StringToHGlobalAnsi(path + ".txt");
+            stringPtrs[0] = Marshal.StringToHGlobalAnsi(globalPath + "\\" + path + ".txt");
             bools[0] = isVisible;
 
             // Создаем и заполняем структуру

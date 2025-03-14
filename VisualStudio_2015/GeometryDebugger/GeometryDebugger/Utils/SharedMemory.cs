@@ -23,35 +23,25 @@ namespace GeometryDebugger.Utils
         private string m_S_message = "";
         private string m_S_response = "";
         private DTE m_DTE;
-        private List<Variable> m_variables;
         private bool isReadyMessages = false;
 
-        public SharedMemory(List<Variable> variables, DTE dTE)
+        public SharedMemory(DTE dTE)
         {
-            m_variables = variables;
             m_DTE = dTE;
 
             isReadyMessages = false;
         }
-        public void CreateMessages()
+        public void CreateMessages(Variable variable)
         {
-            if (m_variables.Count > 0) // если число переменных на сериализацию больше 0
+            m_S_message = "";
+
+            if (variable.m_B_IsSelected && !variable.m_B_IsSerialized)
             {
-                m_S_message = "";
+                string R = ((float)variable.m_C_Color.m_i_R / 255).ToString().Replace(",", ".");
+                string G = ((float)variable.m_C_Color.m_i_G / 255).ToString().Replace(",", ".");
+                string B = ((float)variable.m_C_Color.m_i_B / 255).ToString().Replace(",", ".");
 
-                for (int i = 0; i < m_variables.Count; i++)
-                {
-                    if (m_variables[i].m_B_IsSelected)
-                    {
-                        string R = ((float)m_variables[i].m_C_Color.m_i_R / 255).ToString().Replace(",", ".");
-                        string G = ((float)m_variables[i].m_C_Color.m_i_G / 255).ToString().Replace(",", ".");
-                        string B = ((float)m_variables[i].m_C_Color.m_i_B / 255).ToString().Replace(",", ".");
-
-                        m_S_message += $"{m_variables[i].m_S_Name}|{m_variables[i].m_S_Type}|{m_variables[i].m_S_Source}|{m_variables[i].m_S_Addres}|{R}|{G}|{B}";
-                        if (i < m_variables.Count - 1)
-                            m_S_message += "|";
-                    }
-                }
+                m_S_message += $"{variable.m_S_Name}|{variable.m_S_Type}|{variable.m_S_Source}|{variable.m_S_Addres}|{R}|{G}|{B}";
             }
         }
         public void WriteToMemory()

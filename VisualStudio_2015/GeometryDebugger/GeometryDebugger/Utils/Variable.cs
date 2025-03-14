@@ -17,6 +17,7 @@ namespace GeometryDebugger.Utils
 
         private bool isAdded;
         private bool isSelected;
+        private bool isSerialized;
 
         private Color color;
 
@@ -109,6 +110,21 @@ namespace GeometryDebugger.Utils
                 {
                     this.isSelected = value;
                     this.OnPropertyChanged(nameof(m_B_IsSelected));
+                }
+            }
+        }
+        public bool m_B_IsSerialized
+        {
+            get
+            {
+                return this.isSerialized;
+            }
+            set
+            {
+                if (this.isSerialized != value)
+                {
+                    this.isSerialized = value;
+                    this.OnPropertyChanged(nameof(m_B_IsSerialized));
                 }
             }
         }
