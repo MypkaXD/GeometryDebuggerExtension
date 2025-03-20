@@ -2,8 +2,9 @@ name: Build extension
 
 on:
   push:
+    branches: ["VisualStudio15"]
   pull_request:
-
+    branches: ["VisualStudio15"]
 jobs:
   build:
     runs-on: windows-latest
