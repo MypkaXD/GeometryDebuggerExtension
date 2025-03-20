@@ -30,7 +30,7 @@ jobs:
             ForEach-Object {$_ -Replace '1.0.0', '1.0.${{ github.run_number }}'} |
               Set-Content -Path VisualStudio_2015\GeometryDebugger\GeometryDebugger\Utils\GeometryDebuggerControl.cs
       - name: Restore
-        run: nuget restore
+        run: nuget restore VisualStudio_2015\GeometryDebugger\GeometryDebugger\packages.config
       - name: Build
         run: msbuild /p:configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal
       - uses: actions/upload-artifact@v4
