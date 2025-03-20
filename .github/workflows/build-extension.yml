@@ -5,19 +5,23 @@ on:
     branches: ["VisualStudio15"]
   pull_request:
     branches: ["VisualStudio15"]
+
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
+
       - name: Add nuget to PATH
         uses: nuget/setup-nuget@v1
+
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.2
         with:
-            vs-version: "14.0"
-            msbuild-architecture: x86
+          vs-version: "14.0"
+          msbuild-architecture: x86
+
       - name: Update version
         run: |
           (Get-Content -Path VisualStudio_2015\GeometryDebugger\GeometryDebugger\source.extension.vsixmanifest) |
@@ -29,19 +33,21 @@ jobs:
           (Get-Content -Path VisualStudio_2015\GeometryDebugger\GeometryDebugger\Utils\GeometryDebuggerControl.cs) |
             ForEach-Object {$_ -Replace '1.0.0', '1.0.${{ github.run_number }}'} |
               Set-Content -Path VisualStudio_2015\GeometryDebugger\GeometryDebugger\Utils\GeometryDebuggerControl.cs
+
       - name: Restore
-        run: nuget restore VisualStudio_2015\GeometryDebugger\GeometryDebugger\packages.config
+        run: nuget restore VisualStudio_2015\GeometryDebugger\GeometryDebugger.sln
+
       - name: Build
-        run: msbuild /p:configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal
+        run: msbuild VisualStudio_2015\GeometryDebugger\GeometryDebugger\GeometryDebugger.csproj /p:configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal
+
       - uses: actions/upload-artifact@v4
         with:
           name: GeometryDebugger.vsix
           path: VisualStudio_2015\GeometryDebugger\GeometryDebugger\bin\Release\GeometryDebugger.vsix
-      - name : Create GitHub Release
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           repository: MypkaXD/GeometryDebugger
-          # note you'll typically need to create a personal access token
-          # with permissions to create releases in the othersad repod asdasd
-          token: ${{ secrets.GITHUB_TOKEN	 }}
+          token: ${{ secrets.GITHUB_TOKEN }}
