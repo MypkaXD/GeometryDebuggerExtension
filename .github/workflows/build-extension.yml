@@ -43,5 +43,5 @@ jobs:
         with:
           repository: MypkaXD/GeometryDebugger
           # note you'll typically need to create a personal access token
-          # with permissions to create releases in the othersad repo
+          # with permissions to create releases in the othersad repod asdasd
           token: ${{ secrets.GITHUB_TOKEN	 }}
