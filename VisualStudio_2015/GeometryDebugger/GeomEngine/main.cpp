@@ -141,6 +141,8 @@ int main() {
 	Cylinder cylinder2 = Cylinder(Point(10, 0, 0), Point(1, 0, 0), Point(0, 1, 0), 1, 0, 2 * M_PI, -5, 5);
 	Cylinder cylinder3 = Cylinder(Point(10, 0, 0), Point(1, 0, 0), Point(0, 1, 0), 1, 0, 2 * M_PI, -5, 5);
 
+	std::vector<int> vec;
+	vec[3] = 2;
 
 	return 0;
 

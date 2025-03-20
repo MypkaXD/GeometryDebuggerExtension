@@ -14,16 +14,16 @@ namespace GeometryDebugger.Utils
     }
     public class ControlHost : HwndHost
     {
-        [DllImport("C:\\dev\\Source\\LearningWPF\\VisualStudio_2015\\GeometryDebugger\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [DllImport("GLtool.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         public static extern IntPtr createGLtoolWindow(IntPtr hWndParent = default(IntPtr));
 
-        [DllImport("C:\\dev\\Source\\LearningWPF\\VisualStudio_2015\\GeometryDebugger\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void destroyGLtoolWindow(IntPtr hwnd);
 
-        [DllImport("C:\\dev\\Source\\LearningWPF\\VisualStudio_2015\\GeometryDebugger\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void reload(ref StringArrayData data, bool resetCamera);
 
-        [DllImport("C:\\dev\\Source\\LearningWPF\\VisualStudio_2015\\GeometryDebugger\\Release\\GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void visibilities(ref StringArrayData data);
         [DllImport("user32.dll", EntryPoint = "DestroyWindow", CharSet = CharSet.Unicode)]
         internal static extern bool DestroyWindow(IntPtr hwnd);

@@ -27,6 +27,9 @@ public:
 	float m_I_G;
 	float m_I_B;
 
+	Variable() {
+
+	}
 
 	Variable(std::string name, std::string type,
 		std::string addres, std::string source, float r, float g, float b) :
@@ -44,7 +47,7 @@ enum statesOfGettingVariables {
 };
 
 statesOfGettingVariables states = statesOfGettingVariables::GET_NAME;
-std::vector<Variable> m_VOV_Variables;
+Variable variable;
 
 void readMemoryMappedFile() {
 	HANDLE handle;
@@ -83,12 +86,15 @@ void readMemoryMappedFile() {
 	{
 		message += ptr[i];
 	}
-	std::cout << message;
+	std::cout << message << std::endl;
+	std::cout << "END READ MMF" << std::endl;
 }
 
 void parser() {
 
-	m_VOV_Variables.clear();
+	std::cout << "PARSER START" << std::endl;
+
+	std::cout << "m_VOV_Variables.clear();" << std::endl;
 	states = statesOfGettingVariables::GET_NAME;
 	size_t pos = 0;
 
@@ -103,6 +109,7 @@ void parser() {
 		{
 		case GET_NAME:
 		{
+			std::cout << "Name" << std::endl;
 			pos = message.find('|', i) == std::string::npos ? message.size() - 1 : message.find('|', i);
 			name = message.substr(i, pos - i);
 			i += name.size();
@@ -111,6 +118,7 @@ void parser() {
 		}
 		case GET_TYPE:
 		{
+			std::cout << "Type" << std::endl;
 			pos = message.find('|', i) == std::string::npos ? message.size() - 1 : message.find('|', i);
 			type = message.substr(i, pos - i);
 			i += type.size();
@@ -119,6 +127,7 @@ void parser() {
 		}
 		case GET_SOURCE:
 		{
+			std::cout << "Source" << std::endl;
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
 			source = message.substr(i, pos - i);
 			i += source.size();
@@ -127,6 +136,7 @@ void parser() {
 		}
 		case GET_ADDRES:
 		{
+			std::cout << "Addres" << std::endl;
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
 			addres = message.substr(i, pos - i);
 			i += addres.size();
@@ -135,6 +145,7 @@ void parser() {
 		}
 		case GET_COLOR:
 		{
+			std::cout << "Color" << std::endl;
 			pos = message.find('|', i) == std::string::npos ? message.size() : message.find('|', i);
 			R = std::stof(message.substr(i, pos - i));
 			i += message.substr(i, pos - i).size() + 1;
@@ -150,7 +161,7 @@ void parser() {
 			i += message.substr(i, pos - i).size();
 			//std::cout << B << std::endl;
 
-			m_VOV_Variables.push_back(Variable(name, type, addres, source, R, G, B));
+			variable = Variable(name, type, addres, source, R, G, B);
 
 			states = statesOfGettingVariables::GET_NAME;
 			break;
@@ -159,6 +170,9 @@ void parser() {
 			break;
 		}
 	}
+
+
+	std::cout << "END PARSER" << std::endl;
 }
 
 std::string getCurrentDir() {
@@ -176,6 +190,8 @@ template<typename T>
 bool RegisterType(const Variable& o) {
 
 	std::string typeIdName = typeid(T).name();
+
+	std::cout << "REG TYPE" << std::endl;
 
 	while (typeIdName.find("class") != std::string::npos) {
 
@@ -205,16 +221,55 @@ bool RegisterType(const Variable& o) {
 		typeIdName.erase(pos, offset);
 	}
 
+	std::cout << "End delete trash" << std::endl;
+
 	if (typeIdName == o.m_S_Type) {
 
 		std::string message = "";
 
+		std::cout << "start strtoull" << std::endl;
+
 		uint64_t number = strtoull(o.m_S_Addres.c_str(), nullptr, 16);
 		void* ptrOfVariable = reinterpret_cast<void*>(number);
+		std::cout << "End strtoull" << std::endl;
 
+		// Проверка, что ptrOfVariable не равен nullptr
+		if (ptrOfVariable == nullptr) {
+			std::cout << "Invalid address: nullptr" << std::endl;
+			return false;
+		}
+
+		// Приведение void* к T*
 		T* ptr = static_cast<T*>(ptrOfVariable);
-		message = serialize(ptr, o.m_S_Name, o.m_I_R, o.m_I_G, o.m_I_B);
+		std::cout << "Static cast work" << std::endl;
 
+		// Проверка, что ptr не равен nullptr
+		if (ptr == nullptr) {
+			std::cout << "Invalid pointer: nullptr" << std::endl;
+			return false;
+		}
+
+		// Создание shared_ptr из сырого указателя (если это необходимо)
+		std::shared_ptr<T> sharedPtr(ptr, [](T*) {}); // Пустой deleter, так как память управляется вручную
+
+													  // Проверка, что sharedPtr не равен nullptr (хотя это избыточно, так как ptr уже проверен)
+		if (!sharedPtr) {
+			std::cout << "Shared pointer is invalid" << std::endl;
+			return false;
+		}
+
+		// Вызов serialize
+		try {
+			message = serialize(ptr, o.m_S_Name, o.m_I_R, o.m_I_G, o.m_I_B);
+		}
+		catch (const std::exception& e) {
+			std::cout << "Error in serialize: " << e.what() << std::endl;
+			return false;
+		}
+
+		std::cout << "Serialize completed" << std::endl;
+
+		std::cout << "end serialize" << std::endl;
 		if (message.size() != 0) {
 
 			std::fstream file;
@@ -230,27 +285,28 @@ bool RegisterType(const Variable& o) {
 	return false;
 }
 
-std::string SerializeObjects(const std::vector<Variable>& objects) {
+std::string SerializeObjects(const Variable& object) {
+
+	std::cout << "start serialize" << std::endl;
 
 	std::string serializingVariables = "";
 
-	for (const auto& o : objects) {
-
-		bool isSerialized = false;
-
-		isSerialized |= RegisterType<Point>(o);
-		isSerialized |= RegisterType<Edge>(o);
-		isSerialized |= RegisterType<Vector>(o);
-		isSerialized |= RegisterType<CustomPlane>(o);
-		isSerialized |= RegisterType<Plane>(o);
-		isSerialized |= RegisterType<Sphere>(o);
-		isSerialized |= RegisterType<Cylinder>(o);
-		isSerialized |= RegisterType<Face>(o);
-		isSerialized |= RegisterType<std::vector<Edge>>(o);
-		isSerialized |= RegisterType<std::vector<Point>>(o);
-
-		serializingVariables += isSerialized ? "1" : "0";
+	bool isSerialized = false;
+	try {
+		isSerialized |= RegisterType<Point>(object);
+		isSerialized |= RegisterType<Edge>(object);
+		isSerialized |= RegisterType<Vector>(object);
+		isSerialized |= RegisterType<CustomPlane>(object);
+		isSerialized |= RegisterType<Plane>(object);
+		isSerialized |= RegisterType<Sphere>(object);
+		isSerialized |= RegisterType<Cylinder>(object);
+		isSerialized |= RegisterType<Face>(object);
+		isSerialized |= RegisterType<std::vector<Edge>>(object);
+		isSerialized |= RegisterType<std::vector<Point>>(object);
 	}
+	catch (...) {}
+
+	serializingVariables += isSerialized ? "1" : "0";
 
 	return serializingVariables;
 }
@@ -259,8 +315,7 @@ std::string Serialize() {
 
 	readMemoryMappedFile();
 	parser();
-	//std::cout << message << std::endl;
-	response = SerializeObjects(m_VOV_Variables);
+	response = SerializeObjects(variable);
 
 	return response + "|" + getCurrentDir();
 }

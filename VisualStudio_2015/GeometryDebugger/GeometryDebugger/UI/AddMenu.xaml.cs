@@ -50,7 +50,7 @@ namespace GeometryDebugger.UI
         }
         private void ButtonMyselfAdded_Click(object sender, RoutedEventArgs e)
         {
-            Variable variable = m_DGV_debugger.GetElemetFromExpression(MySelfAddedVariables.Text, "AddedMySelf", new Utils.Color(0, 0, 255), true);
+            Variable variable = m_DGV_debugger.GetElementFromExpression(MySelfAddedVariables.Text, "AddedMySelf", new Utils.Color(0, 0, 255), true);
 
             if (variable != null)
             {
@@ -224,7 +224,7 @@ namespace GeometryDebugger.UI
 
             foreach (var variable in m_OBOV_variablseFromMyselfAdded) // проходимся по переменным, которые уже есть и проверяем их на валидность
             {
-                Variable currentVariable = m_DGV_debugger.GetElemetFromExpression(variable.m_S_Name, "AddedMySelf", new Utils.Color(0, 0, 255), true);
+                Variable currentVariable = m_DGV_debugger.GetElementFromExpression(variable.m_S_Name, "AddedMySelf", new Utils.Color(0, 0, 255), true);
 
                 if (currentVariable != null)
                 {
@@ -286,7 +286,7 @@ namespace GeometryDebugger.UI
 
             foreach (var variable in variables)
             {
-                Variable currentVariable = m_DGV_debugger.GetElemetFromExpression(variable.m_S_Name, variable.m_S_Source, variable.m_C_Color, variable.m_B_IsAdded);
+                Variable currentVariable = m_DGV_debugger.GetElementFromExpression(variable.m_S_Name, variable.m_S_Source, variable.m_C_Color, variable.m_B_IsAdded);
 
                 if (currentVariable != null)
                 {

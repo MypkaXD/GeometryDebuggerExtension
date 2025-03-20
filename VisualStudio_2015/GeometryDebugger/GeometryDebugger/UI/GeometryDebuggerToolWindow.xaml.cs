@@ -487,7 +487,7 @@ namespace GeometryDebugger.UI
 
             if (m_B_IsSubscribeOnBreakMod) // в случае, если мы не подписаны на дебаг ивенты
             {
-                ClearGeomViewWindow();
+                //ClearGeomViewWindow();
                 UnsubscribeFromDebugEvents(); // отписываемся
                 m_B_IsSubscribeOnBreakMod = false; // усатанвливаем флаг, что не подписаны
             }
@@ -506,6 +506,7 @@ namespace GeometryDebugger.UI
 
             m_DE_DebuggerEvents = m_DGV_Debugger.GetDTE().Events.DebuggerEvents;
             m_DE_DebuggerEvents.OnEnterBreakMode += OnEnterBreakMode; // подписываемся на срабатаываение f10, f11, f5.
+            m_DE_DebuggerEvents.OnEnterDesignMode += OnEnterDesignMode;
         }
         public void UnsubscribeFromDebugEvents()
         {
@@ -521,6 +522,11 @@ namespace GeometryDebugger.UI
             dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую
 
             draw();
+        }
+        private void OnEnterDesignMode(dbgEventReason reason)
+        {
+            if (reason == dbgEventReason.dbgEventReasonStopDebugging || reason == dbgEventReason.dbgEventReasonEndProgram)
+                ClearGeomViewWindow();
         }
         //
         //////////
@@ -815,6 +821,39 @@ namespace GeometryDebugger.UI
                 dgObjects.SelectedItems.Add(variable);
 
             reorder(); // изменяем порядок отрисовки
+        }
+        private void MenuItemReload_Click(object sender, RoutedEventArgs e)
+        {
+            if (dgObjects.SelectedItems.Count == 0) // если кол-во выбранных элементов = 0, то есть пользователь ничего
+                                                    // не выбрал для каких-либо действий через контекстное меню
+                return;
+            else // если же пользователь выбрал элементы
+            {
+                int countOnSerialization = 0;
+
+                foreach (var item in dgObjects.SelectedItems) // проходимся по каждому элементу, который пользователь хочет сделать unSelected
+                {
+                    if (item is Variable)
+                    {
+                        Variable variable = (Variable)item;
+
+                        if (variable.m_B_IsSerialized)
+                        {
+                            variable.PropertyChanged -= Variable_PropertyChanged; // отписваемся от изменений, из-за них вызовется лишняя функция
+                            variable.m_B_IsSerialized = false;
+                            variable.PropertyChanged += Variable_PropertyChanged; // подписываемся обратно
+                        }
+
+                        ++countOnSerialization;
+                    }
+                }
+
+                dgObjects.CommitEdit();
+                dgObjects.CommitEdit();
+
+                if (countOnSerialization > 0)
+                    draw();
+            }
         }
 
         private List<bool> isDownSorting = new List<bool>(){ true, true, true, true, true, true };

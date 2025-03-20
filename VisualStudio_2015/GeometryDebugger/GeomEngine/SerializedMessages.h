@@ -263,6 +263,8 @@ std::string serialize(Sphere* value, std::string variableName, float r, float g,
 
 std::string serialize(Cylinder* value, std::string variableName, float r, float g, float b) {
 
+	std::cout << "SERILIZE START" << std::endl;
+	std::cout << value << std::endl;
 	std::string data = "";
 
 	int countU = 20;
@@ -270,13 +272,25 @@ std::string serialize(Cylinder* value, std::string variableName, float r, float 
 
 	std::vector<std::vector<Point>> points(countU, std::vector<Point>(countV));
 
+	std::cout << "SERILIZE 1" << std::endl;
+
+
 	double stepU = (value->getUMax() - value->getUMin()) / (countU - 1);
+	std::cout << "SERILIZE 1.5" << std::endl;
+
 	double stepV = (value->getVMax() - value->getVMin()) / (countV - 1);
+
+	std::cout << "SERILIZE 2" << std::endl;
+
 
 	for (int i = 0; i < countU; ++i) {
 		for (int j = 0; j < countV; ++j) {
+			std::cout << "SERILIZE 3" << std::endl;
+
 			Point currentPoint = value->getPoint(value->getUMin() + i * stepU, value->getVMin() + j * stepV);
 			points[i][j] = currentPoint;
+			std::cout << "SERILIZE 4" << std::endl;
+
 		}
 	}
 
@@ -368,59 +382,6 @@ std::string serialize(Face* value, std::string variableName, float r, float g, f
 					std::to_string(rightDown.getY()) + "," + std::to_string(rightDown.getZ()) + ")";
 				data += "(" + std::to_string(r) + "," + std::to_string(g) + "," + std::to_string(b) + ")\n";
 			}
-		}
-	}
-
-	data += "\n";
-
-	return data;
-}
-
-std::string serialize(Cylinder& value, std::string variableName, float r, float g, float b) {
-
-	std::string data = "";
-
-	int countU = 20;
-	int countV = 20;
-
-	std::vector<std::vector<Point>> points(countU, std::vector<Point>(countV));
-
-	double stepU = (value.getUMax() - value.getUMin()) / (countU - 1);
-	double stepV = (value.getVMax() - value.getVMin()) / (countV - 1);
-
-	for (int i = 0; i < countU; ++i) {
-		for (int j = 0; j < countV; ++j) {
-			Point currentPoint = value.getPoint(value.getUMin() + i * stepU, value.getVMin() + j * stepV);
-			points[i][j] = currentPoint;
-		}
-	}
-
-	data += "triangles: " + variableName + "\n";
-
-	for (int i = 0; i < points.size() - 1; ++i) {
-		for (int j = 0; j < points[i].size() - 1; ++j) {
-
-			Point leftDown = points[i][j];
-			Point leftUp = points[i + 1][j];
-			Point rightDown = points[i][j + 1];
-			Point rightUp = points[i + 1][j + 1];
-
-			data += "(" + std::to_string(leftDown.getX()) + "," +
-				std::to_string(leftDown.getY()) + "," + std::to_string(leftDown.getZ()) + ")";
-			data += "(" + std::to_string(leftUp.getX()) + "," +
-				std::to_string(leftUp.getY()) + "," + std::to_string(leftUp.getZ()) + ")";
-			data += "(" + std::to_string(rightDown.getX()) + "," +
-				std::to_string(rightDown.getY()) + "," + std::to_string(rightDown.getZ()) + ")";
-			data += "(" + std::to_string(r) + "," + std::to_string(g) + "," + std::to_string(b) + ")\n";
-
-			data += "(" + std::to_string(leftUp.getX()) + "," +
-				std::to_string(leftUp.getY()) + "," + std::to_string(leftUp.getZ()) + ")";
-			data += "(" + std::to_string(rightUp.getX()) + "," +
-				std::to_string(rightUp.getY()) + "," + std::to_string(rightUp.getZ()) + ")";
-			data += "(" + std::to_string(rightDown.getX()) + "," +
-				std::to_string(rightDown.getY()) + "," + std::to_string(rightDown.getZ()) + ")";
-			data += "(" + std::to_string(r) + "," + std::to_string(g) + "," + std::to_string(b) + ")\n";
-
 		}
 	}
 

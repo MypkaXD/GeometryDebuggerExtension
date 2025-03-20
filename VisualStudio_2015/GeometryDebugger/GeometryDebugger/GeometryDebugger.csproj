@@ -105,14 +105,6 @@
     <Content Include="Command\Resources\CreateDubuggerWindowPackage.ico" />
     <Resource Include="Images\Cube.png" />
     <Resource Include="Images\AddVariables.png" />
-    <Resource Include="Images\ToBottom_Dark.png" />
-    <Resource Include="Images\ToBottom_Light.png" />
-    <Resource Include="Images\ToDown_Dark.png" />
-    <Resource Include="Images\ToDown_Light.png" />
-    <Resource Include="Images\ToTop_Dark.png" />
-    <Resource Include="Images\ToTop_Light.png" />
-    <Resource Include="Images\ToUp_Dark.png" />
-    <Resource Include="Images\ToUp_Light.png" />
     <Resource Include="Images\Delete_Dark.png" />
     <Resource Include="Images\Delete_Light.png" />
     <Resource Include="Images\Select_Dark.png" />
@@ -129,6 +121,20 @@
     <Resource Include="Images\W_Off_Light.png" />
     <Resource Include="Images\Export_Dark.png" />
     <Resource Include="Images\Export_Light.png" />
+    <Content Include="GLtool.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Resource Include="Images\Bottom_Dark.png" />
+    <Resource Include="Images\Bottom_Light.png" />
+    <Resource Include="Images\Down_Dark.png" />
+    <Resource Include="Images\Down_Light.png" />
+    <Resource Include="Images\Top_Dark.png" />
+    <Resource Include="Images\Top_Light.png" />
+    <Resource Include="Images\Up_Dark.png" />
+    <Resource Include="Images\Up_Light.png" />
+    <Resource Include="Images\Reload_Dark.png" />
+    <Resource Include="Images\Reload_Light.png" />
     <Content Include="index.html" />
     <Content Include="stylesheet.css" />
   </ItemGroup>
@@ -274,7 +280,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

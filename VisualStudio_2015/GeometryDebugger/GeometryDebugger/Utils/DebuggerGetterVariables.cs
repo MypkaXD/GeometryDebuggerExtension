@@ -39,7 +39,7 @@ namespace GeometryDebugger.Utils
             return false;
         }
 
-        public Variable GetElemetFromExpression(string name, string source, Utils.Color color, bool isAdded)
+        public Variable GetElementFromExpression(string name, string source, Utils.Color color, bool isAdded)
         {
             var expressionForTypeAndName = m_DTE_Dte.Debugger.GetExpression(name, true, 1);
             var expressionForAddress = m_DTE_Dte.Debugger.GetExpression("&(" + name + ")", true, 1);
@@ -57,6 +57,16 @@ namespace GeometryDebugger.Utils
                     m_S_Addres = expressionForAddress.Value.Split(' ')[0],
                     m_C_Color = color
                 };
+
+
+                if (variable.m_S_Type.Contains("{") || variable.m_S_Type.Contains("}"))
+                {
+                    int indexOfLeftBracket = variable.m_S_Type.IndexOf('{');
+                    int indexOfRightBracket = variable.m_S_Type.IndexOf('}');
+                    string removedString = variable.m_S_Type.Substring(indexOfLeftBracket, indexOfRightBracket - indexOfLeftBracket + 1);
+                    variable.m_S_Type = variable.m_S_Type.Replace(removedString, "");
+                }
+
 
                 return variable;
             }
@@ -91,6 +101,14 @@ namespace GeometryDebugger.Utils
                         m_S_Addres = expression.Value.Split(' ')[0],
                         m_C_Color = new Utils.Color(255, 0, 0)
                     };
+
+                    if (currentVariable.m_S_Type.Contains("{") || currentVariable.m_S_Type.Contains("}"))
+                    {
+                        int indexOfLeftBracket = currentVariable.m_S_Type.IndexOf('{');
+                        int indexOfRightBracket = currentVariable.m_S_Type.IndexOf('}');
+                        string removedString = currentVariable.m_S_Type.Substring(indexOfLeftBracket, indexOfRightBracket - indexOfLeftBracket + 1);
+                        currentVariable.m_S_Type = currentVariable.m_S_Type.Replace(removedString, "");
+                    }
 
                     variables.Add(currentVariable);
                 }
@@ -237,7 +255,7 @@ namespace GeometryDebugger.Utils
 
                 if (currentLvlOfVariable == minLvl) // если глубина переменной совпадает с минимальным, то есть мы не опустилиь и не поднялись, то
                 {
-                    Variable variable = GetElemetFromExpression(tempCurrentName + currentNameOfVariable, "WatchWindow", new Utils.Color(0, 255, 0), false); // получаем переменную
+                    Variable variable = GetElementFromExpression(tempCurrentName + currentNameOfVariable, "WatchWindow", new Utils.Color(0, 255, 0), false); // получаем переменную
 
                     bool isFind = false;
 
