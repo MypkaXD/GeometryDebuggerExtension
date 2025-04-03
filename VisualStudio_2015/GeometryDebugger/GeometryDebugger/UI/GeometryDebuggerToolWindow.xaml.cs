@@ -33,6 +33,8 @@ namespace GeometryDebugger.UI
         private DebuggerEvents m_DE_DebuggerEvents;
         private ControlHost m_CH_Host;
 
+        private int m_time_created = 0;
+
         private ResourceDictionary lightTheme = new ResourceDictionary
         {
             Source = new Uri("pack://application:,,,/GeometryDebugger;component/Style/Light_Theme.xaml", UriKind.RelativeOrAbsolute)
@@ -77,6 +79,8 @@ namespace GeometryDebugger.UI
         {
             InitializeComponent(); // инициализация компонент
 
+            m_time_created = DateTimeOffset.Now.Millisecond;
+
             m_DGV_Debugger = new DebuggerGetterVariables(); // создаем объект класса DebuggerGetterVariables для получения переменных в будущем (иниц. DTE)
 
             Loaded += GeometryDebuggerToolWindowLoaded; // срабатывает при собитии загрузки основного окна
@@ -111,7 +115,6 @@ namespace GeometryDebugger.UI
 
             if (variable != null)
             {
-                // Здесь можно обработать изменения конкретных свойств
                 if (e.PropertyName == nameof(variable.m_B_IsSelected)) // если изменение - CheckBox на m_B_IsSelected
                 {
                     if (variable.m_B_IsSerialized)
@@ -250,7 +253,7 @@ namespace GeometryDebugger.UI
 
                         sharedMemory.CreateMessages(variable); // создаем сообщение
                         sharedMemory.WriteToMemory(); // записываем сообщение в MMF
-                        sharedMemory.DoSerialize(); // вызываем функцию Serialize()
+                        sharedMemory.DoSerialize(m_time_created); // вызываем функцию Serialize()
 
                         string response = sharedMemory.getResponse(); // получаем сообщение с сериализацией (представляем собой "1/0|Path") 1 - сериализирована, 0 - нет
 
@@ -526,7 +529,11 @@ namespace GeometryDebugger.UI
         private void OnEnterDesignMode(dbgEventReason reason)
         {
             if (reason == dbgEventReason.dbgEventReasonStopDebugging || reason == dbgEventReason.dbgEventReasonEndProgram)
+            {
+                if (Directory.Exists(m_S_GlobalPath))
+                    Directory.Delete(m_S_GlobalPath, true);
                 ClearGeomViewWindow();
+            }
         }
         //
         //////////

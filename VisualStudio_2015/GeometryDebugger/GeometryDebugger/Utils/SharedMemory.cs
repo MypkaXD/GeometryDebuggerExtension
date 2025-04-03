@@ -48,31 +48,27 @@ namespace GeometryDebugger.Utils
         {
             if (m_S_message.Length > 0)
             {
-                // Ввод выражения для записи в общую память
                 char[] message = m_S_message.ToCharArray();
-                // Размер введенного сообщения
+
                 int size = message.Length;
-                int totalSizeOfMessage = size * 2 + 4; // 2 байта на каждый символ (UTF-16) + 4 байта для хранения размера
+                int totalSizeOfMessage = size * 2 + 4;
 
                 if (m_MMF_mmf == null || m_MMF_mmf.SafeMemoryMappedFileHandle.IsClosed)
                     m_MMF_mmf = MemoryMappedFile.CreateOrOpen(m_S_MemoryFileName, totalSizeOfMessage, MemoryMappedFileAccess.ReadWrite);
 
                 using (MemoryMappedViewAccessor writer = m_MMF_mmf.CreateViewAccessor(0, totalSizeOfMessage))
                 {
-                    // Записываем сначала размер сообщения (int — 4 байта)
                     writer.Write(0, size);
-                    // Записываем само сообщение начиная с 4 байта
                     writer.WriteArray<char>(4, message, 0, size);
-
                     isReadyMessages = true;
                 }
             }
         }
-        public void DoSerialize()
+        public void DoSerialize(int time_created)
         {
             if (isReadyMessages)
             {
-                EnvDTE.Expression expr = m_DTE.Debugger.GetExpression($"Serialize()", true, -1);
+                EnvDTE.Expression expr = m_DTE.Debugger.GetExpression($"Serialize({time_created})", true, -1);
                 m_S_response = expr.Value;
             }
             else

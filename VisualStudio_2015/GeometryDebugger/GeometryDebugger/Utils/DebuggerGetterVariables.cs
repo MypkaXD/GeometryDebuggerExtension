@@ -53,7 +53,7 @@ namespace GeometryDebugger.Utils
                     m_B_IsSerialized = false,
                     m_S_Name = expressionForTypeAndName.Name,
                     m_S_Source = source,
-                    m_S_Type = expressionForTypeAndName.Type.Replace(" ", ""),
+                    m_S_Type = expressionForTypeAndName.Type,
                     m_S_Addres = expressionForAddress.Value.Split(' ')[0],
                     m_C_Color = color
                 };
@@ -97,7 +97,7 @@ namespace GeometryDebugger.Utils
                         m_B_IsSerialized = false,
                         m_S_Name = localVariable.Name,
                         m_S_Source = "LocalStackFrame",
-                        m_S_Type = localVariable.Type.Replace(" ", ""),
+                        m_S_Type = localVariable.Type,
                         m_S_Addres = expression.Value.Split(' ')[0],
                         m_C_Color = new Utils.Color(255, 0, 0)
                     };

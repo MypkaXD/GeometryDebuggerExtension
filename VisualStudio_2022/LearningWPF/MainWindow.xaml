@@ -3,49 +3,37 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:wpf="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
         xmlns:local="clr-namespace:LearningWPF"
-        xmlns:system="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1080" Width="1920"
-        Loaded="Window_Loaded">
-    <StackPanel Margin="10">
-        <TextBlock Text="Настройка цвета" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+        Title="MainWindow" Height="800" Width="800">
 
-        <!-- Color Display -->
-        <Border x:Name="ColorDisplay" Height="50" BorderBrush="Black" BorderThickness="1" Margin="0,0,0,10"/>
+    <Grid>
+        <DataGrid x:Name="dg" AutoGenerateColumns="False" HeadersVisibility="Column" CanUserAddRows="False" CanUserDeleteRows="False">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Header="IsVisible" Binding="{Binding IsVisible}" Width="Auto"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="*" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="*" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="*" IsReadOnly="True"/>
+            </DataGrid.Columns>
 
-        <!-- Red Slider -->
-        <TextBlock Text="Красный (R):" FontWeight="Bold"/>
-        <StackPanel Orientation="Horizontal">
-            <Slider x:Name="RedSlider" Minimum="0" Maximum="255" Value="255" Width="200" Margin="0,0,10,0"
-                    ValueChanged="RGBSlider_ValueChanged"/>
-            <TextBox x:Name="RedValue" Width="50" Text="255" TextAlignment="Center"
-                     TextChanged="RGBTextBox_TextChanged"/>
-        </StackPanel>
-
-        <!-- Green Slider -->
-        <TextBlock Text="Зелёный (G):" FontWeight="Bold"/>
-        <StackPanel Orientation="Horizontal">
-            <Slider x:Name="GreenSlider" Minimum="0" Maximum="255" Value="255" Width="200" Margin="0,0,10,0"
-                    ValueChanged="RGBSlider_ValueChanged"/>
-            <TextBox x:Name="GreenValue" Width="50" Text="255" TextAlignment="Center"
-                     TextChanged="RGBTextBox_TextChanged"/>
-        </StackPanel>
-
-        <!-- Blue Slider -->
-        <TextBlock Text="Синий (B):" FontWeight="Bold"/>
-        <StackPanel Orientation="Horizontal">
-            <Slider x:Name="BlueSlider" Minimum="0" Maximum="255" Value="255" Width="200" Margin="0,0,10,0"
-                    ValueChanged="RGBSlider_ValueChanged"/>
-            <TextBox x:Name="BlueValue" Width="50" Text="255" TextAlignment="Center"
-                     TextChanged="RGBTextBox_TextChanged"/>
-        </StackPanel>
-
-        <!-- HEX Input -->
-        <TextBlock Text="HEX:" FontWeight="Bold" Margin="0,10,0,0"/>
-        <TextBox x:Name="HexValue" Width="100" Text="#FFFFFF" TextAlignment="Center"
-                 TextChanged="HexValue_TextChanged"/>
-    </StackPanel>
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <Grid Width="Auto" HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <DataGrid Grid.Column="0" ItemsSource="{Binding Children}" HeadersVisibility="Column" AutoGenerateColumns="False"
+                      CanUserAddRows="False" CanUserDeleteRows="False" HorizontalAlignment="Left" >
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="Visible" Binding="{Binding IsVisible}" Width="Auto"/>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                                <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
+        </DataGrid>
+    </Grid>
 </Window>

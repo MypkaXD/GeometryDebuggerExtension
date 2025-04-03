@@ -49,6 +49,18 @@ enum statesOfGettingVariables {
 statesOfGettingVariables states = statesOfGettingVariables::GET_NAME;
 Variable variable;
 
+void tokenize(std::string& string) {
+
+	std::cout << "TYPE: " << string << std::endl;
+
+	std::vector<std::string> remove_strings = {"const", "class", ;
+
+	for (int i = 0; i < string.size(); ++i) {
+		if (string.find())
+	}
+
+}
+
 void readMemoryMappedFile() {
 	HANDLE handle;
 	char* ptr = nullptr;
@@ -121,6 +133,7 @@ void parser() {
 			std::cout << "Type" << std::endl;
 			pos = message.find('|', i) == std::string::npos ? message.size() - 1 : message.find('|', i);
 			type = message.substr(i, pos - i);
+			tokenize(type);
 			i += type.size();
 			states = statesOfGettingVariables::GET_SOURCE;
 			break;
@@ -295,6 +308,7 @@ std::string SerializeObjects(const Variable& object) {
 	try {
 		isSerialized |= RegisterType<Point>(object);
 		isSerialized |= RegisterType<Edge>(object);
+		isSerialized |= RegisterType<Edge*>(object);
 		isSerialized |= RegisterType<Vector>(object);
 		isSerialized |= RegisterType<CustomPlane>(object);
 		isSerialized |= RegisterType<Plane>(object);
@@ -302,7 +316,11 @@ std::string SerializeObjects(const Variable& object) {
 		isSerialized |= RegisterType<Cylinder>(object);
 		isSerialized |= RegisterType<Face>(object);
 		isSerialized |= RegisterType<std::vector<Edge>>(object);
+		isSerialized |= RegisterType<std::vector<Edge*>>(object);
 		isSerialized |= RegisterType<std::vector<Point>>(object);
+		isSerialized |= RegisterType<QuadTree>(object);
+		isSerialized |= RegisterType<Node>(object);
+		isSerialized |= RegisterType<BoundingBox>(object);
 	}
 	catch (...) {}
 

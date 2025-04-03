@@ -79,7 +79,27 @@ std::string serialize(Edge* value, std::string variableName, float r, float g, f
 	return data + "\n";
 }
 
+std::string serialize(Edge** value, std::string variableName, float r, float g, float b) {
+
+	std::string data = "";
+
+	data += serialize(*value, variableName, r, g, b);
+
+	return data + "\n";
+}
+
 std::string serialize(std::vector<Edge>* value, std::string variableName, float r, float g, float b) {
+
+	std::string data = "";
+
+	for (int i = 0; i < value->size(); ++i) {
+		data += serialize(&(*value)[i], variableName + std::to_string(i), r, g, b);
+	}
+
+	return data + "\n";
+}
+
+std::string serialize(std::vector<Edge*>* value, std::string variableName, float r, float g, float b) {
 
 	std::string data = "";
 
@@ -389,6 +409,70 @@ std::string serialize(Face* value, std::string variableName, float r, float g, f
 
 	return data;
 }
+
+
+std::string serialize(BoundingBox* value, std::string variableName, float r, float g, float b) {
+
+	std::string data = "";
+
+	data += "lines: \n";
+
+	Point startPoint = *value->getStartPoint();
+	Point endPoint = *value->getEndPoint();
+
+	data += "(" + std::to_string(startPoint.getX()) + "," + std::to_string(startPoint.getY()) + "," + std::to_string(startPoint.getZ()) + ")";
+	data += "(" + std::to_string(startPoint.getX()) + "," + std::to_string(startPoint.getY() + value->getHeight()) + "," + std::to_string(startPoint.getZ()) + ")";
+	data += "(" + std::to_string(r) + "," + std::to_string(g) + "," + std::to_string(b) + ")\n";
+
+	data += "(" + std::to_string(startPoint.getX()) + "," + std::to_string(startPoint.getY() + value->getHeight()) + "," + std::to_string(startPoint.getZ()) + ")";
+	data += "(" + std::to_string(startPoint.getX() + value->getWidth()) + "," + std::to_string(startPoint.getY() + value->getHeight()) + "," + std::to_string(startPoint.getZ()) + ")";
+	data += "(" + std::to_string(r) + "," + std::to_string(g) + "," + std::to_string(b) + ")\n";
+
+	data += "(" + std::to_string(startPoint.getX() + value->getWidth()) + "," + std::to_string(startPoint.getY() + value->getHeight()) + "," + std::to_string(startPoint.getZ()) + ")";
+	data += "(" + std::to_string(startPoint.getX() + value->getWidth()) + "," + std::to_string(startPoint.getY()) + "," + std::to_string(startPoint.getZ()) + ")";
+	data += "(" + std::to_string(r) + "," + std::to_string(g) + "," + std::to_string(b) + ")\n";
+
+	data += "(" + std::to_string(startPoint.getX() + value->getWidth()) + "," + std::to_string(startPoint.getY()) + "," + std::to_string(startPoint.getZ()) + ")";
+	data += "(" + std::to_string(startPoint.getX()) + "," + std::to_string(startPoint.getY()) + "," + std::to_string(startPoint.getZ()) + ")";
+	data += "(" + std::to_string(r) + "," + std::to_string(g) + "," + std::to_string(b) + ")\n";
+
+
+	return data += "\n";
+}
+
+std::string serialize(Node* value, std::string variableName, float r, float g, float b) {
+
+	std::string data = "";
+
+	for (int i = 0; i < value->getChildren().size(); ++i) {
+		data += serialize(&(value->getChildren()[i]), variableName + std::to_string(i) + "_" + std::to_string(i), r, g, b);
+	}
+
+	if (value->getChildren().size() == 0) {
+		for (int i = 0; i < value->getEdges().size(); ++i) {
+			data += serialize(&(*(value->getEdges())[i]), variableName + std::to_string(i) + "_" + std::to_string(i) + "_" + std::to_string(i), r, g, b);
+		}
+
+		data += serialize(value->getBox(), variableName + "box", r, g, b);
+	}
+
+
+	return data += "\n";
+}
+
+
+std::string serialize(QuadTree* value, std::string variableName, float r, float g, float b) {
+
+	std::string data = "";
+
+	for (int i = 0; i < value->getRoot().getChildren().size(); ++i) {
+		data += serialize(&(value->getRoot().getChildren())[i], variableName + std::to_string(i), r, g, b);
+	}
+
+
+	return data += "\n";
+}
+
 
 
 #endif // !SERIALIZEDMESSAGES_H

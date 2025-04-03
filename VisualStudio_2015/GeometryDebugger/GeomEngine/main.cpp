@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>  
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -50,7 +51,6 @@ int main() {
 	Vector oy = Vector(origin, y);
 	Vector oz = Vector(origin, z);
 
-	// Внешние вершины звезды (кончики лучей)
 	Point outer1(0, 3, 0);
 	Point outer2(2, 2, 0);
 	Point outer3(3, 0, 0);
@@ -70,68 +70,43 @@ int main() {
 	Point inner7(-1, 0, 0);
 	Point inner8(-1, 1, 0);
 
-	// Создаем линии для лучей звезды
-	Line line1(outer1, inner1 - outer1); // От outer1 к inner1
-	Line line2(inner1, outer2 - inner1); // От inner1 к outer2
-	Line line3(outer2, inner2 - outer2); // От outer2 к inner2
-	Line line4(inner2, outer3 - inner2); // От inner2 к outer3
-	Line line5(outer3, inner3 - outer3); // От outer3 к inner3
-	Line line6(inner3, outer4 - inner3); // От inner3 к outer4
-	Line line7(outer4, inner4 - outer4); // От outer4 к inner4
-	Line line8(inner4, outer5 - inner4); // От inner4 к outer5
-	Line line9(outer5, inner5 - outer5); // От outer5 к inner5
-	Line line10(inner5, outer6 - inner5); // От inner5 к outer6
-	Line line11(outer6, inner6 - outer6); // От outer6 к inner6
-	Line line12(inner6, outer7 - inner6); // От inner6 к outer7
-	Line line13(outer7, inner7 - outer7); // От outer7 к inner7
-	Line line14(inner7, outer8 - inner7); // От inner7 к outer8
-	Line line15(outer8, inner8 - outer8); // От outer8 к inner8
-	Line line16(inner8, outer1 - inner8); // От inner8 к outer1
-
-										  // Создаем ребра на основе линий
-	Edge edge1(&line1, 0, 1);
-	Edge edge2(&line2, 0, 1);
-	Edge edge3(&line3, 0, 1);
-	Edge edge4(&line4, 0, 1);
-	Edge edge5(&line5, 0, 1);
-	Edge edge6(&line6, 0, 1);
-	Edge edge7(&line7, 0, 1);
-	Edge edge8(&line8, 0, 1);
-	Edge edge9(&line9, 0, 1);
-	Edge edge10(&line10, 0, 1);
-	Edge edge11(&line11, 0, 1);
-	Edge edge12(&line12, 0, 1);
-	Edge edge13(&line13, 0, 1);
-	Edge edge14(&line14, 0, 1);
-	Edge edge15(&line15, 0, 1);
-	Edge edge16(&line16, 0, 1);
-
-	// Собираем все ребра в вектор
-	std::vector<Edge> edges = {
-		edge1, edge2, edge3, edge4, edge5, edge6, edge7, edge8,
-		edge9, edge10, edge11, edge12, edge13, edge14, edge15, edge16
+	// Создаем линии для лучей звезды (используем shared_ptr)
+	std::vector<Line> lines = {
+		Line(outer1, Point(inner1.getX() - outer1.getX(), inner1.getY() - outer1.getY(), 0)),
+		Line(inner1, Point(outer2.getX() - inner1.getX(), outer2.getY() - inner1.getY(), 0)),
+		Line(outer2, Point(inner2.getX() - outer2.getX(), inner2.getY() - outer2.getY(), 0)),
+		Line(inner2, Point(outer3.getX() - inner2.getX(), outer3.getY() - inner2.getY(), 0)),
+		Line(outer3, Point(inner3.getX() - outer3.getX(), inner3.getY() - outer3.getY(), 0)),
+		Line(inner3, Point(outer4.getX() - inner3.getX(), outer4.getY() - inner3.getY(), 0)),
+		Line(outer4, Point(inner4.getX() - outer4.getX(), inner4.getY() - outer4.getY(), 0)),
+		Line(inner4, Point(outer5.getX() - inner4.getX(), outer5.getY() - inner4.getY(), 0)),
+		Line(outer5, Point(inner5.getX() - outer5.getX(), inner5.getY() - outer5.getY(), 0)),
+		Line(inner5, Point(outer6.getX() - inner5.getX(), outer6.getY() - inner5.getY(), 0)),
+		Line(outer6, Point(inner6.getX() - outer6.getX(), inner6.getY() - outer6.getY(), 0)),
+		Line(inner6, Point(outer7.getX() - inner6.getX(), outer7.getY() - inner6.getY(), 0)),
+		Line(outer7, Point(inner7.getX() - outer7.getX(), inner7.getY() - outer7.getY(), 0)),
+		Line(inner7, Point(outer8.getX() - inner7.getX(), outer8.getY() - inner7.getY(), 0)),
+		Line(outer8, Point(inner8.getX() - outer8.getX(), inner8.getY() - outer8.getY(), 0)),
+		Line(inner8, Point(outer1.getX() - inner8.getX(), outer1.getY() - inner8.getY(), 0))
 	};
 
-	// Теперь у вас есть звезда, состоящая из 16 ребер
-	std::cout << "Звезда создана!" << std::endl;
+	//// Добавляем дополнительные линии, чтобы получить 50 рёбер
+	//for (int i = 0; i < 34; i++) {
+	//	// Создаем простые диагональные линии внутри звезды
+	//	Point p1(i * 0.1, i * 0.1, 0);
+	//	Point p2(i * 0.1 + 0.5, i * 0.1 - 0.5, 0);
+	//	lines.push_back(Line(p1, Point(p2.getX() - p1.getX(), p2.getY() - p1.getY(), 0)));
+	//}
 
-
-	/*Line line1 = Line(Point(0, 0, 0), Point(0, 1, 0));
-	Line line2 = Line(Point(0, 0, 0), Point(1, 0, 0));
-	Line line3 = Line(Point(0, 1, 0), Point(1, 0, 0));
-	Line line4 = Line(Point(1, 1, 0), Point(0, -1, 0));
-
-	Edge edge1(&line1, 0, 1);
-	Edge edge2(&line2, 0, 1);
-	Edge edge3(&line3, 0, 1);
-	Edge edge4(&line4, 0, 1);
-
-	std::vector<Edge> edges = {
-		edge1, edge2, edge3, edge4 };*/
+	// Создаем ребра на основе линий
+	std::vector<Edge> edges;
+	for (size_t i = 0; i < lines.size(); i++) {
+		edges.push_back(Edge(&lines[i], (double)0, (double)1));
+	}
 
 	Sphere sphere = Sphere(Point(0, 0, 0), Point(1, 0, 0), Point(0, 1, 0), 1, -M_PI, M_PI, -M_PI / 2, M_PI / 2);
 	Plane plane = Plane(Point(0, 0, 0), Point(1, 0, 0), Point(0, 1, 0), -3, 3, -3, 3);
-	Face face = Face(&sphere, edges);
+	Face face = Face(&plane, edges);
 
 	double u = 0.5, v = 0.5;
 
