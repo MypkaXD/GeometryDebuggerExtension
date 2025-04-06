@@ -41,7 +41,7 @@ namespace GeometryDebugger.Utils
                 string G = ((float)variable.m_C_Color.m_i_G / 255).ToString().Replace(",", ".");
                 string B = ((float)variable.m_C_Color.m_i_B / 255).ToString().Replace(",", ".");
 
-                m_S_message += $"{variable.m_S_Name}|{variable.m_S_Type}|{variable.m_S_Source}|{variable.m_S_Addres}|{R}|{G}|{B}";
+                m_S_message += $"{variable.m_S_Name}|{variable.m_S_Type}|{variable.m_S_Source}|{variable.m_S_Addres}|{R}|{G}|{B}|{variable.m_i_NumberOfChilds}";
             }
         }
         public void WriteToMemory()

@@ -294,6 +294,8 @@ namespace GeometryDebugger.UI
                     currentVariable.m_B_IsSelected = variable.m_B_IsSelected;
                     currentVariable.m_B_IsSerialized = false;
                     currentVariable.m_C_Color = variable.m_C_Color;
+                    currentVariable.m_i_NumberOfChilds = variable.m_i_NumberOfChilds;
+                    currentVariable.m_OC_Childrens = variable.m_OC_Childrens;
                     newVariables.Add(currentVariable);
                 }
                 else

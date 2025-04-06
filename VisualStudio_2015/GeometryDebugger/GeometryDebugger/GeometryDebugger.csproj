@@ -135,6 +135,10 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Resource Include="Images\AddHistory_Dark.png" />
+    <Resource Include="Images\AddHistory_Light.png" />
+    <Resource Include="Images\ShowHistory_Dark.png" />
+    <Resource Include="Images\ShowHistory_Light.png" />
     <Content Include="index.html" />
     <Content Include="stylesheet.css" />
   </ItemGroup>

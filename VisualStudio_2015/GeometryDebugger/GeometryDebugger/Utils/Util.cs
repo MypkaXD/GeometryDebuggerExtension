@@ -47,7 +47,7 @@ namespace GeometryDebugger.Utils
         static public string getPathOfVariable(string path, Variable variable)
         {
             string name = SanitizeFileName(variable.m_S_Name);
-            return path + name + "_" + variable.m_S_Source + "_" + variable.m_S_Addres;
+            return path + name + "_" + variable.m_S_Source + "_" + variable.m_S_Addres + "_depth" + variable.m_i_NumberOfChilds;
         }
     }
 }

@@ -5,9 +5,104 @@ using System.Windows.Media;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace GeometryDebugger.Utils
 {
+    public class ChildrenVariable : INotifyPropertyChanged
+    {
+        private string name;
+        private bool isSelected;
+        private Color color;
+        private int index;
+
+        public Variable m_parrent;
+
+        public ChildrenVariable(bool isSelected, string name, Color color, int index, Variable parrent)
+        {
+            this.m_C_Color = color;
+            this.m_b_isSelected = isSelected;
+            this.m_s_Name = name;
+            this.m_i_Index = index;
+            this.m_parrent = parrent;
+        }
+
+        public int m_i_Index
+        {
+            get
+            {
+                return this.index;
+
+            }
+            set
+            {
+                if (this.index != value)
+                {
+                    this.index = value;
+                    this.OnPropertyChanged(nameof(m_i_Index));
+                }
+            }
+        }
+
+        public Color m_C_Color
+        {
+            get
+            {
+                return this.color;
+
+            }
+            set
+            {
+                if (this.color != value)
+                {
+                    this.color = value;
+                    this.OnPropertyChanged(nameof(m_C_Color));
+                }
+            }
+        }
+
+        public string m_s_Name
+        {
+            get
+            {
+                return this.name;
+
+            }
+            set
+            {
+                if (this.name != value)
+                {
+                    this.name = value;
+                    this.OnPropertyChanged(nameof(m_s_Name));
+                }
+            }
+        }
+
+        public bool m_b_isSelected
+        {
+            get
+            {
+                return this.isSelected;
+
+            }
+            set
+            {
+                if (this.isSelected != value)
+                {
+                    this.isSelected = value;
+                    this.OnPropertyChanged(nameof(m_b_isSelected));
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
     public class Variable : INotifyPropertyChanged
     {
         private string name;
@@ -20,6 +115,27 @@ namespace GeometryDebugger.Utils
         private bool isSerialized;
 
         private Color color;
+
+        private ObservableCollection<ChildrenVariable> childrens;
+
+        public int m_i_NumberOfChilds = 0;
+
+        public ObservableCollection<ChildrenVariable> m_OC_Childrens
+        {
+            get
+            {
+                return this.childrens;
+
+            }
+            set
+            {
+                if (this.childrens != value)
+                {
+                    this.childrens = value;
+                    this.OnPropertyChanged(nameof(m_OC_Childrens));
+                }
+            }
+        }
 
         public string m_S_Type
         {

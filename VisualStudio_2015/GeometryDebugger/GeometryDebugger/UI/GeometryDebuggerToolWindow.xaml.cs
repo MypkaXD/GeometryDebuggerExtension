@@ -14,6 +14,7 @@ using System.Collections.Specialized;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.PlatformUI;
 using System.Windows.Media.Imaging;
+using System.Threading;
 
 namespace GeometryDebugger.UI
 {
@@ -34,6 +35,7 @@ namespace GeometryDebugger.UI
         private ControlHost m_CH_Host;
 
         private int m_time_created = 0;
+        private int m_i_count_of_element_in_history = 10;
 
         private ResourceDictionary lightTheme = new ResourceDictionary
         {
@@ -79,6 +81,8 @@ namespace GeometryDebugger.UI
         {
             InitializeComponent(); // инициализация компонент
 
+            DataContext = this;
+
             m_time_created = DateTimeOffset.Now.Millisecond;
 
             m_DGV_Debugger = new DebuggerGetterVariables(); // создаем объект класса DebuggerGetterVariables для получения переменных в будущем (иниц. DTE)
@@ -121,9 +125,38 @@ namespace GeometryDebugger.UI
                     {
                         string pathOfVariable = Util.getPathOfVariable(m_S_PathForFile, variable);
                         m_CH_Host.visibilityGeomView(pathOfVariable, m_S_GlobalPath, variable.m_B_IsSelected);
+                        if (!variable.m_B_IsSelected)
+                        {
+                            if (variable.m_OC_Childrens != null)
+                            {
+                                for (int i = 0; i < variable.m_OC_Childrens.Count; ++i)
+                                {
+                                    if (variable.m_OC_Childrens[i].m_b_isSelected)
+                                    {
+                                        variable.m_OC_Childrens[i].PropertyChanged -= ChildrenVariable_PropertyChanged;
+                                        m_CH_Host.visibilityGeomView(variable.m_OC_Childrens[i].m_s_Name, m_S_GlobalPath, false);
+                                        variable.m_OC_Childrens[i].m_b_isSelected = false;
+                                        variable.m_OC_Childrens[i].PropertyChanged += ChildrenVariable_PropertyChanged;
+                                    }
+                                }
+                            }
+                        }
                     }
                     else
                         draw();
+                }
+            }
+        }
+
+        private void ChildrenVariable_PropertyChanged(object sender, PropertyChangedEventArgs e) // срабатывает, если какой-то элемент в таблице изменил своё свойство (пример, CheckBox на m_B_IsSelected)
+        {
+            var variable = sender as ChildrenVariable;
+
+            if (variable != null)
+            {
+                if (e.PropertyName == nameof(variable.m_b_isSelected)) // если изменение - CheckBox на m_B_IsSelected
+                {
+                    m_CH_Host.visibilityGeomView(variable.m_s_Name, m_S_GlobalPath, variable.m_b_isSelected);
                 }
             }
         }
@@ -207,11 +240,11 @@ namespace GeometryDebugger.UI
                         variable.m_B_IsSerialized = false;
                         variable.PropertyChanged += Variable_PropertyChanged;
 
-                        // Обновляем цвет кнопки
-                        button.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb((byte)R, (byte)G, (byte)B));
-
                         if (variable.m_B_IsSelected) // если он выбран, то его нужно пересериализировать
                             draw();
+
+                        // Обновляем цвет кнопки
+                        button.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb((byte)R, (byte)G, (byte)B));
                     }
                     else // если цвет не изменился, то ничего не делаем, не меняем isSerialized (геометрия осталась такой же)
                         return;
@@ -241,15 +274,18 @@ namespace GeometryDebugger.UI
                 {
                     string pathOfVariable = Util.getPathOfVariable(m_S_PathForFile, variable);
                     files.Add(Tuple.Create(pathOfVariable, false));
+                    if (variable.m_OC_Childrens != null)
+                        for (int i = 0; i < variable.m_OC_Childrens.Count; ++i)
+                            files.Add(Tuple.Create(variable.m_OC_Childrens[i].m_s_Name, false));
                     continue;
                 }
                 else
                 {
                     if (variable.m_B_IsSelected)
                     {
-                        string pathOfVariable = Util.getPathOfVariable(m_S_PathForFile, variable);
-
                         variable.PropertyChanged -= Variable_PropertyChanged;
+
+                        string pathOfVariable = Util.getPathOfVariable(m_S_PathForFile, variable);
 
                         sharedMemory.CreateMessages(variable); // создаем сообщение
                         sharedMemory.WriteToMemory(); // записываем сообщение в MMF
@@ -281,6 +317,15 @@ namespace GeometryDebugger.UI
 
                                 m_S_GlobalPath = sharedMemory.getPath(); // получаем путь, куда сохранились файлы с данными
                                 files.Add(Tuple.Create(pathOfVariable, true));
+
+                                if (variable.m_OC_Childrens != null)
+                                {
+                                    for (int i = 0; i < variable.m_OC_Childrens.Count; ++i)
+                                    {
+                                        m_CH_Host.visibilityGeomView(variable.m_OC_Childrens[i].m_s_Name, m_S_GlobalPath, variable.m_OC_Childrens[i].m_b_isSelected);
+                                        files.Add(Tuple.Create(variable.m_OC_Childrens[i].m_s_Name, false));
+                                    }
+                                }
                             }
                         }
 
@@ -308,10 +353,10 @@ namespace GeometryDebugger.UI
 
                 if (variable.m_B_IsSerialized)
                 {
-                    if (variable.m_B_IsSelected) // в случае, если переменная уже сериализована (данные о ней есть в файле) и надо менять визибилити
-                        files.Add(Tuple.Create(pathOfVariable, false)); // указываем, что эту переменную НЕ надо перезагружать 
-                    else // в случае, если переменная уже сериализована (данные о ней есть в файле) и ей НЕ надо менять визибилити, то мы ничего с ней не делаем
-                        continue;
+                    files.Add(Tuple.Create(pathOfVariable, false));
+                    if (variable.m_OC_Childrens != null)
+                        for (int i = 0; i < variable.m_OC_Childrens.Count; ++i)
+                            files.Add(Tuple.Create(variable.m_OC_Childrens[i].m_s_Name, false));
                 }
             }
 
@@ -327,20 +372,12 @@ namespace GeometryDebugger.UI
 
                 if (variable.m_B_IsSerialized)
                 {
-                    if (variable.m_B_IsSelected) // в случае, если переменная уже сериализована (данные о ней есть в файле) и надо менять визибилити
-                        files.Add(Tuple.Create(pathOfVariable, false)); // указываем, что эту переменную НЕ надо перезагружать 
-                    else // в случае, если переменная уже сериализована (данные о ней есть в файле) и ей НЕ надо менять визибилити, то мы ничего с ней не делаем
-                        continue;
-                }
-                else
-                {
-                    if (variable.m_B_IsSelected)
-                        files.Add(Tuple.Create(pathOfVariable, true)); // указываем, что эту переменную надо перезагружать 
-                    else
-                        continue;
+                    files.Add(Tuple.Create(pathOfVariable, false));
+                    if (variable.m_OC_Childrens != null)
+                        for (int i = 0; i < variable.m_OC_Childrens.Count; ++i)
+                            files.Add(Tuple.Create(variable.m_OC_Childrens[i].m_s_Name, false));
                 }
             }
-
             m_CH_Host.reloadGeomView(files, m_S_GlobalPath); // отправляем файл на перезагрузку уже в нужном порядке
         }
         //////////
@@ -415,6 +452,8 @@ namespace GeometryDebugger.UI
                     {
                         variableFromAddMenu.m_B_IsSelected = tempVariable.m_B_IsSelected;
                         variableFromAddMenu.m_B_IsSerialized = tempVariable.m_B_IsSerialized;
+                        variableFromAddMenu.m_i_NumberOfChilds = tempVariable.m_i_NumberOfChilds;
+                        variableFromAddMenu.m_OC_Childrens = tempVariable.m_OC_Childrens;
                         m_OBOV_Variables.Add(variableFromAddMenu);
                         break;
                     }
@@ -426,7 +465,9 @@ namespace GeometryDebugger.UI
                            tempVariable.m_C_Color != variableFromAddMenu.m_C_Color) // если переменная поменяла только цвет, то мы добавляем её сразу (чтобы сохранить порядок отрисовки)
                     {
                         variableFromAddMenu.m_B_IsSelected = tempVariable.m_B_IsSelected;
-                        variableFromAddMenu.m_B_IsSelected = false;
+                        variableFromAddMenu.m_B_IsSerialized = false;
+                        variableFromAddMenu.m_i_NumberOfChilds = tempVariable.m_i_NumberOfChilds;
+                        variableFromAddMenu.m_OC_Childrens = tempVariable.m_OC_Childrens;
                         m_OBOV_Variables.Add(variableFromAddMenu);
                         break;
                     }
@@ -459,7 +500,6 @@ namespace GeometryDebugger.UI
             dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую 
 
             draw();
-
         }
         //////////
         ////////////////////////////////////////////////////////////
@@ -522,15 +562,15 @@ namespace GeometryDebugger.UI
         {
             m_OBOV_Variables = new ObservableCollection<Variable>(m_AM_AddMenu.UpdateVariableAfterBreakMod(m_OBOV_Variables)); // получаем итоговые данные с валидными переменными и которые isAdded = true
 
-            dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую
-
             draw();
+
+            dgObjects.ItemsSource = m_OBOV_Variables; // обновляем визуальную составляющую
         }
         private void OnEnterDesignMode(dbgEventReason reason)
         {
-            if (reason == dbgEventReason.dbgEventReasonStopDebugging || reason == dbgEventReason.dbgEventReasonEndProgram)
+            if (reason == dbgEventReason.dbgEventReasonStopDebugging || reason == dbgEventReason.dbgEventReasonEndProgram || reason == dbgEventReason.dbgEventReasonNone)
             {
-                if (Directory.Exists(m_S_GlobalPath))
+                if (Directory.Exists(m_S_GlobalPath) && m_S_GlobalPath.Contains("vis_dbg_"))
                     Directory.Delete(m_S_GlobalPath, true);
                 ClearGeomViewWindow();
             }
@@ -555,7 +595,50 @@ namespace GeometryDebugger.UI
         }
         public void ResetTheme()
         {
+
             var menuItems = this.dgObjects.ContextMenu.Items.OfType<MenuItem>(); // получаем MenuItems-элементы из dataGrid - dgObjects
+
+            List<string> names = new List<string>()
+            {
+                "Select", 
+                "UnSelect",
+                "Delete",
+                "Reload", 
+                "Up", 
+                "Top",
+                "Down",
+                "Bottom",
+                "AddHistory"
+            };
+            List<Button> btns = new List<Button>()
+            {
+                this.SelectBtn, this.UnSelectBtn, this.DeleteBtn, this.ReloadBtn, this.UpBtn, this.TopBtn, this.DownBtn, this.BottomBtn, this.AddHistoryBtn
+            };
+
+            for (int i = 0; i < names.Count; ++i)
+            {
+                string file_name = names[i];
+
+                string current_name = names[i] + "Btn";
+
+                if (isLightTheme())
+                    file_name += "_Light";
+                else
+                    file_name += "_Dark";
+
+                var imageSource = new BitmapImage(new Uri("../Images/" + file_name + ".png", UriKind.Relative)); // получаем путь до картинки
+
+                var image = new Image
+                {
+                    Source = imageSource,
+                    Width = 32,
+                    Height = 32,
+                    HorizontalAlignment = HorizontalAlignment.Left
+                };
+
+                btns[i].Content = image;
+            }
+
 
             foreach (var menuItem in menuItems) // проходимся по каждому элементу
             {
@@ -844,22 +927,64 @@ namespace GeometryDebugger.UI
                     {
                         Variable variable = (Variable)item;
 
-                        if (variable.m_B_IsSerialized)
+                        if (variable.m_B_IsSelected)
                         {
-                            variable.PropertyChanged -= Variable_PropertyChanged; // отписваемся от изменений, из-за них вызовется лишняя функция
-                            variable.m_B_IsSerialized = false;
-                            variable.PropertyChanged += Variable_PropertyChanged; // подписываемся обратно
-                        }
+                            if (variable.m_B_IsSerialized)
+                            {
+                                variable.PropertyChanged -= Variable_PropertyChanged; // отписваемся от изменений, из-за них вызовется лишняя функция
+                                variable.m_B_IsSerialized = false;
+                                variable.PropertyChanged += Variable_PropertyChanged; // подписываемся обратно
 
-                        ++countOnSerialization;
+                                ++countOnSerialization;
+                            }
+
+                            //CreateChildren(variable);
+                        }
                     }
                 }
 
+                if (countOnSerialization > 0)
+                    draw();
+
                 dgObjects.CommitEdit();
                 dgObjects.CommitEdit();
+            }
+        }
+        private void MenuItemAddHistory_Click(object sender, RoutedEventArgs e)
+        {
+            if (dgObjects.SelectedItems.Count == 0) // если кол-во выбранных элементов = 0, то есть пользователь ничего
+                                                    // не выбрал для каких-либо действий через контекстное меню
+                return;
+            else // если же пользователь выбрал элементы
+            {
+                int countOnSerialization = 0;
+
+                foreach (var item in dgObjects.SelectedItems) // проходимся по каждому элементу, который пользователь хочет сделать unSelected
+                {
+                    if (item is Variable)
+                    {
+                        Variable variable = (Variable)item;
+
+                        if (variable.m_B_IsSelected)
+                        {
+                            if (variable.m_B_IsSerialized)
+                            {
+                                variable.PropertyChanged -= Variable_PropertyChanged; // отписваемся от изменений, из-за них вызовется лишняя функция
+                                CreateChildren(variable);
+                                variable.m_B_IsSerialized = false;
+                                variable.PropertyChanged += Variable_PropertyChanged; // подписываемся обратно
+
+                                ++countOnSerialization;
+                            }
+                        }
+                    }
+                }
 
                 if (countOnSerialization > 0)
                     draw();
+
+                dgObjects.CommitEdit();
+                dgObjects.CommitEdit();
             }
         }
 
@@ -926,6 +1051,117 @@ namespace GeometryDebugger.UI
                 return 5;
             else
                 return -1;
+        }
+
+        private void DeleteFromHistory_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+
+            if (button != null)
+            {
+                ChildrenVariable variable = button.DataContext as ChildrenVariable;
+
+                if (variable != null)
+                {
+                    Variable parrent = variable.m_parrent;
+                    parrent.m_OC_Childrens.Remove(variable);
+
+                    delete();
+                }
+            }
+
+        }
+        private void CreateChildren(Variable variable)
+        {
+            if (variable.m_OC_Childrens == null)
+            {
+                variable.m_OC_Childrens = new ObservableCollection<ChildrenVariable>();
+                variable.m_OC_Childrens.Add(new ChildrenVariable(false, Util.getPathOfVariable(m_S_PathForFile, variable), variable.m_C_Color, 0, variable));
+            }
+            else
+            {
+                if (variable.m_i_NumberOfChilds >= m_i_count_of_element_in_history)
+                {
+                    variable.m_OC_Childrens[0].PropertyChanged -= ChildrenVariable_PropertyChanged;
+                    variable.m_OC_Childrens.RemoveAt(0);
+                }
+
+                variable.m_OC_Childrens.Add(new ChildrenVariable(false, Util.getPathOfVariable(m_S_PathForFile, variable), variable.m_C_Color, variable.m_OC_Childrens.Count == 0 ? variable.m_i_NumberOfChilds : variable.m_OC_Childrens[variable.m_OC_Childrens.Count - 1].m_i_Index + 1, variable));
+            }
+
+            variable.m_OC_Childrens[variable.m_OC_Childrens.Count - 1].PropertyChanged += ChildrenVariable_PropertyChanged;
+
+            ++variable.m_i_NumberOfChilds;
+
+            HSL hslColor = GeometryDebugger.UI.ColorPicker.GetHSLFromRGB((byte)variable.m_C_Color.m_i_R, (byte)variable.m_C_Color.m_i_G, (byte)variable.m_C_Color.m_i_B);
+            hslColor.m_Hue += ((float)360 / m_i_count_of_element_in_history * (variable.m_i_NumberOfChilds)) % 360;
+            RGB rgbColor = GeometryDebugger.UI.ColorPicker.GetRGBFromHSL(hslColor);
+            variable.m_C_Color = new Utils.Color(rgbColor.m_Byte_R, rgbColor.m_Byte_G, rgbColor.m_Byte_B);
+
+            dgObjects.Items.Refresh();
+        }
+
+        private void ShowHistoryBtn_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                DependencyObject dep = (DependencyObject)e.OriginalSource;
+
+                while ((dep != null) && !(dep is DataGridRow))
+                {
+                    dep = VisualTreeHelper.GetParent(dep);
+                }
+
+                if (dep != null && dep is DataGridRow)
+                {
+                    DataGridRow row = (DataGridRow)dep;
+
+                    Button button = sender as Button;
+
+                    if (button != null)
+                    {
+                        string fileName = "ShowHistory";
+
+                        if (isLightTheme())
+                            fileName += "_Light";
+                        else
+                            fileName += "_Dark";
+
+                        var imageSource = new BitmapImage(new Uri("../Images/" + fileName + ".png", UriKind.Relative));
+
+                        var image = new Image
+                        {
+                            Source = imageSource,
+                            Width = 10,
+                            Height = 10,
+                            HorizontalAlignment = HorizontalAlignment.Left,
+                            RenderTransformOrigin = new Point(0.5, 0.5),
+
+                        };
+
+                        if (row.DetailsVisibility == Visibility.Collapsed)
+                        {
+                            row.DetailsVisibility = Visibility.Visible;
+
+                            RotateTransform rotateTransform = new RotateTransform(90);
+                            image.RenderTransform = rotateTransform;
+
+                        }
+                        else
+                        {
+                            row.DetailsVisibility = Visibility.Collapsed;
+
+                            RotateTransform rotateTransform = new RotateTransform(0);
+                            image.RenderTransform = rotateTransform;
+                        }
+
+                        button.Content = image;
+                    }
+                }
+            }
+            catch (System.Exception)
+            {
+            }
         }
     }
 }

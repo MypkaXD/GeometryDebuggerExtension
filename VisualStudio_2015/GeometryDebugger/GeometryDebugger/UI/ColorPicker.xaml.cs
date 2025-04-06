@@ -9,6 +9,8 @@ namespace GeometryDebugger.UI
     /// <summary>
     /// Interaction logic for ColorPicker.xaml
     /// </summary>
+    ///
+
     public partial class ColorPicker : UserControl
     {
         public RGB m_RGB = new RGB(0, 0, 0);
@@ -137,28 +139,6 @@ namespace GeometryDebugger.UI
 
                 SubscribeOnEvents();
             }
-        }
-
-        private RGB GetRGBFromHSL(HSL hsl)
-        {
-            double hue = hsl.m_Hue;
-            double saturation = hsl.m_S / 100;
-            double lightness = hsl.m_L / 100;
-
-            double c = (1 - Math.Abs(2 * lightness - 1)) * saturation;
-            double x = c * (1 - Math.Abs((hue / 60) % 2 - 1));
-            double m = lightness - c / 2;
-
-            double r = 0, g = 0, b = 0;
-
-            if (hue < 60) { r = c; g = x; b = 0; }
-            else if (hue < 120) { r = x; g = c; b = 0; }
-            else if (hue < 180) { r = 0; g = c; b = x; }
-            else if (hue < 240) { r = 0; g = x; b = c; }
-            else if (hue < 300) { r = x; g = 0; b = c; }
-            else { r = c; g = 0; b = x; }
-
-            return new RGB((byte)((r + m) * 255), (byte)((g + m) * 255), (byte)((b + m) * 255));
         }
 
         private void ConvertHSLToRGB()
@@ -349,37 +329,6 @@ namespace GeometryDebugger.UI
             }
         }
 
-        private HSL GetHSLFromRGB(byte red, byte green, byte blue)
-        {
-            double r = red / 255.0;
-            double g = green / 255.0;
-            double b = blue / 255.0;
-
-            double max = Math.Max(r, Math.Max(g, b));
-            double min = Math.Min(r, Math.Min(g, b));
-            double delta = max - min;
-
-            double hue = 0;
-            double saturation = 0;
-            double lightness = (max + min) / 2;
-
-            if (delta == 0)
-                saturation = 0;
-            else
-                saturation = delta / (1 - Math.Abs(2 * lightness - 1));
-
-            if (delta == 0)
-                hue = 0;
-            else if (max == r)
-                hue = 60 * (((g - b) / delta) % 6);
-            else if (max == g)
-                hue = 60 * ((b - r) / delta + 2);
-            else if (max == b)
-                hue = 60 * ((r - g) / delta + 4);
-
-            return new HSL(hue, saturation * 100, lightness * 100);
-        }
-
         private void ConverRGBToHSL()
         {
             double r = m_RGB.m_Byte_R / 255.0;
@@ -426,6 +375,59 @@ namespace GeometryDebugger.UI
                    HueValue != null && SaturationValue != null && LightnessValue != null &&
                    ColorPreview != null && LightnessRect != null;
         }
+
+        public static HSL GetHSLFromRGB(byte red, byte green, byte blue)
+        {
+            double r = red / 255.0;
+            double g = green / 255.0;
+            double b = blue / 255.0;
+
+            double max = Math.Max(r, Math.Max(g, b));
+            double min = Math.Min(r, Math.Min(g, b));
+            double delta = max - min;
+
+            double hue = 0;
+            double saturation = 0;
+            double lightness = (max + min) / 2;
+
+            if (delta == 0)
+                saturation = 0;
+            else
+                saturation = delta / (1 - Math.Abs(2 * lightness - 1));
+
+            if (delta == 0)
+                hue = 0;
+            else if (max == r)
+                hue = 60 * (((g - b) / delta) % 6);
+            else if (max == g)
+                hue = 60 * ((b - r) / delta + 2);
+            else if (max == b)
+                hue = 60 * ((r - g) / delta + 4);
+
+            return new HSL(hue, saturation * 100, lightness * 100);
+        }
+        public static RGB GetRGBFromHSL(HSL hsl)
+        {
+            double hue = hsl.m_Hue;
+            double saturation = hsl.m_S / 100;
+            double lightness = hsl.m_L / 100;
+
+            double c = (1 - Math.Abs(2 * lightness - 1)) * saturation;
+            double x = c * (1 - Math.Abs((hue / 60) % 2 - 1));
+            double m = lightness - c / 2;
+
+            double r = 0, g = 0, b = 0;
+
+            if (hue < 60) { r = c; g = x; b = 0; }
+            else if (hue < 120) { r = x; g = c; b = 0; }
+            else if (hue < 180) { r = 0; g = c; b = x; }
+            else if (hue < 240) { r = 0; g = x; b = c; }
+            else if (hue < 300) { r = x; g = 0; b = c; }
+            else { r = c; g = 0; b = x; }
+
+            return new RGB((byte)((r + m) * 255), (byte)((g + m) * 255), (byte)((b + m) * 255));
+        }
+
     }
 
     public class HSL
