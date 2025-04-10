@@ -58,7 +58,7 @@ namespace GeometryDebugger.Utils
             IntPtr[] stringPtrs = new IntPtr[1];
             bool[] bools = new bool[1];
 
-            stringPtrs[0] = Marshal.StringToHGlobalAnsi(globalPath + "\\" + path + ".txt");
+            stringPtrs[0] = Marshal.StringToHGlobalAnsi(globalPath + "\\\\" + path + ".txt");
             bools[0] = isVisible;
 
             // Создаем и заполняем структуру
@@ -87,7 +87,7 @@ namespace GeometryDebugger.Utils
 
             for (int i = 0; i < files.Count; i++)
             {
-                stringPtrs[i] = Marshal.StringToHGlobalAnsi(globalPath + "\\" + files[i].Item1 + ".txt");
+                stringPtrs[i] = Marshal.StringToHGlobalAnsi(globalPath + "\\\\" + files[i].Item1 + ".txt");
                 bools[i] = files[i].Item2;
             }
 

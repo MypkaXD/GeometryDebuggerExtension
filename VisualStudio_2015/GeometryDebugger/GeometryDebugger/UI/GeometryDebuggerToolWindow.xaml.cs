@@ -570,7 +570,7 @@ namespace GeometryDebugger.UI
         {
             if (reason == dbgEventReason.dbgEventReasonStopDebugging || reason == dbgEventReason.dbgEventReasonEndProgram || reason == dbgEventReason.dbgEventReasonNone)
             {
-                if (Directory.Exists(m_S_GlobalPath) && m_S_GlobalPath.Contains("vis_dbg_"))
+                if (Directory.Exists(m_S_GlobalPath) && m_S_GlobalPath.Contains("vis_dbg"))
                     Directory.Delete(m_S_GlobalPath, true);
                 ClearGeomViewWindow();
             }
@@ -1161,6 +1161,21 @@ namespace GeometryDebugger.UI
             }
             catch (System.Exception)
             {
+            }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+
+            if (item != null)
+            {
+                MessageBox.Show(item.Header.ToString());
+
+                var contextMenu = item.Parent;
+
+                //contextMenu.
+
             }
         }
     }

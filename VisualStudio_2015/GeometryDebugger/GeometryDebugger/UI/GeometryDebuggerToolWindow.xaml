@@ -197,6 +197,14 @@
                         </Grid.ColumnDefinitions>
                         <DataGrid Grid.Column="0" ItemsSource="{Binding m_OC_Childrens}" HeadersVisibility="Column" AutoGenerateColumns="False"
                             CanUserAddRows="False" CanUserDeleteRows="False" HorizontalAlignment="Left" Padding="5">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="SADASDASD" Click="MenuItem_Click">
+                                    </MenuItem>
+                                    <MenuItem Header="123123" Click="MenuItem_Click">
+                                    </MenuItem>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
                             <DataGrid.Columns>
                                 <DataGridCheckBoxColumn Header="IsSelected" Binding="{Binding m_b_isSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="Auto"/>
                                 <DataGridTemplateColumn Width="50" MinWidth="50" Header="Color">

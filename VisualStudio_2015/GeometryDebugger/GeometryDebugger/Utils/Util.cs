@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System;
 using System.IO;
 using System.Text;
@@ -33,15 +34,19 @@ namespace GeometryDebugger.Utils
 
         static string SanitizeFileName(string name)
         {
-            var forbiddenChars = Path.GetInvalidFileNameChars();
-            var result = new StringBuilder(name);
+            List<string> forbiddenChars = new List<string>() { "<", ">", ":", "\\", "/", "|", "?", "*", "&" };
 
-            foreach (var ch in forbiddenChars)
+            string result_string = name;
+
+            for (int i = 0; i < forbiddenChars.Count; ++i)
             {
-                result.Replace(ch, '_'); // Заменяем на подчёркивание
+                while (result_string.Contains(forbiddenChars[i]))
+                {
+                    result_string = result_string.Replace(System.Convert.ToChar(forbiddenChars[i]), '_');
+                }
             }
 
-            return result.ToString();
+            return result_string;
         }
 
         static public string getPathOfVariable(string path, Variable variable)
