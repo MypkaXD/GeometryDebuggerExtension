@@ -21,7 +21,7 @@ namespace GeometryDebugger.UI
     public partial class GeometryDebuggerToolWindow : UserControl
     {
         private string m_S_PathForFile = "vis_dbg_"; // приписка к файлу сериализации
-        private string m_S_GlobalPath = ""; // глобальный путь до файла
+        private string m_S_GlobalPath = ""; // глобальный путь до файла сериализации
         private string m_S_Message { get; set; } // сообщение, которое будет записано в MMF
 
         private bool m_B_IsSubscribeOnBreakMod = false; // подписаны на дебаг ивенты
