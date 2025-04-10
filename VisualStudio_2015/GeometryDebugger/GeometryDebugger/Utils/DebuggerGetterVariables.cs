@@ -230,10 +230,11 @@ namespace GeometryDebugger.Utils
                 }
             }
         }
-        void getVariablesFromQueue(ref Queue<Tuple<string, int>> container, ref ObservableCollection<Variable> variables, int minLvl = 1, string currentName = "", string typeOfVariableFromPrevDepth = "", int helper = 0)
+        void getVariablesFromQueue(ref Queue<Tuple<string, int>> container, ref ObservableCollection<Variable> variables, int minLvl = 1, string prevName = "", string typeOfVariableFromPrevDepth = "", int helper = 0)
         {
 
             int count = container.Count; // число в очереди
+            string prevValidType = new string(typeOfVariableFromPrevDepth.ToCharArray());
 
             for (int i = 0; i < count; ++i)
             {
@@ -242,20 +243,25 @@ namespace GeometryDebugger.Utils
                 Tuple<string, int> currentVariable = container.Peek(); // смотрим первый элемент на выход из очереди
 
                 string currentNameOfVariable = currentVariable.Item1; // название переменной
-                string tempCurrentName = currentName;
                 int currentLvlOfVariable = currentVariable.Item2; // глубина переменной
-
-                if (!currentNameOfVariable.Contains("["))
-                {
-                    if (helper == 1)
-                        tempCurrentName += ".";
-                    else if (helper == 2)
-                        tempCurrentName += "->";
-                }
 
                 if (currentLvlOfVariable == minLvl) // если глубина переменной совпадает с минимальным, то есть мы не опустилиь и не поднялись, то
                 {
-                    Variable variable = GetElementFromExpression(tempCurrentName + currentNameOfVariable, "WatchWindow", new Utils.Color(0, 255, 0), false); // получаем переменную
+
+                    string generalName = prevName;
+
+                    if (!currentNameOfVariable.Contains("["))
+                    {
+                        if (typeOfVariableFromPrevDepth != "")
+                        {
+                            if (typeOfVariableFromPrevDepth[typeOfVariableFromPrevDepth.Length - 1] != '*')
+                                generalName += ".";
+                            else
+                                generalName += "->";
+                        }
+                    }
+
+                    Variable variable = GetElementFromExpression(generalName + currentNameOfVariable, "WatchWindow", new Utils.Color(0, 255, 0), false); // получаем переменную
 
                     bool isFind = false;
 
@@ -274,7 +280,7 @@ namespace GeometryDebugger.Utils
                         if (!isFind)
                         {
                             variables.Add(variable);
-                            //typeOfVariableFromPrevDepth = variable.m_S_Type;
+                            prevValidType = variable.m_S_Type;
                         }
                     }
 
@@ -282,15 +288,9 @@ namespace GeometryDebugger.Utils
                 }
                 else if (currentLvlOfVariable > minLvl) // если мы опустились глубже
                 {
-                    typeOfVariableFromPrevDepth = variables[variables.Count - 1].m_S_Type;
                     string nameOnNextLvl = "(" + variables[variables.Count - 1].m_S_Name + ")";
 
-                    if (typeOfVariableFromPrevDepth.Contains("*"))
-                        helper = 2;
-                    else
-                        helper = 1;
-
-                    getVariablesFromQueue(ref container, ref variables, currentLvlOfVariable, nameOnNextLvl, typeOfVariableFromPrevDepth, helper);
+                    getVariablesFromQueue(ref container, ref variables, currentLvlOfVariable, nameOnNextLvl, prevValidType, helper);
                 }
                 else
                 {
