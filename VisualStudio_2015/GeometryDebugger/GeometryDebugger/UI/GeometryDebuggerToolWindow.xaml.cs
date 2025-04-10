@@ -20,7 +20,7 @@ namespace GeometryDebugger.UI
 {
     public partial class GeometryDebuggerToolWindow : UserControl
     {
-        private string m_S_PathForFile = "vis_dbg_"; // приписка к файлу
+        private string m_S_PathForFile = "vis_dbg_"; // приписка к файлу 
         private string m_S_GlobalPath = ""; // глобальный путь до файла
         private string m_S_Message { get; set; } // сообщение, которое будет записано в MMF
 
