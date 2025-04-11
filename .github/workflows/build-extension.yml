@@ -24,11 +24,15 @@ jobs:
 
       - name: Build GeomView
         shell: cmd
-        run: .scipts\install_geimview.bat
+        run: |
+          cd .scripts
+          call install_geomview.bat
         
       - name: Build GLTool
         shell: cmd
-        run: .scipts\install_gltool.bat
+        run: |
+          cd .scripts
+          call install_gltool.bat
 
       - name: Update version
         run: |
