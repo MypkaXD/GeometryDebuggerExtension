@@ -25,7 +25,7 @@ jobs:
       - name: Build GeomView
         shell: cmd
         run: |
-          cd ..scipts
+          cd .scipts
           call install_geomview.bat
         
       - name: Build GLTool
