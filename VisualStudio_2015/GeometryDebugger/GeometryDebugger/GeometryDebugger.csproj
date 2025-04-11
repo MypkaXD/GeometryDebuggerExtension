@@ -135,7 +135,7 @@
     <Resource Include="Images\AddHistory_Light.png" />
     <Resource Include="Images\ShowHistory_Dark.png" />
     <Resource Include="Images\ShowHistory_Light.png" />
-    <Content Include="GLtool.dll">
+    <Content Include="GLTool.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>

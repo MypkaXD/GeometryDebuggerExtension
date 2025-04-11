@@ -16,6 +16,14 @@ jobs:
       - name: Add nuget to PATH
         uses: nuget/setup-nuget@v1
 
+      - name: Build GeomView
+        shell: cmd
+        run: .scipts\install_geimview.bat
+        
+      - name: Build GLTool
+      shell: cmd
+      run: .scipts\install_gltool.bat
+
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.2
         with:
