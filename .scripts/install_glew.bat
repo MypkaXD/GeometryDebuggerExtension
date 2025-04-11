@@ -1,7 +1,7 @@
 @echo off
 :: Download and install GLEW 2.1.0
 
-set GLEW_URL=https://sourceforge.net/projects/glew/files/glew/2.1.0/glew-2.1.0.zip/download
+set GLEW_URL=https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0.zip
 set GLEW_ZIP=glew-2.1.0.zip
 set INSTALL_DIR=glew-2.1.0
 
