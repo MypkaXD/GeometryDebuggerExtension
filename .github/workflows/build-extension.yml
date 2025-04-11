@@ -15,6 +15,12 @@ jobs:
 
       - name: Add nuget to PATH
         uses: nuget/setup-nuget@v1
+        
+      - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+      with:
+        vs-version: "14.0"
+        msbuild-architecture: x86
 
       - name: Build GeomView
         shell: cmd
@@ -23,12 +29,6 @@ jobs:
       - name: Build GLTool
         shell: cmd
         run: .scipts\install_gltool.bat
-
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.2
-        with:
-          vs-version: "14.0"
-          msbuild-architecture: x86
 
       - name: Update version
         run: |
