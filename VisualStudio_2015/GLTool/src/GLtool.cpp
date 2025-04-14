@@ -23,6 +23,8 @@ bool GLtool::init(HWND _hWndParent)
 	gv.setParentWin32Handler(_hWndParent);
 	gv.init("");
 	native = gv.getNativeWin32Handler();
+	gv.appearance.imgui_cam_control = false;
+	gv.appearance.imgui_object_control = false;
 
 	return true;
 }
