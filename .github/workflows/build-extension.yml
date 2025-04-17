@@ -51,7 +51,7 @@ jobs:
         run: nuget restore VisualStudio_2022\GeometryDebugger\GeometryDebugger.sln
 
       - name: Build
-        run: msbuild VisualStudio_2022\GeometryDebugger\GeometryDebugger\GeometryDebugger.csproj /p:configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=none
+        run: msbuild VisualStudio_2022\GeometryDebugger\GeometryDebugger\GeometryDebugger.csproj /p:configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=NotCompressed
       
       - name: Create GitHub Release
         id: create_release
