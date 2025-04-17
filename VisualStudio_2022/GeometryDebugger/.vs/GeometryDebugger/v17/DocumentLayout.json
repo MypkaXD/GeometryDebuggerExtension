@@ -1,0 +1,217 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|GeometryDebugger||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\source.extension.vsixmanifest||{2868F8ED-DE25-439D-9F59-AD52458E9328}",
+      "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\source.extension.vsixmanifest||{2868F8ED-DE25-439D-9F59-AD52458E9328}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\command\\createdubuggerwindowpackage.vsct||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\command\\createdubuggerwindowpackage.vsct||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\command\\vspackage.resx||{FF4D6ACA-9352-4A5F-821E-F4D6EBDCAB11}",
+      "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\command\\vspackage.resx||{FF4D6ACA-9352-4A5F-821E-F4D6EBDCAB11}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\command\\createdubuggerwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\command\\createdubuggerwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\utils\\debuggergettervariables.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\utils\\debuggergettervariables.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\ui\\geometrydebuggertoolwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\ui\\geometrydebuggertoolwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\utils\\geometrydebuggercontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\utils\\geometrydebuggercontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\ui\\geometrydebuggertoolwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\ui\\geometrydebuggertoolwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\ui\\colorpicker.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\ui\\colorpicker.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\ui\\addmenu.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\ui\\addmenu.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\CreateDubuggerWindowPackage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:GeometryDebugger\\CreateDubuggerWindowPackage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|c:\\dev\\source\\geometrydebuggerextension\\visualstudio_2022\\geometrydebugger\\geometrydebugger\\||{B270807C-D8C6-49EB-8EBE-8E8D566637A1}|a54ad834-9219-4aa6-b589-607af21c3e26"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{80b2807f-6871-4e1a-a800-23dfc794b635}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "VSPackage.resx",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\VSPackage.resx",
+              "RelativeDocumentMoniker": "GeometryDebugger\\Command\\VSPackage.resx",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\VSPackage.resx",
+              "RelativeToolTip": "GeometryDebugger\\Command\\VSPackage.resx",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
+              "WhenOpened": "2025-04-17T06:09:19.596Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "CreateDubuggerWindowPackage.cs",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\CreateDubuggerWindowPackage.cs",
+              "RelativeDocumentMoniker": "GeometryDebugger\\CreateDubuggerWindowPackage.cs",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\CreateDubuggerWindowPackage.cs",
+              "RelativeToolTip": "GeometryDebugger\\CreateDubuggerWindowPackage.cs",
+              "ViewState": "AQIAAA8AAAAAAAAAAAAAACQAAAA7AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-16T10:01:51.779Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "GeometryDebugger",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\GeometryDebugger.csproj",
+              "RelativeDocumentMoniker": "GeometryDebugger\\GeometryDebugger.csproj",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\GeometryDebugger.csproj",
+              "RelativeToolTip": "GeometryDebugger\\GeometryDebugger.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-04-16T10:03:04.198Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "CreateDubuggerWindowPackage.vsct",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\CreateDubuggerWindowPackage.vsct",
+              "RelativeDocumentMoniker": "GeometryDebugger\\Command\\CreateDubuggerWindowPackage.vsct",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\CreateDubuggerWindowPackage.vsct",
+              "RelativeToolTip": "GeometryDebugger\\Command\\CreateDubuggerWindowPackage.vsct",
+              "ViewState": "AQIAACoAAAAAAAAAAAAAADkAAAARAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003464|",
+              "WhenOpened": "2025-04-17T06:03:28.609Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "CreateDubuggerWindow.cs",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\CreateDubuggerWindow.cs",
+              "RelativeDocumentMoniker": "GeometryDebugger\\Command\\CreateDubuggerWindow.cs",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\CreateDubuggerWindow.cs",
+              "RelativeToolTip": "GeometryDebugger\\Command\\CreateDubuggerWindow.cs",
+              "ViewState": "AQIAAFAAAAAAAAAAAAAIwE8AAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-16T09:53:45.339Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ColorPicker.xaml",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\ColorPicker.xaml",
+              "RelativeDocumentMoniker": "GeometryDebugger\\UI\\ColorPicker.xaml",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\ColorPicker.xaml",
+              "RelativeToolTip": "GeometryDebugger\\UI\\ColorPicker.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-04-16T09:55:14.117Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "DebuggerGetterVariables.cs",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Utils\\DebuggerGetterVariables.cs",
+              "RelativeDocumentMoniker": "GeometryDebugger\\Utils\\DebuggerGetterVariables.cs",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Utils\\DebuggerGetterVariables.cs",
+              "RelativeToolTip": "GeometryDebugger\\Utils\\DebuggerGetterVariables.cs",
+              "ViewState": "AQIAAJUAAAAAAAAAAADwv6UAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-16T10:00:33.064Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "source.extension.vsixmanifest [Design]",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\source.extension.vsixmanifest",
+              "RelativeDocumentMoniker": "GeometryDebugger\\source.extension.vsixmanifest",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\source.extension.vsixmanifest [Design]",
+              "RelativeToolTip": "GeometryDebugger\\source.extension.vsixmanifest [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003464|",
+              "WhenOpened": "2025-04-16T10:02:31.221Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "GeometryDebuggerControl.cs",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Utils\\GeometryDebuggerControl.cs",
+              "RelativeDocumentMoniker": "GeometryDebugger\\Utils\\GeometryDebuggerControl.cs",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Utils\\GeometryDebuggerControl.cs",
+              "RelativeToolTip": "GeometryDebugger\\Utils\\GeometryDebuggerControl.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-16T10:12:20.213Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "GeometryDebuggerToolWindow.xaml.cs",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml.cs",
+              "RelativeDocumentMoniker": "GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml.cs",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml.cs",
+              "RelativeToolTip": "GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml.cs",
+              "ViewState": "AQIAACQBAAAAAAAAAIAwwCoBAAAYAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-16T09:54:50.394Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "AddMenu.xaml",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\AddMenu.xaml",
+              "RelativeDocumentMoniker": "GeometryDebugger\\UI\\AddMenu.xaml",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\AddMenu.xaml",
+              "RelativeToolTip": "GeometryDebugger\\UI\\AddMenu.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-04-16T09:55:40.317Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "GeometryDebuggerToolWindow.xaml",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml",
+              "RelativeDocumentMoniker": "GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml",
+              "RelativeToolTip": "GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-04-16T09:54:30.282Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

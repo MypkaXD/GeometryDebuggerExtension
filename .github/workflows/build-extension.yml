@@ -2,9 +2,9 @@ name: Build extension
 
 on:
   push:
-    branches: ["VisualStudio15"]
+    branches: ["VisualStudio22"]
   pull_request:
-    branches: ["VisualStudio15"]
+    branches: ["VisualStudio22"]
 
 jobs:
   build:
@@ -15,35 +15,47 @@ jobs:
 
       - name: Add nuget to PATH
         uses: nuget/setup-nuget@v1
-
+        
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.2
         with:
-          vs-version: "14.0"
-          msbuild-architecture: x86
+            vs-version: "17.0"
+            msbuild-architecture: x64
+
+      - name: Build GeomView
+        shell: cmd
+        run: |
+          cd .scripts
+          call install_geomview.bat
+        
+      - name: Build GLTool
+        shell: cmd
+        run: |
+          cd .scripts
+          call install_gltool.bat
 
       - name: Update version
         run: |
-          (Get-Content -Path VisualStudio_2015\GeometryDebugger\GeometryDebugger\source.extension.vsixmanifest) |
+          (Get-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\source.extension.vsixmanifest) |
             ForEach-Object {$_ -Replace '1.0.0', '1.0.${{ github.run_number }}'} |
-              Set-Content -Path VisualStudio_2015\GeometryDebugger\GeometryDebugger\source.extension.vsixmanifest
-          (Get-Content -Path VisualStudio_2015\GeometryDebugger\GeometryDebugger\Properties\AssemblyInfo.cs) |
+              Set-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\source.extension.vsixmanifest
+          (Get-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\Properties\AssemblyInfo.cs) |
             ForEach-Object {$_ -Replace '1.0.0', '1.0.${{ github.run_number }}'} |
-              Set-Content -Path VisualStudio_2015\GeometryDebugger\GeometryDebugger\Properties\AssemblyInfo.cs
-          (Get-Content -Path VisualStudio_2015\GeometryDebugger\GeometryDebugger\Utils\GeometryDebuggerControl.cs) |
+              Set-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\Properties\AssemblyInfo.cs
+          (Get-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\Utils\GeometryDebuggerControl.cs) |
             ForEach-Object {$_ -Replace '1.0.0', '1.0.${{ github.run_number }}'} |
-              Set-Content -Path VisualStudio_2015\GeometryDebugger\GeometryDebugger\Utils\GeometryDebuggerControl.cs
+              Set-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\Utils\GeometryDebuggerControl.cs
 
       - name: Restore
-        run: nuget restore VisualStudio_2015\GeometryDebugger\GeometryDebugger.sln
+        run: nuget restore VisualStudio_2022\GeometryDebugger\GeometryDebugger.sln
 
       - name: Build
-        run: msbuild VisualStudio_2015\GeometryDebugger\GeometryDebugger\GeometryDebugger.csproj /p:configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal
+        run: msbuild VisualStudio_2022\GeometryDebugger\GeometryDebugger\GeometryDebugger.csproj /p:configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal
 
       - uses: actions/upload-artifact@v4
         with:
           name: GeometryDebugger.vsix
-          path: VisualStudio_2015\GeometryDebugger\GeometryDebugger\bin\Release\GeometryDebugger.vsix
+          path: VisualStudio_2022\GeometryDebugger\GeometryDebugger\bin\Release\GeometryDebugger.vsix
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
