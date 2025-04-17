@@ -14,9 +14,6 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
-
-      - name: Add nuget to PATH
-        uses: nuget/setup-nuget@v1
         
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.2
@@ -34,21 +31,6 @@ jobs:
         run: |
           cd .scripts
           call install_gltool.bat
-
-      - name: Update version
-        run: |
-          (Get-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\source.extension.vsixmanifest) |
-            ForEach-Object {$_ -Replace '1.0.0', '1.0.${{ github.run_number }}'} |
-              Set-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\source.extension.vsixmanifest
-          (Get-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\Properties\AssemblyInfo.cs) |
-            ForEach-Object {$_ -Replace '1.0.0', '1.0.${{ github.run_number }}'} |
-              Set-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\Properties\AssemblyInfo.cs
-          (Get-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\Utils\GeometryDebuggerControl.cs) |
-            ForEach-Object {$_ -Replace '1.0.0', '1.0.${{ github.run_number }}'} |
-              Set-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\Utils\GeometryDebuggerControl.cs
-
-      - name: Restore
-        run: nuget restore VisualStudio_2022\GeometryDebugger\GeometryDebugger.sln
 
       - name: Build
         run: msbuild VisualStudio_2022\GeometryDebugger\GeometryDebugger\GeometryDebugger.csproj /p:configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=NotCompressed
