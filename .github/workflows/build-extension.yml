@@ -3,6 +3,8 @@ name: Build extension
 on:
   push:
     branches: ["VisualStudio22"]
+    tags:
+    - 'v*'
   pull_request:
     branches: ["VisualStudio22"]
 
@@ -51,15 +53,25 @@ jobs:
 
       - name: Build
         run: msbuild VisualStudio_2022\GeometryDebugger\GeometryDebugger\GeometryDebugger.csproj /p:configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal
-
-      - uses: actions/upload-artifact@v4
+      
+      -name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: GeometryDebugger.vsix
-          path: VisualStudio_2022\GeometryDebugger\GeometryDebugger\bin\Release\GeometryDebugger.vsix
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          repository: MypkaXD/GeometryDebugger
-          token: ${{ secrets.GITHUB_TOKEN }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: VisualStudio_2022\GeometryDebugger\GeometryDebugger\bin\Release\GeometryDebugger.vsix
+          asset_name: GeometryDebugger.vsix
+          asset_content_type: application/vsix
