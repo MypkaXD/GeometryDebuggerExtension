@@ -32,3 +32,6 @@ C:\dev\Source\GeometryDebuggerExtension\VisualStudio_2022\GeometryDebugger\Geome
 C:\dev\Source\GeometryDebuggerExtension\VisualStudio_2022\GeometryDebugger\GeometryDebugger\obj\Release\extension.vsixmanifest
 C:\dev\Source\GeometryDebuggerExtension\VisualStudio_2022\GeometryDebugger\GeometryDebugger\obj\Release\files.json
 C:\dev\Source\GeometryDebuggerExtension\VisualStudio_2022\GeometryDebugger\GeometryDebugger\obj\Release\createTemplateManifests.cache
+C:\dev\Source\GeometryDebuggerExtension\VisualStudio_2022\GeometryDebugger\GeometryDebugger\obj\Release\VSCT.read.1.tlog
+C:\dev\Source\GeometryDebuggerExtension\VisualStudio_2022\GeometryDebugger\GeometryDebugger\obj\Release\VSCT.write.1.tlog
+C:\dev\Source\GeometryDebuggerExtension\VisualStudio_2022\GeometryDebugger\GeometryDebugger\obj\Release\VSPackage.resources.original
