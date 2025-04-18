@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\ui\\geometrydebuggertoolwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\ui\\geometrydebuggertoolwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\ui\\colorpicker.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\ui\\colorpicker.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|GeometryDebugger||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
     },
     {
@@ -26,20 +34,12 @@
       "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\utils\\debuggergettervariables.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\ui\\geometrydebuggertoolwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\ui\\geometrydebuggertoolwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\utils\\geometrydebuggercontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\utils\\geometrydebuggercontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\ui\\geometrydebuggertoolwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\ui\\geometrydebuggertoolwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\ui\\colorpicker.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|solutionrelative:geometrydebugger\\ui\\colorpicker.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D63EEFAF-E6F3-4FFE-A46E-7F7530DDC27E}|GeometryDebugger\\GeometryDebugger.csproj|C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\geometrydebugger\\ui\\addmenu.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
@@ -60,7 +60,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -73,13 +73,25 @@
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "VSPackage.resx",
-              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\VSPackage.resx",
-              "RelativeDocumentMoniker": "GeometryDebugger\\Command\\VSPackage.resx",
-              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\VSPackage.resx",
-              "RelativeToolTip": "GeometryDebugger\\Command\\VSPackage.resx",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
-              "WhenOpened": "2025-04-17T06:09:19.596Z"
+              "Title": "source.extension.vsixmanifest [Design]",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\source.extension.vsixmanifest",
+              "RelativeDocumentMoniker": "GeometryDebugger\\source.extension.vsixmanifest",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\source.extension.vsixmanifest [Design]",
+              "RelativeToolTip": "GeometryDebugger\\source.extension.vsixmanifest [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003464|",
+              "WhenOpened": "2025-04-16T10:02:31.221Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ColorPicker.xaml",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\ColorPicker.xaml",
+              "RelativeDocumentMoniker": "GeometryDebugger\\UI\\ColorPicker.xaml",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\ColorPicker.xaml",
+              "RelativeToolTip": "GeometryDebugger\\UI\\ColorPicker.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-04-16T09:55:14.117Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -95,7 +107,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "GeometryDebugger",
               "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\GeometryDebugger.csproj",
               "RelativeDocumentMoniker": "GeometryDebugger\\GeometryDebugger.csproj",
@@ -107,7 +119,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "CreateDubuggerWindowPackage.vsct",
               "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\CreateDubuggerWindowPackage.vsct",
               "RelativeDocumentMoniker": "GeometryDebugger\\Command\\CreateDubuggerWindowPackage.vsct",
@@ -119,30 +131,30 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "CreateDubuggerWindow.cs",
-              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\CreateDubuggerWindow.cs",
-              "RelativeDocumentMoniker": "GeometryDebugger\\Command\\CreateDubuggerWindow.cs",
-              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\CreateDubuggerWindow.cs",
-              "RelativeToolTip": "GeometryDebugger\\Command\\CreateDubuggerWindow.cs",
-              "ViewState": "AQIAAFAAAAAAAAAAAAAIwE8AAAAJAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-16T09:53:45.339Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "ColorPicker.xaml",
-              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\ColorPicker.xaml",
-              "RelativeDocumentMoniker": "GeometryDebugger\\UI\\ColorPicker.xaml",
-              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\ColorPicker.xaml",
-              "RelativeToolTip": "GeometryDebugger\\UI\\ColorPicker.xaml",
+              "DocumentIndex": 0,
+              "Title": "GeometryDebuggerToolWindow.xaml",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml",
+              "RelativeDocumentMoniker": "GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml",
+              "RelativeToolTip": "GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-04-16T09:55:14.117Z"
+              "WhenOpened": "2025-04-16T09:54:30.282Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
+              "Title": "VSPackage.resx",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\VSPackage.resx",
+              "RelativeDocumentMoniker": "GeometryDebugger\\Command\\VSPackage.resx",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\VSPackage.resx",
+              "RelativeToolTip": "GeometryDebugger\\Command\\VSPackage.resx",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
+              "WhenOpened": "2025-04-17T06:09:19.596Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
               "Title": "DebuggerGetterVariables.cs",
               "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Utils\\DebuggerGetterVariables.cs",
               "RelativeDocumentMoniker": "GeometryDebugger\\Utils\\DebuggerGetterVariables.cs",
@@ -154,18 +166,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "source.extension.vsixmanifest [Design]",
-              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\source.extension.vsixmanifest",
-              "RelativeDocumentMoniker": "GeometryDebugger\\source.extension.vsixmanifest",
-              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\source.extension.vsixmanifest [Design]",
-              "RelativeToolTip": "GeometryDebugger\\source.extension.vsixmanifest [Design]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003464|",
-              "WhenOpened": "2025-04-16T10:02:31.221Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "GeometryDebuggerControl.cs",
               "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Utils\\GeometryDebuggerControl.cs",
               "RelativeDocumentMoniker": "GeometryDebugger\\Utils\\GeometryDebuggerControl.cs",
@@ -177,7 +178,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "GeometryDebuggerToolWindow.xaml.cs",
               "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml.cs",
               "RelativeDocumentMoniker": "GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml.cs",
@@ -201,13 +202,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 6,
-              "Title": "GeometryDebuggerToolWindow.xaml",
-              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml",
-              "RelativeDocumentMoniker": "GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml",
-              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml",
-              "RelativeToolTip": "GeometryDebugger\\UI\\GeometryDebuggerToolWindow.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-04-16T09:54:30.282Z"
+              "Title": "CreateDubuggerWindow.cs",
+              "DocumentMoniker": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\CreateDubuggerWindow.cs",
+              "RelativeDocumentMoniker": "GeometryDebugger\\Command\\CreateDubuggerWindow.cs",
+              "ToolTip": "C:\\dev\\Source\\GeometryDebuggerExtension\\VisualStudio_2022\\GeometryDebugger\\GeometryDebugger\\Command\\CreateDubuggerWindow.cs",
+              "RelativeToolTip": "GeometryDebugger\\Command\\CreateDubuggerWindow.cs",
+              "ViewState": "AQIAAFAAAAAAAAAAAAAIwE8AAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-16T09:53:45.339Z"
             }
           ]
         }
