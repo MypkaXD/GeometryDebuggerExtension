@@ -114,8 +114,8 @@ namespace GeometryDebugger.Utils
 
                     variables.Add(currentVariable);
                 }
-                else
-                    MessageBox.Show($"ERROR: Can't get addres for value {localVariable.Name}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                //else
+                //    MessageBox.Show($"ERROR: Can't get addres for value {localVariable.Name}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         //
@@ -223,7 +223,7 @@ namespace GeometryDebugger.Utils
                             if (tempVariable.m_S_Name == variable.m_S_Name && tempVariable.m_S_Type == variable.m_S_Type &&
                                 tempVariable.m_S_Addres == variable.m_S_Addres && tempVariable.m_S_Source == variable.m_S_Source)
                             {
-                                MessageBox.Show("Error: the variable with name \"" + variable.m_S_Name + "\" contains in table.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                //MessageBox.Show("Error: the variable with name \"" + variable.m_S_Name + "\" contains in table.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                                 isFind = true;
                             }
                         }

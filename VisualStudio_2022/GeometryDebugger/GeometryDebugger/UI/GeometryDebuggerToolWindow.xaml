@@ -43,6 +43,7 @@
             <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
                 <Button Click="btnOpenAddMenu_Click"
                 Width="80" Height="45"
+                ToolTip="Add variables from WathWindow/StackFrame/MySelf"
                 Name="btnAddMenu">
                     <Button.Content>
                         <StackPanel Orientation="Horizontal">
@@ -53,52 +54,52 @@
                 </Button>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Name="SelectBtn" Height="45" Click="MenuItemAddForDrawing_Click">
+                <Button Name="SelectBtn" Height="45" Click="MenuItemAddForDrawing_Click" ToolTip="Visualize variables on stage">
                     <Button.Content>
                         <Image Source="../Images/Select_Light.png" Width="32" Height="32" HorizontalAlignment="Left"></Image>
                     </Button.Content>
                 </Button>
-                <Button Name="UnSelectBtn" Height="45" Click="MenuItemAddForIsntDrawing_Click">
+                <Button Name="UnSelectBtn" Height="45" Click="MenuItemAddForIsntDrawing_Click" ToolTip="Don't visualize variables on stage">
                     <Button.Content>
                         <Image Source="../Images/Unselect_Light.png" Width="32" Height="32" HorizontalAlignment="Left"></Image>
                     </Button.Content>
                 </Button>
-                <Button Name="DeleteBtn"  Height="45" Click="MenuItemDelete_Click">
+                <Button Name="DeleteBtn"  Height="45" Click="MenuItemDelete_Click" ToolTip="Remove variables from stage">
                     <Button.Content>
                         <Image Source="../Images/Delete_Light.png" Width="32" Height="32" HorizontalAlignment="Left"></Image>
                     </Button.Content>
                 </Button>
-                <Button Name="ReloadBtn" Height="45" Click="MenuItemReload_Click">
+                <Button Name="ReloadBtn" Height="45" Click="MenuItemReload_Click" ToolTip="Reload serialize for variables">
                     <Button.Content>
                         <Image Source="../Images/Reload_Light.png" Width="32" Height="32" HorizontalAlignment="Left"></Image>
                     </Button.Content>
                 </Button>
 
-                <Button Name="AddHistoryBtn" Height="45" Click="MenuItemAddHistory_Click">
+                <Button Name="AddHistoryBtn" Height="45" Click="MenuItemAddHistory_Click" ToolTip="Add a variable entry to history">
                     <Button.Content>
                         <Image Source="../Images/AddHistory_Light.png" Width="32" Height="32" HorizontalAlignment="Left"></Image>
                     </Button.Content>
                 </Button>
 
-                <Button Name="UpBtn" Height="45" Click="MenuItemToUp_Click">
+                <Button Name="UpBtn" Height="45" Click="MenuItemToUp_Click" ToolTip="Visualize earlier">
                     <Button.Content>
                         <Image Source="../Images/Up_Light.png" Width="32" Height="32" HorizontalAlignment="Left"></Image>
                     </Button.Content>
                 </Button>
 
-                <Button Name="DownBtn" Height="45" Click="MenuItemToDown_Click">
+                <Button Name="DownBtn" Height="45" Click="MenuItemToDown_Click" ToolTip="Visualize later">
                     <Button.Content>
                         <Image Source="../Images/Down_Light.png" Width="32" Height="32" HorizontalAlignment="Left"></Image>
                     </Button.Content>
                 </Button>
 
-                <Button Name="TopBtn" Height="45" Click="MenuItemToTop_Click">
+                <Button Name="TopBtn" Height="45" Click="MenuItemToTop_Click" ToolTip="Visualize first">
                     <Button.Content>
                         <Image Source="../Images/Top_Light.png" Width="32" Height="32" HorizontalAlignment="Left"></Image>
                     </Button.Content>
                 </Button>
 
-                <Button Name="BottomBtn" Height="45" Click="MenuItemToBottom_Click">
+                <Button Name="BottomBtn" Height="45" Click="MenuItemToBottom_Click" ToolTip="Visualize last">
                     <Button.Content>
                         <Image Source="../Images/Bottom_Light.png" Width="32" Height="32" HorizontalAlignment="Left"></Image>
                     </Button.Content>

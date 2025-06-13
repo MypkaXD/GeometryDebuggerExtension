@@ -288,7 +288,7 @@ namespace GeometryDebugger.UI
             {
                 Variable currentVariable = m_DGV_debugger.GetElementFromExpression(variable.m_S_Name, variable.m_S_Source, variable.m_C_Color, variable.m_B_IsAdded);
 
-                if (currentVariable != null)
+                if (currentVariable != null && variable.m_S_Type == currentVariable.m_S_Type)
                 {
                     currentVariable.m_B_IsAdded = variable.m_B_IsAdded;
                     currentVariable.m_B_IsSelected = variable.m_B_IsSelected;
@@ -298,8 +298,8 @@ namespace GeometryDebugger.UI
                     currentVariable.m_OC_Childrens = variable.m_OC_Childrens;
                     newVariables.Add(currentVariable);
                 }
-                else
-                    MessageBox.Show($"ERROR: Can't get variable {variable.m_S_Name}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                //else
+                //    MessageBox.Show($"ERROR: Can't get variable {variable.m_S_Name}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             return newVariables;
