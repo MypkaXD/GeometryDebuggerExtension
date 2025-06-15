@@ -518,9 +518,9 @@ namespace GeometryDebugger.UI
             if (!m_B_IsSubscribeOnBreakMod) // в случае если мы не подписаны на срабатывание BreakMod'a
             {
                 // создаем GeomView Context
-                m_CH_Host = new ControlHost();
-                if (ControlHostElement.Child == null)
-                    ControlHostElement.Child = m_CH_Host;
+                //m_CH_Host = new ControlHost();
+                //if (ControlHostElement.Child == null)
+                //    ControlHostElement.Child = m_CH_Host;
 
                 SubscribeOnDebugEvents(); // подписываемся на дебаг ивенты
                 m_B_IsSubscribeOnBreakMod = true; // boolева переменная m_B_IsSubscribeOnBreakMod в true (подписаны на дебаг ивенты)
