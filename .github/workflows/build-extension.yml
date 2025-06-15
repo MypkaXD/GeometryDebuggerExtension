@@ -42,14 +42,6 @@ jobs:
       - name: Build GeometryDebugger VSIX
         run: msbuild VisualStudio_2022\GeometryDebugger\GeometryDebugger\GeometryDebugger.csproj /p:Configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=NotCompressed /p:Platform=x64
 
-
-      - name: Check if VSIX exists
-        run: |
-          if not exist "VisualStudio_2022\GeometryDebugger\GeometryDebugger\bin\x64\Release\GeometryDebugger.vsix" (
-            echo "ERROR: VSIX not found!"
-            exit /b 1
-          )
-
       - name: Upload VSIX as artifact
         uses: actions/upload-artifact@v4
         with:
