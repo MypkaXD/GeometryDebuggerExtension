@@ -18,5 +18,3 @@ echo [4/4] Move GLTool in Extension Folder
 move "%INSTALL_DIR%\install\GLTool.dll" "..\VisualStudio_2022\GeometryDebugger\GeometryDebugger\GLTool.dll"
 
 echo Ready!
-
-pause
