@@ -72,6 +72,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: VisualStudio_2022/GeometryDebugger/GeometryDebugger/bin/x64/Release/GeometryDebugger.vsix
+          asset_path: VisualStudio_2022/GeometryDebugger/GeometryDebugger/bin/Release/GeometryDebugger.vsix
           asset_name: GeometryDebugger.vsix
           asset_content_type: application/vsix
