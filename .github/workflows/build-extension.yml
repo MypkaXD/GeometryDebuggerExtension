@@ -23,6 +23,7 @@ jobs:
         with:
             vs-version: "17.0"
             msbuild-architecture: x64
+            
       - name: Build GeomView
         shell: cmd
         run: |
@@ -34,18 +35,6 @@ jobs:
         run: |
           cd .scripts
           call install_gltool.bat
-
-      - name: Update version
-        run: |
-          (Get-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\source.extension.vsixmanifest) |
-            ForEach-Object {$_ -Replace '1.0.0', '1.0.${{ github.run_number }}'} |
-              Set-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\source.extension.vsixmanifest
-          (Get-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\Properties\AssemblyInfo.cs) |
-            ForEach-Object {$_ -Replace '1.0.0', '1.0.${{ github.run_number }}'} |
-              Set-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\Properties\AssemblyInfo.cs
-          (Get-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\Utils\GeometryDebuggerControl.cs) |
-            ForEach-Object {$_ -Replace '1.0.0', '1.0.${{ github.run_number }}'} |
-              Set-Content -Path VisualStudio_2022\GeometryDebugger\GeometryDebugger\Utils\GeometryDebuggerControl.cs
 
       - name: Restore
         run: nuget restore VisualStudio_2022\GeometryDebugger\GeometryDebugger.sln
@@ -72,6 +61,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: VisualStudio_2022/GeometryDebugger/GeometryDebugger/bin/Release/GeometryDebugger.vsix
+          asset_path: VisualStudio_2022/GeometryDebugger/GeometryDebugger/bin/x64/Release/GeometryDebugger.vsix
           asset_name: GeometryDebugger.vsix
           asset_content_type: application/vsix
