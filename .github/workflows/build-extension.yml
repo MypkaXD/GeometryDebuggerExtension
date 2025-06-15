@@ -5,6 +5,7 @@ on:
     branches: ["VisualStudio22"]
     tags:
     - 'v*'
+    - 'VisualStudio2022-v*'
   pull_request:
     branches: ["VisualStudio22"]
 
