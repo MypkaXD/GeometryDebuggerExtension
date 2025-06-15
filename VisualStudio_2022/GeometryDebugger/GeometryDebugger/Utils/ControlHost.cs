@@ -37,21 +37,19 @@ namespace GeometryDebugger.Utils
 
         protected override HandleRef BuildWindowCore(HandleRef hwndParent)
         {
-            //IntPtr hwndControl = createGLtoolWindow(hwndParent.Handle);
-            //m_Hwnd = hwndControl;
-            //return new HandleRef(this, hwndControl);
-            return new HandleRef(null, IntPtr.Zero);
+            IntPtr hwndControl = createGLtoolWindow(hwndParent.Handle);
+            m_Hwnd = hwndControl;
+            return new HandleRef(this, hwndControl);
         }
 
         protected override void DestroyWindowCore(HandleRef hwnd)
         {
-            //DestroyWindow(hwnd.Handle);
-            //destroyGLtoolWindow(m_Hwnd);
+            DestroyWindow(hwnd.Handle);
         }
 
         public void destroyOpenGLWindow()
         {
-            //DestroyWindowCore(new HandleRef(this, m_Hwnd));
+            DestroyWindowCore(new HandleRef(this, m_Hwnd));
         }
 
         public void visibilityGeomView(string path, string globalPath,  bool isVisible)
