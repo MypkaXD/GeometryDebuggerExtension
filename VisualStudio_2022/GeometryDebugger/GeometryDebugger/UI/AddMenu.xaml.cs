@@ -288,7 +288,8 @@ namespace GeometryDebugger.UI
             {
                 Variable currentVariable = m_DGV_debugger.GetElementFromExpression(variable.m_S_Name, variable.m_S_Source, variable.m_C_Color, variable.m_B_IsAdded);
 
-                if (currentVariable != null && variable.m_S_Type == currentVariable.m_S_Type)
+                if (currentVariable != null && variable.m_S_Type == currentVariable.m_S_Type) // проверка, чтобы не добавить ненужные переменные (если у них одинаковые названия, но разные типы)
+                    // такого быть не может. Но вот разные адреса могут быть.
                 {
                     currentVariable.m_B_IsAdded = variable.m_B_IsAdded;
                     currentVariable.m_B_IsSelected = variable.m_B_IsSelected;
