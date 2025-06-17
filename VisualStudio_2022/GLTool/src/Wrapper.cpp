@@ -1,3 +1,5 @@
+#define _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
+
 #include <iostream>
 #include <windows.h>
 #include <winuser.h>
@@ -5,8 +7,6 @@
 #include <iostream>
 #include <windows.h>
 #include <vector>
-
-#define _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
 
 #include "GLtool.h"
 
