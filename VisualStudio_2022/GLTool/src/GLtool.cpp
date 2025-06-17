@@ -29,7 +29,7 @@ bool GLtool::init(HWND _hWndParent)
 	gv.appearance.imgui_object_control = false;*/
 
 	std::mutex reloadlock;
-	reloadlock.unlock();
+	// reloadlock.unlock();
 	reloadlock.lock();
 	reloadlock.unlock();
 
@@ -37,14 +37,14 @@ bool GLtool::init(HWND _hWndParent)
 }
 
 void GLtool::close() {
-	gv.close();
+	// gv.close();
 }
 
 void GLtool::reload(const std::vector<std::pair<std::string, bool>>& files, bool resetCamera) {
 
 	std::setlocale(LC_NUMERIC, "en_US.UTF-8");
 
-	gv.reload(files, resetCamera);
+	// gv.reload(files, resetCamera);
 }
 
 void GLtool::visibilities(std::string path, bool isVisble) {
@@ -53,5 +53,5 @@ void GLtool::visibilities(std::string path, bool isVisble) {
 
 	std::vector<std::pair<std::string, bool>> pairs = { std::make_pair(path, isVisble) };
 
-	gv.visibilities(pairs);
+	// gv.visibilities(pairs);
 }
