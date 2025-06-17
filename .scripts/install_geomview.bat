@@ -8,7 +8,7 @@ call install_zlib.bat
 call install_libpng.bat
 
 set GEOMVIEW_URL=https://github.com/dafadey/geomView/archive/refs/heads/main.zip
-set GEOMVIEW_ZIP=geomView-main.zipAdd commentMore actions
+set GEOMVIEW_ZIP=geomView-main.zip
 set INSTALL_DIR=geomView-main
 
 echo [2/7] Downloading GEOMVIEW...
