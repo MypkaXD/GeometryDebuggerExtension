@@ -36,11 +36,11 @@ jobs:
           cd .scripts
           call install_gltool.bat
 
-      # - name: Restore NuGet packages
-        # run: nuget restore VisualStudio_2022\GeometryDebugger\GeometryDebugger.sln
+      - name: restore nuget packages
+        run: nuget restore visualstudio_2022\geometrydebugger\geometrydebugger.sln
 
-      # - name: Build GeometryDebugger VSIX
-        # run: msbuild VisualStudio_2022\GeometryDebugger\GeometryDebugger\GeometryDebugger.csproj /p:Configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=NotCompressed /p:Platform=x64
+      - name: build geometrydebugger vsix
+        run: msbuild visualstudio_2022\geometrydebugger\geometrydebugger\geometrydebugger.csproj /p:configuration=release /p:deployextension=false /p:zippackagecompressionlevel=notcompressed /p:platform=x64
 
       - name: Upload GLTool.dll
         uses: actions/upload-artifact@v4
