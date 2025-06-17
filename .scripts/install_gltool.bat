@@ -9,7 +9,7 @@ if not exist "%INSTALL_DIR%/build" mkdir "%INSTALL_DIR%/build"
 
 echo [2/4] Configuration CMake
 
-cmake -S "%INSTALL_DIR%" -B "%INSTALL_DIR%/build" -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX="%INSTALL_DIR%/install" -DOUTPUT_DIR="%INSTALL_DIR%/install" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CONFIGURATION_TYPES=RelWithDebInfo -DGEOM_VIEW_CORE_DIR="%cd%/geomView-main/geomView-main/install" -DGLFW_DIR="%cd%/glfw-master/glfw-master/install/include"
+cmake -S "%INSTALL_DIR%" -B "%INSTALL_DIR%/build" -G "Visual Studio 17 2022" -A x64 -DCMAKE_INSTALL_PREFIX="%INSTALL_DIR%/install" -DOUTPUT_DIR="%INSTALL_DIR%/install" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CONFIGURATION_TYPES=RelWithDebInfo -DGEOM_VIEW_CORE_DIR="%cd%/geomView-DebugInitToFile/geomView-DebugInitToFile/install" -DGLFW_DIR="%cd%/glfw-master/glfw-master/install/include"
 
 echo [3/4] Building
 cmake --build "%INSTALL_DIR%/build" --config RelWithDebInfo
