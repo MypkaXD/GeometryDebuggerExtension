@@ -6,6 +6,8 @@
 #include <vector>
 #include "geom_view.h"
 
+#define _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
+
 struct GLFWwindow;
 
 struct __declspec (dllexport) GLtool {
