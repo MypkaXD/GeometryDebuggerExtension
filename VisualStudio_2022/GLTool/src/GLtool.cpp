@@ -16,15 +16,22 @@
 
 #include "GLtool.h"
 
+#include <mutex>
+
 bool GLtool::init(HWND _hWndParent)
 {
 	std::setlocale(LC_NUMERIC, "en_US.UTF-8");
 
-	gv.setParentWin32Handler(_hWndParent);
+	/*gv.setParentWin32Handler(_hWndParent);
 	gv.init("");
 	native = gv.getNativeWin32Handler();
 	gv.appearance.imgui_cam_control = false;
-	gv.appearance.imgui_object_control = false;
+	gv.appearance.imgui_object_control = false;*/
+
+	std::mutex reloadLock;
+	reloadLock.unlock();
+	reloadLock.lock();
+	reloadLock.unlock();
 
 	return true;
 }
