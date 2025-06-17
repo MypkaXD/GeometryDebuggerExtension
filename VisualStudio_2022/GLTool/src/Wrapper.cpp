@@ -25,7 +25,7 @@ DLL_EXPORT void destroyGLtoolWindow(HWND hwnd) {
 DLL_EXPORT HWND createGLtoolWindow(HWND hWndParent = 0)
 {
 	if (!tool)
-		tool = new GLtool;
+		tool = new GLtool();
 	tool->init(hWndParent);
 	return tool->native;
 }

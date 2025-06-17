@@ -21,9 +21,9 @@ if not exist "%INSTALL_DIR%/%INSTALL_DIR%/install" mkdir "%INSTALL_DIR%/%INSTALL
 if not exist "%INSTALL_DIR%/%INSTALL_DIR%/mybuild" mkdir "%INSTALL_DIR%/%INSTALL_DIR%/mybuild"
 
 echo [5/6] Configuration CMake
-cmake -S "%INSTALL_DIR%/%INSTALL_DIR%/build/cmake" -B "%INSTALL_DIR%/%INSTALL_DIR%/mybuild" -G "Visual Studio 17 2022" -A x64 -DBUILD_UTILS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="%INSTALL_DIR%/%INSTALL_DIR%/install" -DGLEW_OSMESA=OFF -DGLEW_REGAL=OFF
+cmake -S "%INSTALL_DIR%/%INSTALL_DIR%/build/cmake" -B "%INSTALL_DIR%/%INSTALL_DIR%/mybuild" -G "Visual Studio 17 2022" -A x64 -DBUILD_UTILS=OFF -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX="%INSTALL_DIR%/%INSTALL_DIR%/install" -DGLEW_OSMESA=OFF -DGLEW_REGAL=OFF
 
 echo [6/6] Building
-cmake --build "%INSTALL_DIR%/%INSTALL_DIR%/mybuild" --config Release --target install
+cmake --build "%INSTALL_DIR%/%INSTALL_DIR%/mybuild" --config Debug --target install
 
 echo Ready! Library in %INSTALL_DIR%/%INSTALL_DIR%/install
