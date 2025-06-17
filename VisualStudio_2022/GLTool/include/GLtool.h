@@ -4,9 +4,9 @@
 #include <thread>
 #include <condition_variable>
 #include <vector>
-#include "geom_view.h"
 
 #define _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
+#include "geom_view.h"
 
 struct GLFWwindow;
 
