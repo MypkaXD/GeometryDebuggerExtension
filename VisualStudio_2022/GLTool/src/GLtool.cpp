@@ -28,10 +28,10 @@ bool GLtool::init(HWND _hWndParent)
 	gv.appearance.imgui_cam_control = false;
 	gv.appearance.imgui_object_control = false;*/
 
-	// std::mutex reloadLock;
-	// reloadLock.unlock();
-	// reloadLock.lock();
-	// reloadLock.unlock();
+	std::mutex reloadlock;
+	reloadlock.unlock();
+	reloadlock.lock();
+	reloadlock.unlock();
 
 	return true;
 }
