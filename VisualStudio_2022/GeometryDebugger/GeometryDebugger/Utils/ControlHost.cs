@@ -44,12 +44,12 @@ namespace GeometryDebugger.Utils
 
         protected override void DestroyWindowCore(HandleRef hwnd)
         {
-            DestroyWindow(hwnd.Handle);
+            //DestroyWindow(hwnd.Handle);
         }
 
         public void destroyOpenGLWindow()
         {
-            DestroyWindowCore(new HandleRef(this, m_Hwnd));
+            //DestroyWindowCore(new HandleRef(this, m_Hwnd));
         }
 
         public void visibilityGeomView(string path, string globalPath,  bool isVisible)
