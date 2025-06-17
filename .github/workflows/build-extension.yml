@@ -42,14 +42,13 @@ jobs:
       # - name: Build GeometryDebugger VSIX
         # run: msbuild VisualStudio_2022\GeometryDebugger\GeometryDebugger\GeometryDebugger.csproj /p:Configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=NotCompressed /p:Platform=x64
 
-      - name: Upload VSIX as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: GLTool.dll
-          path: VisualStudio_2022\GeometryDebugger\GeometryDebugger\GLTool.dll
-          name: GLTool.pdb
-          path: VisualStudio_2022\GeometryDebugger\GeometryDebugger\GLTool.pdb
-
+      - name: Upload VSIX as artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: GLTool-files
+            path: |
+              VisualStudio_2022/GeometryDebugger/GeometryDebugger/GLTool.dll
+              VisualStudio_2022/GeometryDebugger/GeometryDebugger/GLTool.pdb
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         id: create_release
