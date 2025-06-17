@@ -43,14 +43,13 @@ jobs:
         # run: msbuild VisualStudio_2022\GeometryDebugger\GeometryDebugger\GeometryDebugger.csproj /p:Configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=NotCompressed /p:Platform=x64
 
       - name: Upload GLTool.dll
-          uses: actions/upload-artifact@v4
-          with:
+        uses: actions/upload-artifact@v4
+        with:
             name: GLTool.dll
             path: VisualStudio_2022/GeometryDebugger/GeometryDebugger/GLTool.dll
-
-        - name: Upload GLTool.pdb  
-          uses: actions/upload-artifact@v4
-          with:
+      - name: Upload GLTool.pdb  
+        uses: actions/upload-artifact@v4
+        with:
             name: GLTool.pdb
             path: VisualStudio_2022/GeometryDebugger/GeometryDebugger/GLTool.pdb
       - name: Create GitHub Release
