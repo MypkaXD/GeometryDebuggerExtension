@@ -7,9 +7,9 @@ call install_glfw.bat
 call install_zlib.bat
 call install_libpng.bat
 
-set GEOMVIEW_URL=https://github.com/dafadey/geomView/archive/refs/heads/DebugInitToFile.zip
-set GEOMVIEW_ZIP=geomView-DebugInitToFile.zip
-set INSTALL_DIR=geomView-DebugInitToFile
+set GEOMVIEW_URL=https://github.com/dafadey/geomView/archive/refs/heads/main.zip
+set GEOMVIEW_ZIP=geomView-main.zipAdd commentMore actions
+set INSTALL_DIR=geomView-main
 
 echo [2/7] Downloading GEOMVIEW...
 powershell -Command "(New-Object Net.WebClient).DownloadFile('%GEOMVIEW_URL%', '%GEOMVIEW_ZIP%')"
@@ -27,7 +27,7 @@ if not exist "%INSTALL_DIR%/%INSTALL_DIR%/install" mkdir "%INSTALL_DIR%/%INSTALL
 if not exist "%INSTALL_DIR%/%INSTALL_DIR%/build" mkdir "%INSTALL_DIR%/%INSTALL_DIR%/build"
 
 echo [6/7] Configuration CMake
-cmake -S "%INSTALL_DIR%/%INSTALL_DIR%" -B "%INSTALL_DIR%/%INSTALL_DIR%/build" -G "Visual Studio 17 2022" -A x64 -DCMAKE_CONFIGURATION_TYPES="RelWithDebInfo" -DCMAKE_INSTALL_PREFIX="%cd%/%INSTALL_DIR%/%INSTALL_DIR%/install" -DGLEW_DIR="%cd%/glew-2.1.0/glew-2.1.0/install/lib/cmake/glew" -DPNG_INCLUDE_DIR="%cd%/libpng-1.6.47/libpng-1.6.47/myinstall/include" -DPNG_LIBRARY="%cd%/libpng-1.6.47/libpng-1.6.47/myinstall/lib/libpng16_static.lib" -DZLIB_LIBRARY="%cd%/zlib-1.3.1/zlib-1.3.1/install/lib/zlibstatic.lib" -Dglfw3_DIR="%cd%/glfw-master/glfw-master/install/lib/cmake/glfw3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXXFLAGS="/D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"
+cmake -S "%INSTALL_DIR%/%INSTALL_DIR%" -B "%INSTALL_DIR%/%INSTALL_DIR%/build" -G "Visual Studio 17 2022" -A x64 -DCMAKE_CONFIGURATION_TYPES="RelWithDebInfo" -DCMAKE_INSTALL_PREFIX="%cd%/%INSTALL_DIR%/%INSTALL_DIR%/install" -DGLEW_DIR="%cd%/glew-2.1.0/glew-2.1.0/install/lib/cmake/glew" -DPNG_INCLUDE_DIR="%cd%/libpng-1.6.47/libpng-1.6.47/myinstall/include" -DPNG_LIBRARY="%cd%/libpng-1.6.47/libpng-1.6.47/myinstall/lib/libpng16_static.lib" -DZLIB_LIBRARY="%cd%/zlib-1.3.1/zlib-1.3.1/install/lib/zlibstatic.lib" -Dglfw3_DIR="%cd%/glfw-master/glfw-master/install/lib/cmake/glfw3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXXFLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" -DCMAKE_C_FLAGS="-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"
 
 echo [7/7] Building
 cmake --build "%cd%/%INSTALL_DIR%/%INSTALL_DIR%/build" --config RelWithDebInfo --target install
