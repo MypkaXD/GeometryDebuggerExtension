@@ -41,7 +41,11 @@ jobs:
 
       - name: build geometrydebugger vsix
         run: msbuild visualstudio_2022\geometrydebugger\geometrydebugger\geometrydebugger.csproj /p:configuration=release /p:deployextension=false /p:zippackagecompressionlevel=notcompressed /p:platform=x64
-
+      - name: Upload VSIX as artifactAdd commentMore actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: GeometryDebugger.vsix
+          path: VisualStudio_2022\GeometryDebugger\GeometryDebugger\bin\x64\Release\GeometryDebugger.vsix
       - name: Upload GLTool.dll
         uses: actions/upload-artifact@v4
         with:
