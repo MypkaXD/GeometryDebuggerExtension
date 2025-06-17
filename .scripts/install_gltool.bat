@@ -16,6 +16,7 @@ cmake --build "%INSTALL_DIR%/build" --config Debug
 
 echo [4/4] Move GLTool in Extension Folder
 move "%INSTALL_DIR%\install\GLTool.dll" "..\VisualStudio_2022\GeometryDebugger\GeometryDebugger\GLTool.dll"
+move "%INSTALL_DIR%\install\GLTool.pdb" "..\VisualStudio_2022\GeometryDebugger\GeometryDebugger\GLTool.pdb"
 
 echo Ready!
 
