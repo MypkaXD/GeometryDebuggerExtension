@@ -14,6 +14,8 @@
 #define GLFW_NATIVE_INCLUDE_NONE
 #include <GLFW/glfw3native.h>
 
+#define _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
+
 #include "GLtool.h"
 
 #include <mutex>

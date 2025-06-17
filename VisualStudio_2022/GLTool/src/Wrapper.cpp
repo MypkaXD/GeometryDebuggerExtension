@@ -6,6 +6,8 @@
 #include <windows.h>
 #include <vector>
 
+#define _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
+
 #include "GLtool.h"
 
 #define DLL_EXPORT extern "C" __declspec(dllexport)
