@@ -21,7 +21,7 @@ bool GLtool::init(HWND _hWndParent)
 	std::setlocale(LC_NUMERIC, "en_US.UTF-8");
 
 	gv.setParentWin32Handler(_hWndParent);
-	gv.init();
+	gv.init("");
 	native = gv.getNativeWin32Handler();
 	gv.appearance.imgui_cam_control = false;
 	gv.appearance.imgui_object_control = false;
