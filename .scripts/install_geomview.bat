@@ -7,9 +7,9 @@ REM call install_glfw.bat
 REM call install_zlib.bat
 REM call install_libpng.bat
 
-set GEOMVIEW_URL=https://github.com/dafadey/geomView/archive/refs/heads/DebugInitToFile.zip
-set GEOMVIEW_ZIP=geomView-DebugInitToFile.zip
-set INSTALL_DIR=geomView-DebugInitToFile
+set GEOMVIEW_URL=https://github.com/dafadey/geomView/archive/refs/heads/main.zip
+set GEOMVIEW_ZIP=geomView-main.zip
+set INSTALL_DIR=geomView-main
 
 echo [2/7] Downloading GEOMVIEW...
 powershell -Command "(New-Object Net.WebClient).DownloadFile('%GEOMVIEW_URL%', '%GEOMVIEW_ZIP%')"

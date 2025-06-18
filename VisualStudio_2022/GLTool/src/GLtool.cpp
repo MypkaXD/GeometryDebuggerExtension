@@ -30,6 +30,12 @@ bool GLtool::init(HWND _hWndParent)
 	// gv.appearance.imgui_cam_control = false;
 	// gv.appearance.imgui_object_control = false;
 
+#ifdef _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
+	std::ofstream file("geom_view.txt", std::ios_base::app);
+	file << "_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR \n";
+	file.close();
+#endif
+
 	std::mutex reloadlock;
 	reloadlock.unlock();
 	reloadlock.lock();
