@@ -24,16 +24,16 @@ bool GLtool::init(HWND _hWndParent)
 {
 	std::setlocale(LC_NUMERIC, "en_US.UTF-8");
 
-	gv.setParentWin32Handler(_hWndParent);
-	gv.init("");
-	native = gv.getNativeWin32Handler();
-	gv.appearance.imgui_cam_control = false;
-	gv.appearance.imgui_object_control = false;
+	// gv.setParentWin32Handler(_hWndParent);
+	// gv.init("");
+	// native = gv.getNativeWin32Handler();
+	// gv.appearance.imgui_cam_control = false;
+	// gv.appearance.imgui_object_control = false;
 
-	/*std::mutex reloadlock;
+	std::mutex reloadlock;
 	reloadlock.unlock();
 	reloadlock.lock();
-	reloadlock.unlock();*/
+	reloadlock.unlock();
 
 	return true;
 }
