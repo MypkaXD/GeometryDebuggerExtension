@@ -1,11 +1,11 @@
 @echo off
 :: Download and build GeomView
 
-REM echo [1/7] Build dependency libraries...
-REM call install_glew.bat
-REM call install_glfw.bat
-REM call install_zlib.bat
-REM call install_libpng.bat
+echo [1/7] Build dependency libraries...
+call install_glew.bat
+call install_glfw.bat
+call install_zlib.bat
+call install_libpng.bat
 
 set GEOMVIEW_URL=https://github.com/dafadey/geomView/archive/refs/heads/main.zip
 set GEOMVIEW_ZIP=geomView-main.zip
