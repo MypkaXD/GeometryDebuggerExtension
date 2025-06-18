@@ -1,7 +1,5 @@
 #pragma once
 
-#define _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
-
 #include <iostream>
 #include <windows.h>
 #include <thread>
