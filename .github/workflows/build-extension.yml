@@ -48,12 +48,24 @@ jobs:
           name: GLTool
           path: VisualStudio_2022/GLTool/myinstall_files/
       
-      - name: Create ZIP for GLTool (чтобы загрузить папку в релиз)
+      - name: Create ZIP for GLTool
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           cd VisualStudio_2022/GLTool/myinstall_files/
           zip -r ../../GLTool_myinstall_files.zip ./
-      
+          
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        id: create_releaseAdd commentMore actions
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          
       - name: Upload VSIX to Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1
