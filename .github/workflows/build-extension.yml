@@ -24,50 +24,36 @@ jobs:
           vs-version: "17.0"
           msbuild-architecture: amd64
 
-      - name: Build GeomView
+      - name: Build dependencies
         shell: cmd
         run: |
           cd .scripts
-          call install_geomview.bat
-
-      - name: Build GLTool
-        shell: cmd
-        run: |
-          cd .scripts
-          call install_gltool.bat
+          call build_main.bat
 
       - name: restore nuget packages
         run: nuget restore visualstudio_2022\geometrydebugger\geometrydebugger.sln
 
       - name: build geometrydebugger vsix
         run: msbuild visualstudio_2022\geometrydebugger\geometrydebugger\geometrydebugger.csproj /p:configuration=release /p:deployextension=false /p:zippackagecompressionlevel=notcompressed /p:platform=x64
-      - name: Upload VSIX as artifactAdd commentMore actions
+        
+      - name: Upload VSIX as artifact
         uses: actions/upload-artifact@v4
         with:
           name: GeometryDebugger.vsix
-          path: VisualStudio_2022\GeometryDebugger\GeometryDebugger\bin\x64\Release\GeometryDebugger.vsix
-      - name: Upload GLTool.dll
+          path: VisualStudio_2022/GeometryDebugger/GeometryDebugger/bin/x64/Release/GeometryDebugger.vsix
+      
+      - name: Upload GLTool as artifact
         uses: actions/upload-artifact@v4
         with:
-            name: GLTool.dll
-            path: VisualStudio_2022/GeometryDebugger/GeometryDebugger/GLTool.dll
-      - name: Upload GLTool.pdb  
-        uses: actions/upload-artifact@v4
-        with:
-            name: GLTool.pdb
-            path: VisualStudio_2022/GeometryDebugger/GeometryDebugger/GLTool.pdb
-      - name: Create GitHub Release
+          name: GLTool
+          path: VisualStudio_2022/GLTool/myinstall_files/
+      
+      - name: Create ZIP for GLTool (чтобы загрузить папку в релиз)
         if: startsWith(github.ref, 'refs/tags/')
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-
+        run: |
+          cd VisualStudio_2022/GLTool/myinstall_files/
+          zip -r ../../GLTool_myinstall_files.zip ./
+      
       - name: Upload VSIX to Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1
@@ -78,3 +64,14 @@ jobs:
           asset_path: VisualStudio_2022/GeometryDebugger/GeometryDebugger/bin/x64/Release/GeometryDebugger.vsix
           asset_name: GeometryDebugger.vsix
           asset_content_type: application/vsix
+      
+      - name: Upload GLTool ZIP to Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: VisualStudio_2022/GLTool_myinstall_files.zip
+          asset_name: GLTool_myinstall_files.zip
+          asset_content_type: application/zip
