@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:GeometryDebugger.Utils"
              xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              mc:Ignorable="d" 
-             d:DesignHeight="800" d:DesignWidth="600">
+             d:DesignHeight="800" d:DesignWidth="600" MaxHeight="600">
 
     <UserControl.Resources>
 
