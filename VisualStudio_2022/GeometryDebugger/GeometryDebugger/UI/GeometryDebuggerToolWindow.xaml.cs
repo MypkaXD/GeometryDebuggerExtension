@@ -518,7 +518,7 @@ namespace GeometryDebugger.UI
             if (!m_B_IsSubscribeOnBreakMod) // в случае если мы не подписаны на срабатывание BreakMod'a
             {
                 // создаем GeomView Context
-                m_CH_Host = new ControlHost();
+                m_CH_Host = new ControlHost(this);
                 if (ControlHostElement.Child == null)
                     ControlHostElement.Child = m_CH_Host;
 
@@ -1181,6 +1181,44 @@ namespace GeometryDebugger.UI
 
                 //contextMenu.
 
+            }
+        }
+
+        private void dgObjects_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            List<Tuple<String, bool>> variables_paths = new List<Tuple<string, bool>>();
+
+            Dictionary<String, bool> temp_variables_paths = new Dictionary<String, bool>();
+
+            foreach (var item in m_OBOV_Variables)
+            {
+                String current_file_path = Util.getPathOfVariable(m_S_GlobalPath + "\\\\" + m_S_PathForFile, item) + ".txt";
+                temp_variables_paths[current_file_path] = false;
+            }
+
+            if (dgObjects.SelectedItems.Count == 0)
+                return;
+
+            var selected_items = dgObjects.SelectedItems;
+
+            foreach (var item in selected_items)
+            {
+                if (item is Variable)
+                {
+                    Variable variable = (Variable)item;
+
+                    if (variable.m_B_IsSelected && variable.m_B_IsSerialized)
+                    {
+                        String current_file_path = Util.getPathOfVariable(m_S_GlobalPath + "\\\\" + m_S_PathForFile, variable) + ".txt";
+                        temp_variables_paths[current_file_path] = true;
+                    }
+                }
+            }
+
+            foreach (var pair in temp_variables_paths)
+            {
+                //System.Diagnostics.Debug.WriteLine(pair);
+                m_CH_Host.highlightGeomView(new List<Tuple<string, bool>>() {Tuple.Create(pair.Key, pair.Value) });
             }
         }
     }

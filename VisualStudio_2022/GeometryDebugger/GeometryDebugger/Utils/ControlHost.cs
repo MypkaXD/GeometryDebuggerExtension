@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
+using static GeometryDebugger.Utils.ControlHost;
 
 namespace GeometryDebugger.Utils
 {
@@ -14,31 +16,84 @@ namespace GeometryDebugger.Utils
     }
     public class ControlHost : HwndHost
     {
-        [DllImport("GLtool.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern IntPtr createGLtoolWindow(IntPtr hWndParent = default(IntPtr));
 
-        [DllImport("GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        public delegate void CallbackDelegate(StringArrayData data);
+        private CallbackDelegate _callback;
+
+        [DllImport("GLTool.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        public static extern IntPtr createGLtoolWindow(CallbackDelegate callback, IntPtr hWndParent = default(IntPtr));
+
+        [DllImport("GLTool.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void destroyGLtoolWindow(IntPtr hwnd);
 
-        [DllImport("GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("GLTool.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void reload(ref StringArrayData data, bool resetCamera);
 
-        [DllImport("GLtool.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("GLTool.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void visibilities(ref StringArrayData data);
+
+        [DllImport("GLTool.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void highlight(ref StringArrayData data);
+
         [DllImport("user32.dll", EntryPoint = "DestroyWindow", CharSet = CharSet.Unicode)]
         internal static extern bool DestroyWindow(IntPtr hwnd);
+
+        GeometryDebugger.UI.GeometryDebuggerToolWindow window = null;
+
+        // Callback метод
+        public void MyCallBack(StringArrayData data)
+        {
+            IntPtr stringPtr = Marshal.ReadIntPtr(data.StringArray, 0);
+            string str = Marshal.PtrToStringAnsi(stringPtr);
+            int depth_of_selected_variable = -1;
+            int index_of_selected_variable = -1;
+
+            if (window != null)
+            {
+                string name_of_selected_variable = str.Substring(str.IndexOf("vis_dbg_") + "vis_dbg_".Length, str.LastIndexOf("_depth") - str.IndexOf("vis_dbg_") - "vis_dbg_".Length);
+
+                for (int j = 0; j < window.m_OBOV_Variables.Count; ++j)
+                {
+                    string current_string = Util.getPathOfVariable("", window.m_OBOV_Variables[j]);
+                    string name_of_variable = current_string.Substring(0, current_string.LastIndexOf("_depth"));
+
+                    if (name_of_variable == name_of_selected_variable)
+                    {
+                        depth_of_selected_variable = System.Convert.ToInt32(current_string.Substring(current_string.LastIndexOf("_depth") + "_depth".Length, current_string.Length - current_string.LastIndexOf("_depth") - "_depth".Length));
+                        index_of_selected_variable = j;
+                        break;
+                    }
+                }
+            }
+
+            if (depth_of_selected_variable != -1 && index_of_selected_variable != -1)
+            {
+                if (window != null)
+                {
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        this.window.dgObjects.SelectedIndex = index_of_selected_variable;
+                    });
+                }
+            }
+
+        }
 
 
         private IntPtr m_Hwnd = IntPtr.Zero;
 
-        public ControlHost()
+        public ControlHost(GeometryDebugger.UI.GeometryDebuggerToolWindow window)
         {
+            this.window = window;
         }
 
         protected override HandleRef BuildWindowCore(HandleRef hwndParent)
         {
-            IntPtr hwndControl = createGLtoolWindow(hwndParent.Handle);
+            _callback = MyCallBack;
+            IntPtr hwndControl = createGLtoolWindow(_callback, hwndParent.Handle);
             m_Hwnd = hwndControl;
+
             return new HandleRef(this, hwndControl);
         }
 
@@ -80,7 +135,6 @@ namespace GeometryDebugger.Utils
 
         public void reloadGeomView(List<Tuple<string, bool>> files, string globalPath, bool isResetCamera = false)
         {
-            // Создаем массив указателей на строки
             IntPtr[] stringPtrs = new IntPtr[files.Count];
             bool[] bools = new bool[files.Count];
 
@@ -90,7 +144,6 @@ namespace GeometryDebugger.Utils
                 bools[i] = files[i].Item2;
             }
 
-            // Создаем и заполняем структуру
             StringArrayData data = new StringArrayData
             {
                 Count = files.Count,
@@ -98,10 +151,34 @@ namespace GeometryDebugger.Utils
                 BoolArray = Marshal.UnsafeAddrOfPinnedArrayElement(bools, 0)
             };
 
-            // Передаем структуру в C++
             reload(ref data, isResetCamera);
 
-            // Освобождаем память
+            foreach (IntPtr ptr in stringPtrs)
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
+        }
+
+        public void highlightGeomView(List<Tuple<String, bool>> files)
+        {
+            IntPtr[] stringPtrs = new IntPtr[files.Count];
+            bool[] bools = new bool[files.Count];
+
+            for (int i = 0; i < files.Count; i++)
+            {
+                stringPtrs[i] = Marshal.StringToHGlobalAnsi(files[i].Item1);
+                bools[i] = files[i].Item2;
+            }
+
+            StringArrayData data = new StringArrayData
+            {
+                Count = files.Count,
+                StringArray = Marshal.UnsafeAddrOfPinnedArrayElement(stringPtrs, 0),
+                BoolArray = Marshal.UnsafeAddrOfPinnedArrayElement(bools, 0)
+            };
+
+            highlight(ref data);
+
             foreach (IntPtr ptr in stringPtrs)
             {
                 Marshal.FreeHGlobal(ptr);

@@ -47,12 +47,6 @@ jobs:
         with:
           name: GLTool
           path: VisualStudio_2022/GLTool/myinstall_files/
-      
-      - name: Create ZIP for GLTool
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          cd VisualStudio_2022/GLTool/myinstall_files/
-          zip -r ../../GLTool_myinstall_files.zip ./
           
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -76,14 +70,3 @@ jobs:
           asset_path: VisualStudio_2022/GeometryDebugger/GeometryDebugger/bin/x64/Release/GeometryDebugger.vsix
           asset_name: GeometryDebugger.vsix
           asset_content_type: application/vsix
-      
-      - name: Upload GLTool ZIP to Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: VisualStudio_2022/GLTool_myinstall_files.zip
-          asset_name: GLTool_myinstall_files.zip
-          asset_content_type: application/zip
