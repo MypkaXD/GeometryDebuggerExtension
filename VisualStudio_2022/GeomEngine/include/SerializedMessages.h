@@ -40,7 +40,7 @@ std::string serialize(Vector* value, std::string variableName, float r, float g,
 
 	std::string data = "";
 
-	data += "lines: " + variableName + ".lines\n";
+	data += "vectors: " + variableName + ".lines\n";
 
 	data += "(" + std::to_string(value->getVector().first.getX()) + "," +
 		std::to_string(value->getVector().first.getY()) + "," +
@@ -58,23 +58,12 @@ std::string serialize(Edge* value, std::string variableName, float r, float g, f
 	std::string data = "";
 
 	std::pair<double, double> params = value->getParams();
-	std::vector<Point> points;
+	Point start_point = value->getPoint(params.first);
+	Point end_point = value->getPoint(params.second);
 
-	int count = 50;
-	double step = (params.second - params.first) / count;
+	Vector line = Vector(start_point, end_point);
 
-	for (int i = 0; i < count; ++i) {
-
-		Point point = value->getPoint(params.first + step * i);
-		points.push_back(point);
-
-		data += serialize(&point, variableName + std::to_string(i), r, g, b);
-	}
-
-	for (int i = 0; i < points.size() - 1; ++i) {
-		Vector vector = Vector(points[i], points[i + 1]);
-		data += serialize(&vector, "vector." + std::to_string(i), r, g, b);
-	}
+	data += serialize(&line, variableName + "line", r, g, b);
 
 	return data + "\n";
 }
@@ -93,7 +82,7 @@ std::string serialize(std::vector<Edge>* value, std::string variableName, float 
 	std::string data = "";
 
 	for (int i = 0; i < value->size(); ++i) {
-		data += serialize(&(*value)[i], variableName + std::to_string(i), r, g, b);
+		data += serialize(&((*value)[i]), variableName + std::to_string(i), r, g, b);
 	}
 
 	return data + "\n";
@@ -104,7 +93,19 @@ std::string serialize(std::vector<Edge*>* value, std::string variableName, float
 	std::string data = "";
 
 	for (int i = 0; i < value->size(); ++i) {
-		data += serialize(&(*value)[i], variableName + std::to_string(i), r, g, b);
+		data += serialize(&((*value)[i]), variableName + std::to_string(i), r, g, b);
+	}
+
+	return data + "\n";
+}
+
+std::string serialize(std::array<Edge*, 2>* value, std::string variableName, float r, float g, float b) {
+
+	std::string data = "";
+
+	for (int i = 0; i < value->size(); ++i) {
+		if ((*value)[i] != nullptr)
+			data += serialize(&((*value)[i]), variableName + std::to_string(i), r, g, b);
 	}
 
 	return data + "\n";
@@ -236,8 +237,8 @@ std::string serialize(BoundingBox* value, std::string variableName, float r, flo
 
 	data += "lines: \n";
 
-	Point startPoint = Point(value->m_x_min, value->m_y_min, 0);
-	Point endPoint = Point(value->m_x_min + value->m_width, value->m_y_min + value->m_height, 0);
+	Point startPoint = value->m_start_point;
+	Point endPoint = value->m_end_point;
 
 	data += "(" + std::to_string(startPoint.getX()) + "," + std::to_string(startPoint.getY()) + "," + std::to_string(startPoint.getZ()) + ")";
 	data += "(" + std::to_string(startPoint.getX()) + "," + std::to_string(startPoint.getY() + value->m_height) + "," + std::to_string(startPoint.getZ()) + ")";
@@ -259,25 +260,42 @@ std::string serialize(BoundingBox* value, std::string variableName, float r, flo
 	return data += "\n";
 }
 
-//std::string serialize(Plate* value, std::string variableName, float r, float g, float b) {
-//
-//	std::string data = "";
-//
-//	data += "lines: \n";
-//
-//	data += "triangles: " + variableName + "\n";
-//	
-//	for (int i = 0; i < value->get_points().size() - 2; i += 1) {
-//
-//		data += "(" + std::to_string(value->get_points()[0].getX()) + "," + std::to_string(value->get_points()[0].getY()) + "," + std::to_string(value->get_points()[0].getZ()) + ")";
-//		data += "(" + std::to_string(value->get_points()[i + 1].getX()) + "," + std::to_string(value->get_points()[i + 1].getY()) + "," + std::to_string(value->get_points()[i + 1].getZ()) + ")";
-//		data += "(" + std::to_string(value->get_points()[i + 2].getX()) + "," + std::to_string(value->get_points()[i + 2].getY()) + "," + std::to_string(value->get_points()[i + 2].getZ()) + ")";
-//		data += "(" + std::to_string(r) + "," + std::to_string(g) + "," + std::to_string(b) + ")\n";
-//
-//	}
-//
-//	return data += "\n";
-//}
+std::string serialize(Plate* value, std::string variableName, float r, float g, float b) {
+
+	std::string data = "";
+
+	for (int j = 0; j < value->get_points().size(); ++j) {
+
+		std::cout << "size of " << j << value->get_points()[j].size() << std::endl;
+
+		if (value->get_points()[j].size() >= 2) {
+
+			data += "triangles: " + variableName + std::to_string(j) + "\n";
+
+			for (int i = 0; i < value->get_points()[j].size() - 2; i += 1) {
+
+				data += "(" + std::to_string(value->get_points()[j][0].getX()) + "," + std::to_string(value->get_points()[j][0].getY()) + "," + std::to_string(value->get_points()[j][0].getZ()) + ")";
+				data += "(" + std::to_string(value->get_points()[j][i + 1].getX()) + "," + std::to_string(value->get_points()[j][i + 1].getY()) + "," + std::to_string(value->get_points()[j][i + 1].getZ()) + ")";
+				data += "(" + std::to_string(value->get_points()[j][i + 2].getX()) + "," + std::to_string(value->get_points()[j][i + 2].getY()) + "," + std::to_string(value->get_points()[j][i + 2].getZ()) + ")";
+				data += "(" + std::to_string(r) + "," + std::to_string(g) + "," + std::to_string(b) + ")\n";
+
+			}
+		}
+	}
+
+	return data + "\n";
+}
+
+std::string serialize(std::vector<Plate>* value, std::string variableName, float r, float g, float b) {
+
+	std::string data = "";
+	
+	for (int i = 0; i < value->size(); ++i) {
+		data += serialize(&(*value)[i], variableName + "_" + std::to_string(i), r, g, b);
+	}
+
+	return data + "\n";
+}
 
 //
 //std::string serialize(Sphere* value, std::string variableName, float r, float g, float b) {

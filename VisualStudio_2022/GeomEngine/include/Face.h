@@ -4,6 +4,7 @@
 
 #include <tuple>
 #include <vector>
+#include <array>
 
 #include "Point.h"
 #include "Edge.h"
@@ -11,46 +12,43 @@
 #ifndef FACE_H
 #define FACE_H
 
-#ifndef NOMINMAX
-#ifndef max
-#define max(a,b) ((a)>(b)?(a):(b))
-#endif
-#ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
-#endif
-#endif
+extern float eps;
 
 struct BoundingBox {
 
-	float m_x_min;
-	float m_y_min;
+	Point m_start_point = Point(0,0,0);
+	Point m_end_point = Point(0,0,0);
 
-	float m_height;
-	float m_width;
+	float m_width = 0;
+	float m_height = 0;
 
-	BoundingBox(){}
+	BoundingBox() {}
 
-	BoundingBox(float x_min, float y_min, float height, float width) :
-		m_x_min(x_min), m_y_min(y_min), m_height(height), m_width(width)
+	BoundingBox(Point start_point, float height, float width) :
+		m_start_point(start_point), m_height(height), m_width(width)
 	{
+		m_end_point = start_point + Point(width, height, 0);
 	}
 
-	BoundingBox(Point start_point, Point end_point) {
+	BoundingBox(Point start_point, Point end_point)
+	{
+		float x_min = (std::min)(start_point.getX(), end_point.getX());
+		float y_min = (std::min)(start_point.getY(), end_point.getY());
 
-		m_x_min = min(start_point.getX(), end_point.getX());
-		m_y_min = min(start_point.getY(), end_point.getY());
+		float x_max = (std::max)(start_point.getX(), end_point.getX());
+		float y_max = (std::max)(start_point.getY(), end_point.getY());
 
-		float m_x_max = max(start_point.getX(), end_point.getX());
-		float m_y_max = max(start_point.getY(), end_point.getY());
+		m_start_point = Point(x_min, y_min, 0);
+		m_end_point = Point(x_max, y_max, 0);
 
-		m_width = m_x_max - m_x_min;
-		m_height = m_y_max - m_y_min;
+		m_width = std::abs(end_point.getX() - start_point.getX());
+		m_height = std::abs(end_point.getY() - start_point.getY());
 	}
 
 	bool is_point_inside(const Point& point) {
 
-		if ((point.getX() >= m_x_min && point.getX() <= m_x_min + m_width) &&
-			(point.getY() >= m_y_min && point.getY() <= m_y_min + m_height))
+		if ((point.getX() >= m_start_point.getX() - eps && point.getX() <= m_end_point.getX() + eps) &&
+			(point.getY() >= m_start_point.getY() - eps && point.getY() <= m_end_point.getY() + eps))
 			return true;
 		else
 			return false;
@@ -70,20 +68,160 @@ bool is_point_on_line(std::tuple<float, float, float> line_coefs, Point point);
 
 std::vector<std::pair<float, float>> get_cut_of_plate(BoundingBox box, std::vector<Point> intersections_points);
 
-std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox box, std::vector<Edge> edges, std::ofstream& file);
+std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox box, std::vector<Edge*> edges);
 
 
 class Plate {
-	
+
 	std::vector<std::vector<Point>> m_points;
 
 public:
 
 	Plate(std::vector<std::vector<Point>> points) :m_points(points) {}
-	Plate(){}
+	Plate() {}
 
 	const std::vector<std::vector<Point>>& get_points() {
 		return m_points;
+	}
+};
+
+
+struct Node {
+
+	size_t m_counter = 0;;
+	std::array<Node*, 4> m_childrens;
+	Node* m_parent;
+	bool m_is_list = false;
+
+	BoundingBox m_box;
+	std::array<Edge*, 2> m_edges;
+
+	Node() {
+		m_parent = nullptr;
+
+		for (int i = 0; i < m_childrens.size(); ++i)
+			m_childrens[i] = nullptr;
+	}
+
+	~Node() {
+		for (int i = 0; i < m_childrens.size(); ++i)
+			delete m_childrens[i];
+	}
+
+	Node* get_list() {
+
+		for (int i = 0; i < m_childrens.size(); ++i) {
+			if (m_childrens[i] != nullptr) {
+				if (m_childrens[i]->m_is_list)
+					return m_childrens[i];
+				else
+					return m_childrens[i]->get_list();
+			}
+		}
+
+		return nullptr;
+	}
+};
+
+class Tree {
+private:
+
+
+public:
+	Node* m_root;
+
+	int m_max_count_of_edge_in_box = 2;
+
+	Tree(BoundingBox& box, std::vector<Edge*> edges) {
+
+		m_root = new Node();
+		create_tree(box, edges, m_root);
+
+	}
+
+
+	~Tree() {
+		delete m_root;
+	}
+
+	void create_tree(BoundingBox& box, const std::vector<Edge*>& edges, Node* current_node) {
+
+		if (current_node == nullptr || edges.empty()) {
+			return;
+		}
+
+		std::vector<Edge*> edges_in_box;
+		const int sample_points = 10;
+
+		for (int i = 0; i < edges.size(); ++i) {
+			if (edges[i] == nullptr) 
+				continue;
+
+			float t_start = edges[i]->getParams().first;
+			float t_end = edges[i]->getParams().second;
+			float step = (t_end - t_start) / sample_points;
+
+			for (int j = 0; j <= sample_points; ++j) {
+				
+				Point current_point = edges[i]->getPoint(t_start + j * step);
+				if (box.is_point_inside(current_point)) {
+					edges_in_box.push_back(edges[i]);
+					break;
+				}
+
+			}
+		}
+
+		if (edges_in_box.size() > m_max_count_of_edge_in_box) {
+
+			const Point half_size(box.m_width / 2, box.m_height / 2, 0);
+
+			BoundingBox child_boxes[4] = {
+				{box.m_start_point, box.m_start_point + half_size},
+				{box.m_start_point + Point(0, half_size.getY(), 0), box.m_start_point + Point(half_size.getX(), box.m_height, 0)},
+				{box.m_start_point + half_size, box.m_end_point},
+				{box.m_start_point + Point(half_size.getX(), 0, 0), box.m_start_point + Point(box.m_width, half_size.getY(), 0)}
+			};
+
+			for (int i = 0; i < 4; ++i) {
+				current_node->m_childrens[i] = new Node();
+				current_node->m_childrens[i]->m_box = child_boxes[i];
+				current_node->m_childrens[i]->m_parent = current_node;
+				create_tree(child_boxes[i], edges_in_box, current_node->m_childrens[i]);
+			}
+		}
+		else {
+
+			current_node->m_box = box;
+			current_node->m_is_list = true;
+
+			if (edges_in_box.size() == 2 && edges_in_box[0] && edges_in_box[1]) {
+				Point dir1 = edges_in_box[0]->getPoint(edges_in_box[0]->getParams().second) - edges_in_box[0]->getPoint(edges_in_box[0]->getParams().first);
+				Point dir2 = edges_in_box[1]->getPoint(edges_in_box[1]->getParams().second) - edges_in_box[1]->getPoint(edges_in_box[1]->getParams().first);
+				Point cross = dir1 & dir2;
+
+				if (cross.getZ() > 0) {
+					std::swap(edges_in_box[0], edges_in_box[1]);
+				}
+			}
+
+			current_node->m_edges = {};
+
+			for (size_t i = 0; i < edges_in_box.size() && i < current_node->m_edges.size(); ++i) {
+				current_node->m_edges[i] = edges_in_box[i];
+			}
+		}
+	}
+
+	bool is_find_list(std::array<Node*, 4>& childres) {
+		
+		for (int i = 0; i < childres.size(); ++i) {
+			if (childres[i] != nullptr)
+				if (childres[i]->m_is_list)
+					return true;
+		}
+
+		return false;
 	}
 };
 

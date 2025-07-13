@@ -1,10 +1,8 @@
-#pragma once
-
 #include <iostream>
 #include <windows.h>
 #include <string>
-#include <memory>
 #include <vector>
+#include <array>
 #include <typeinfo>
 #include <fstream>
 #include <direct.h>
@@ -17,7 +15,8 @@ std::string buffer = "";
 std::string response = "";
 std::string directory = "";
 
-class Variable {
+class Variable
+{
 public:
 
 	std::string m_S_Addres;
@@ -32,11 +31,12 @@ public:
 	Variable(std::string name, std::string type,
 		std::string addres, std::string source, float r, float g, float b, std::string index) :
 		m_S_Name(name), m_S_Type(type), m_S_Addres(addres), m_S_Source(source),
-		m_I_R(r), m_I_G(g), m_I_B(b), m_S_index(index)
-	{
+		m_I_R(r), m_I_G(g), m_I_B(b), m_S_index(index) {
 	}
 };
-enum statesOfGettingVariables {
+
+enum statesOfGettingVariables
+{
 	GET_NAME,
 	GET_TYPE,
 	GET_ADDRES,
@@ -45,10 +45,11 @@ enum statesOfGettingVariables {
 	GET_INDEX
 };
 
-statesOfGettingVariables states = statesOfGettingVariables::GET_NAME;
+statesOfGettingVariables states = GET_NAME;
 std::vector<Variable> m_VOV_Variables;
 
-void readMemoryMappedFile() {
+void readMemoryMappedFile()
+{
 	HANDLE handle;
 	char* ptr = nullptr;
 	int msgSize = 0;
@@ -93,8 +94,15 @@ void tokenize(std::string& string) {
 
 	for (int i = 0; i < remove_strings.size(); ++i) {
 		while (string.find(" " + remove_strings[i] + " ") != std::string::npos) {
+			//while (string.find(remove_strings[i]) != std::string::npos) {
 			size_t pos = string.find(" " + remove_strings[i] + " ");
 			size_t offset = std::string(" " + remove_strings[i] + " ").size();
+			string.erase(pos, offset);
+		}
+		while (string.find(" " + remove_strings[i]) != std::string::npos) {
+			//while (string.find(remove_strings[i]) != std::string::npos) {
+			size_t pos = string.find(" " + remove_strings[i]);
+			size_t offset = std::string(" " + remove_strings[i]).size();
 			string.erase(pos, offset);
 		}
 		while (true) {
@@ -301,7 +309,8 @@ std::string SerializeObjects(const std::vector<Variable>& objects) {
 		isSerialized |= RegisterType<Edge*>(object);
 		isSerialized |= RegisterType<Vector>(object);
 		isSerialized |= RegisterType<CustomPlane>(object);
-		isSerialized |= RegisterType<Plane>(object);
+		isSerialized |= RegisterType<Plate>(object);
+		isSerialized |= RegisterType<std::vector<Plate>>(object);
 		//isSerialized |= RegisterType<Sphere>(object);
 		//isSerialized |= RegisterType<Cylinder>(object);
 		//isSerialized |= RegisterType<Face>(object);
@@ -309,15 +318,17 @@ std::string SerializeObjects(const std::vector<Variable>& objects) {
 		isSerialized |= RegisterType<std::vector<Edge*>>(object);
 		isSerialized |= RegisterType<std::vector<Point>>(object);
 		isSerialized |= RegisterType<BoundingBox>(object);
+		isSerialized |= RegisterType<std::array<Edge*, 2>>(object);
 		//isSerialized |= RegisterType<Plate>(object);
 		//isSerialized |= RegisterType<QuadTree>(object);
 		//isSerialized |= RegisterType<Node>(object);
 		//isSerialized |= RegisterType<BoundingBox>(object);
+
+		serializingVariables += isSerialized ? "1" : "0";
 	}
 
 	return serializingVariables;
 }
-
 
 std::string Serialize(int time_created) {
 
