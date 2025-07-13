@@ -53,7 +53,7 @@ bool is_point_on_line(std::tuple<float, float, float> line_coefs, Point point) {
 
 }
 
-bool is_to_next_intersection_point(Point vec_of_box, Point vec_of_edge) {
+bool is_enter_point(Point vec_of_box, Point vec_of_edge) {
 	if (((vec_of_box.getX() * vec_of_edge.getY()) - (vec_of_box.getY() * vec_of_edge.getX())) > 0)
 		return false;
 	else
@@ -113,6 +113,7 @@ std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox 
 		std::vector<bool> is_enter;
 		std::vector<bool> is_exit;
 		std::vector<bool> is_intersection;
+		std::vector<int> attachments;
 	
 		int start_index = 0;
 
@@ -128,6 +129,7 @@ std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox 
 			is_visited.push_back(false);
 			is_exit.push_back(false);
 			is_enter.push_back(false);
+			attachments.push_back(-1);
 
 			for (int j = 0; j < equations_of_edges.size(); ++j) {
 
@@ -143,17 +145,17 @@ std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox 
 						Point vec_of_box = Point(lines_of_box[(i + 1) % 4].first, lines_of_box[(i + 1) % 4].second, 0) - Point(lines_of_box[i].first, lines_of_box[i].second, 0);
 						Point vec_of_edge = edges[j].getPoint(edges[j].getParams().second) - edges[j].getPoint(edges[j].getParams().first);
 
-						if (!is_to_next_intersection_point(vec_of_box, vec_of_edge)) {
-							is_enter.push_back(false);
-							is_exit.push_back(true);
-							
-							start_index = points_on_box.size() - 1;
-						}
-						else {
+						if (is_enter_point(vec_of_box, vec_of_edge)) {
 							is_enter.push_back(true);
 							is_exit.push_back(false);
-
 						}
+						else {
+							is_enter.push_back(false);
+							is_exit.push_back(true);
+							start_index = points_on_box.size() - 1;
+						}
+
+						attachments.push_back(j);
 
 						if (is_exist_other_intersection_point_on_this_line) {
 
@@ -162,9 +164,9 @@ std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox 
 
 							if (dot((intersection_point - prev_point), vec_of_box) < 0) {
 								std::swap(points_on_box[points_on_box.size() - 2], points_on_box[points_on_box.size() - 1]);
-								std::swap(is_enter[is_enter.size() - 2], is_enter[is_enter.size() - 1]);
-								std::swap(is_exit[is_exit.size() - 2], is_exit[is_exit.size() - 1]);
-
+								is_enter.swap(is_enter[is_enter.size() - 2], is_enter[is_enter.size() - 1]);
+								is_exit.swap(is_exit[is_exit.size() - 2], is_exit[is_exit.size() - 1]);
+								std::swap(attachments[attachments.size() - 2], attachments[attachments.size() - 1]);
 								start_index = points_on_box.size() - 1;
 							}
 
@@ -220,6 +222,7 @@ std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox 
 				else {
 					result.push_back(result_points);
 					result_points.clear();
+					current_index = start_index;
 				}
 
 			}
@@ -235,23 +238,23 @@ std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox 
 					is_visited[current_index] = true;
 
 					int temp_index = (current_index + 1) % points_on_box.size();
-					bool is_meet_enter_point = false;
+					bool is_meet_attachment_enter_point = false;
 					while (true) {
 
-						if (is_intersection[temp_index] && is_exit[temp_index])
+						if (is_intersection[temp_index] && is_exit[temp_index] && attachments[current_index] == attachments[temp_index])
 							break;
-						if (is_intersection[temp_index] && is_enter[temp_index])
-							is_meet_enter_point = true;
+						if (is_intersection[temp_index] && is_exit[temp_index]) {
+							is_meet_attachment_enter_point = true;
+							start_index = temp_index;
+						}
 
 						temp_index = (temp_index + 1) % points_on_box.size();
 					}
 
-					if (temp_index != start_index && !is_meet_enter_point) {
-						current_index = (temp_index - 1) % points_on_box.size();
-					}
+					if (is_meet_attachment_enter_point)
+						current_index = temp_index;
 					else
-						current_index = (current_index - 1) % points_on_box.size();
-					
+						current_index = (temp_index - 1) % points_on_box.size();
 				}
 			}
 			else {
