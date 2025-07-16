@@ -1,7 +1,7 @@
 #include "Face.h"
 #include <fstream>
 
-float eps = 1e-6;
+float eps = 10e-4;
 
 bool get_clockwise_of_points(Point start, Point end) {
 	if (((start.getX() - end.getX()) < 0) && ((end.getY() - start.getY()) < 0))
@@ -119,6 +119,8 @@ std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox 
 
 		std::vector<std::pair<float, float>> lines_of_box = { std::make_pair(box.m_start_point.getX() , box.m_start_point.getY()), std::make_pair(box.m_start_point.getX(), box.m_start_point.getY() + box.m_height),std::make_pair(box.m_start_point.getX() + box.m_width, box.m_start_point.getY() + box.m_height), std::make_pair(box.m_start_point.getX() + box.m_width,box.m_start_point.getY())};
 
+		Point prev_intersection_point = Point(0,0,0);
+
 		for (int i = 0; i < equations_of_box.size(); ++i) {
 
 			bool is_exist_other_intersection_point_on_this_line = false;
@@ -139,7 +141,14 @@ std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox 
 
 					if (box_of_edge.is_point_inside(intersection_point) && box.is_point_inside(intersection_point)) { // if intersection point in bounding box of edge
 
+						if (count_of_intersection_points != 0) {
+							if (std::sqrt(std::pow(prev_intersection_point.getX() - intersection_point.getX(), 2) + std::pow(prev_intersection_point.   getY() - intersection_point.getY(), 2)) < eps)
+								continue;
+						}
+
 						points_on_box.push_back(std::make_pair(intersection_point.getX(), intersection_point.getY()));
+
+						prev_intersection_point = intersection_point;
 
 						Point vec_of_box = Point(lines_of_box[(i + 1) % 4].first, lines_of_box[(i + 1) % 4].second, 0) - Point(lines_of_box[i].first, lines_of_box[i].second, 0);
 						Point vec_of_edge = edges[j]->getPoint(edges[j]->getParams().second) - edges[j]->getPoint(edges[j]->getParams().first);
@@ -192,89 +201,98 @@ std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox 
 
 		std::vector<std::pair<float, float>> result_points;
 
-		/*if (count_of_intersection_points != 2 && count_of_intersection_points != 4)
-			return{};*/
+		if (count_of_intersection_points == 2 || count_of_intersection_points == 4) {
 
-		if (box.is_point_inside(edges[0]->getPoint(edges[0]->getParams().second))) {
-			result_points.push_back(std::make_pair(edges[0]->getPoint(edges[0]->getParams().second).getX(),
-				edges[0]->getPoint(edges[0]->getParams().second).getY()));
-		}
+			if (box.is_point_inside(edges[0]->getPoint(edges[0]->getParams().second))) {
+				result_points.push_back(std::make_pair(edges[0]->getPoint(edges[0]->getParams().second).getX(),
+					edges[0]->getPoint(edges[0]->getParams().second).getY()));
+			}
+			if (box.is_point_inside(edges[0]->getPoint(edges[0]->getParams().first))) {
+				result_points.push_back(std::make_pair(edges[0]->getPoint(edges[0]->getParams().first).getX(),
+					edges[0]->getPoint(edges[0]->getParams().first).getY()));
+			}
 
-		std::vector<std::vector<std::pair<float, float>>> result;
+			std::vector<std::vector<std::pair<float, float>>> result;
 
-		int current_index = start_index;
+			int current_index = start_index;
 
-		while (true) {
+			while (true) {
 
-			if (is_visited[current_index]) {
+				if (is_visited[current_index]) {
 				
-				bool is_all_visited = true;
+					bool is_all_visited = true;
 
-				for (int i = 0; i < is_visited.size(); ++i) {
-					if (!is_visited[i] && is_intersection[i]) {
-						is_all_visited = false;
-						if (is_exit[i]) {
-							current_index = i;
-							break;
+					for (int i = 0; i < is_visited.size(); ++i) {
+						if (!is_visited[i] && is_intersection[i]) {
+							is_all_visited = false;
+							if (is_exit[i]) {
+								current_index = i;
+								break;
+							}
 						}
 					}
+
+					if (is_all_visited) {
+						result.push_back(result_points);
+						break;
+					}
+					else {
+						result.push_back(result_points);
+						result_points.clear();
+						current_index = start_index;
+					}
+
 				}
 
-				if (is_all_visited) {
-					result.push_back(result_points);
-					break;
+				if (is_intersection[current_index]) {
+
+					if (is_exit[current_index]) {
+						result_points.push_back(points_on_box[current_index]);
+						is_visited[current_index] = true;
+					}
+					else {
+						result_points.push_back(points_on_box[current_index]);
+						is_visited[current_index] = true;
+
+						int temp_start_index = current_index;
+
+						int temp_index = (current_index + 1) % points_on_box.size();
+						bool is_meet_attachment_enter_point = false;
+						while (temp_start_index != temp_index) {
+
+							if (is_intersection[temp_index] && is_exit[temp_index] && attachments[current_index] == attachments[temp_index])
+								break;
+							if (is_intersection[temp_index] && is_exit[temp_index]) {
+								is_meet_attachment_enter_point = true;
+								start_index = temp_index;
+							}
+
+							temp_index = (temp_index + 1) % points_on_box.size();
+						}
+
+						if (temp_index == temp_start_index)
+							continue;
+
+						if (is_meet_attachment_enter_point)
+							current_index = temp_index;
+						else
+							current_index = (temp_index - 1) % points_on_box.size();
+					}
 				}
 				else {
-					result.push_back(result_points);
-					result_points.clear();
-					current_index = start_index;
-				}
-
-			}
-
-			if (is_intersection[current_index]) {
-
-				if (is_exit[current_index]) {
 					result_points.push_back(points_on_box[current_index]);
 					is_visited[current_index] = true;
 				}
-				else {
-					result_points.push_back(points_on_box[current_index]);
-					is_visited[current_index] = true;
 
-					int temp_start_index = current_index;
-
-					int temp_index = (current_index + 1) % points_on_box.size();
-					bool is_meet_attachment_enter_point = false;
-					while (temp_start_index != temp_index) {
-
-						if (is_intersection[temp_index] && is_exit[temp_index] && attachments[current_index] == attachments[temp_index])
-							break;
-						if (is_intersection[temp_index] && is_exit[temp_index]) {
-							is_meet_attachment_enter_point = true;
-							start_index = temp_index;
-						}
-
-						temp_index = (temp_index + 1) % points_on_box.size();
-					}
-
-					if (temp_index == temp_start_index)
-						continue;
-
-					if (is_meet_attachment_enter_point)
-						current_index = temp_index;
-					else
-						current_index = (temp_index - 1) % points_on_box.size();
-				}
-			}
-			else {
-				result_points.push_back(points_on_box[current_index]);
-				is_visited[current_index] = true;
+				current_index = (current_index + 1) % points_on_box.size();
 			}
 
-			current_index = (current_index + 1) % points_on_box.size();
+			return result;
+
+		}
+		else {
+			return {};
 		}
 
-		return result;
 	}
 }

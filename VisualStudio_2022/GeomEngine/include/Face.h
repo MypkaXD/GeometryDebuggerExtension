@@ -66,8 +66,6 @@ std::tuple<float, float, float> get_equation_of_line(Point start, Point end);
 
 bool is_point_on_line(std::tuple<float, float, float> line_coefs, Point point);
 
-std::vector<std::pair<float, float>> get_cut_of_plate(BoundingBox box, std::vector<Point> intersections_points);
-
 std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox box, std::vector<Edge*> edges);
 
 
@@ -151,7 +149,7 @@ public:
 		}
 
 		std::vector<Edge*> edges_in_box;
-		const int sample_points = 10;
+		const int sample_points = 20;
 
 		for (int i = 0; i < edges.size(); ++i) {
 			if (edges[i] == nullptr) 

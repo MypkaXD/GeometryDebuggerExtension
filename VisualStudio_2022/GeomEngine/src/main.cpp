@@ -31,7 +31,7 @@
 //};
 
 std::vector<Point> points = {
-	Point(1, 5, 0), Point(5, 10, 0), Point(7, 7, 0), Point(6, 2, 0), Point(2, 3, 0)
+	Point(1, 5, 0), Point(5, 10, 0), Point(7, 7, 0), Point(6, 2, 0), Point(4,6, 0), Point(2, 3, 0)
 };
 
 void dump();
@@ -363,9 +363,21 @@ int main() {
 
 	dump();
 
+	
+
 	geom_view gv;
 	gv.init("serialize.txt");
 	gv.setCallBack((void*)&gv, &moveControl);
+
+	std::shared_ptr<geom_view_control_panel> panel;
+	std::shared_ptr<geom_view_control_button> button;
+	panel = geom_view_control_panel::makeCustomPanel("panel");
+	gv.addCustomControl(std::static_pointer_cast<geom_view_control>(panel));
+	button = geom_view_control_button::makeCustomButton("recreate_tree");
+	panel->add(std::static_pointer_cast<geom_view_control>(button));
+	button->callback = [](void* data) {
+		dump();
+	};
 
 	std::string cmd;
 	while (cmd != "exit") {
