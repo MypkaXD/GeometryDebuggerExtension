@@ -12,7 +12,7 @@
 #ifndef FACE_H
 #define FACE_H
 
-extern float eps;
+extern double eps;
 
 struct BoundingBox {
 
@@ -102,6 +102,9 @@ struct Node {
 	}
 
 	~Node() {
+
+		//std::cout << "delete child" << std::endl;
+
 		for (int i = 0; i < m_childrens.size(); ++i)
 			delete m_childrens[i];
 	}
@@ -124,6 +127,7 @@ struct Node {
 class Tree {
 private:
 
+	BoundingBox* smalles_box = &BoundingBox(Point(0,0,0), Point(10,10,0));
 
 public:
 	Node* m_root;
@@ -139,6 +143,7 @@ public:
 
 
 	~Tree() {
+		//std::cout << "remove root" << std::endl;
 		delete m_root;
 	}
 
@@ -148,26 +153,43 @@ public:
 			return;
 		}
 
+		if (box.m_width < smalles_box->m_width || box.m_height < smalles_box->m_height) {
+			smalles_box = &box;
+			eps = std::abs(smalles_box->m_width - smalles_box->m_height) / 10;
+		}
+
 		std::vector<Edge*> edges_in_box;
 		const int sample_points = 20;
 
+		// get equations of bounding box edges
+		std::tuple<float, float, float> equation_of_left = get_equation_of_line(box.m_start_point, box.m_start_point + Point(0, box.m_height, 0));
+		std::tuple<float, float, float> equation_of_right = get_equation_of_line(box.m_end_point, box.m_start_point + Point(box.m_width, 0, 0));
+		std::tuple<float, float, float> equation_of_up = get_equation_of_line(box.m_start_point + Point(0, box.m_height, 0), box.m_end_point);
+		std::tuple<float, float, float> equation_of_bottom = get_equation_of_line(box.m_start_point + Point(box.m_width, 0, 0), box.m_start_point);
+		std::vector<std::tuple<float, float, float>> equations_of_box = { equation_of_left , equation_of_up, equation_of_right, equation_of_bottom };
+		////
+
 		for (int i = 0; i < edges.size(); ++i) {
+			
 			if (edges[i] == nullptr) 
 				continue;
 
-			float t_start = edges[i]->getParams().first;
-			float t_end = edges[i]->getParams().second;
-			float step = (t_end - t_start) / sample_points;
+			std::tuple<float, float, float>equations_of_edge = get_equation_of_line(edges[i]->getPoint(edges[i]->getParams().first), edges[i]->getPoint(edges[i]->getParams().second));
 
-			for (int j = 0; j <= sample_points; ++j) {
-				
-				Point current_point = edges[i]->getPoint(t_start + j * step);
-				if (box.is_point_inside(current_point)) {
-					edges_in_box.push_back(edges[i]);
-					break;
+			//BoundingBox current_box_of_edge = BoundingBox(edges[i]->getPoint(edges[i]->getParams().first), edges[i]->getPoint(edges[i]->getParams().second));
+
+			for (int j = 0; j < equations_of_box.size(); ++j) {
+				if (is_line_cross(equations_of_edge, equations_of_box[j])) {
+
+					Point current_intersection_point = get_intersection_point(equations_of_edge, equations_of_box[j]);
+
+					if (box.is_point_inside(current_intersection_point)) {
+						edges_in_box.emplace_back(edges[i]);
+						break;
+					}
 				}
-
 			}
+			
 		}
 
 		if (edges_in_box.size() > m_max_count_of_edge_in_box) {

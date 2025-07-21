@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <fstream>
 #include <limits>
+#include <chrono>
 
 #define NOMINMAX
 #include <windows.h>  
@@ -25,13 +26,14 @@
 #include "Face.h"
 
 #include <geom_view.h>
+geom_view gv;
 
 //std::vector<Point> points = {
 //	Point(1, 5, 0), Point(5, 10, 0), Point(7, 7, 0), Point(6, 2, 0), Point(4,6, 0), Point(2, 3, 0)
 //};
 
 std::vector<Point> points = {
-	Point(1, 5, 0), Point(5, 10, 0), Point(7, 7, 0), Point(6, 2, 0), Point(4,6, 0), Point(2, 3, 0)
+	Point(1, 5, 0), Point(5, 10, 0), Point(7, 7, 0)
 };
 
 void dump();
@@ -101,11 +103,11 @@ std::string serialize_plate(Plate* value, std::string variableName, float r, flo
 	std::string data = "";
 
 
-	std::cout << "SIZE OF: " << value->get_points().size() << std::endl;
+	//std::cout << "SIZE OF: " << value->get_points().size() << std::endl;
 
 	for (int j = 0; j < value->get_points().size(); ++j) {
 
-		std::cout << "size of " << j << value->get_points()[j].size() << std::endl;
+		//std::cout << "size of " << j << value->get_points()[j].size() << std::endl;
 
 		if (value->get_points()[j].size() >= 2) {
 
@@ -279,7 +281,29 @@ void draw(Node* current_node, std::vector<Plate>& plates) {
 		return;
 }
 
+void save_points_in_binary_file() {
+
+	std::string file_name = "cases_for_cut_bounding_box\\" + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()) + ".txt";
+
+	std::ofstream file(file_name, std::ios::binary);
+	if (!file.is_open())
+		return;
+	for (int i = 0; i < points.size(); ++i) {
+
+		double x = points[i].getX();
+		double y = points[i].getY();
+		double z = points[i].getZ();
+
+		file.write(reinterpret_cast<const char*>(&x), sizeof(double));
+		file.write(reinterpret_cast<const char*>(&y), sizeof(double));
+		file.write(reinterpret_cast<const char*>(&z), sizeof(double));
+	}
+	file.close();
+}
+
 void dump() {
+
+	save_points_in_binary_file();
 
 	BoundingBox box;
 	std::vector<Edge> edges;
@@ -306,7 +330,7 @@ void dump() {
 
 	box = BoundingBox(Point(x_min_box, y_min_box, 0), Point(x_max_box, y_max_box, 0));
 
-	box = BoundingBox(box.m_start_point - Point(10, 10, 0), box.m_end_point + Point(10, 10, 0));
+	//box = BoundingBox(box.m_start_point - Point(10, 10, 0), box.m_end_point + Point(10, 10, 0));
 
 	for (int i = 0; i < points.size() - 1; ++i)
 		lines.emplace_back(points[i], points[i + 1] - points[i]);
@@ -349,7 +373,77 @@ void dump() {
 	file.close();
 }
 
+void read_binary_data_from_file() {
+
+	std::string file_path = "cases_for_cut_bounding_box\\1753114243749.txt";
+
+	std::ifstream file(file_path, std::ios::binary);
+	if (!file.is_open())
+		return;
+
+	file.seekg(0, std::ios::end);
+	std::streamsize size = file.tellg();
+	file.seekg(0, std::ios::beg);
+
+	points.clear();
+
+	std::streamsize current_pos = 0;
+
+	while (current_pos < size) {
+
+		double x = 0;
+		double y = 0;
+		double z = 0;
+
+		file.read((char*)(&x), sizeof(double));
+		file.read((char*)(&y), sizeof(double));
+		file.read((char*)(&z), sizeof(double));
+
+		current_pos = file.tellg();
+
+		points.emplace_back(x, y, z);
+		
+	}
+
+	dump();
+	gv.reload();
+}
+
+void create_random_triangle() {
+
+
+	float radius = rand() % 10 + 1;
+
+	float x_cener = rand() % 10;
+	float y_cener = rand() % 10;
+
+	int count_of_points = 20;
+	points.resize(count_of_points);
+
+	std::vector<float> angles(count_of_points);
+
+	for (int i = 0; i < count_of_points; ++i) {
+		angles[i] = rand() % 360;
+		std::cout << angles[i] << std::endl;
+	}
+
+	std::sort(angles.begin(), angles.end(), std::greater<float>());
+
+	for (int i = 0; i < count_of_points; ++i) {
+
+		float current_angle = angles[i] * M_PI / 180;
+
+		points[i] = Point(x_cener + radius * std::cos(current_angle), y_cener + radius * std::sin(current_angle), 0);
+	}
+
+	dump();
+	gv.reload();
+
+}
+
 int main() {
+
+	srand(time(0));
 
 	////setlocale(LC_ALL, "rus");
 
@@ -365,18 +459,29 @@ int main() {
 
 	
 
-	geom_view gv;
 	gv.init("serialize.txt");
 	gv.setCallBack((void*)&gv, &moveControl);
 
 	std::shared_ptr<geom_view_control_panel> panel;
 	std::shared_ptr<geom_view_control_button> button;
+	std::shared_ptr<geom_view_control_button> button_for_read_from_file;
+	std::shared_ptr<geom_view_control_button> button_random_triangle;
 	panel = geom_view_control_panel::makeCustomPanel("panel");
 	gv.addCustomControl(std::static_pointer_cast<geom_view_control>(panel));
 	button = geom_view_control_button::makeCustomButton("recreate_tree");
+	button_for_read_from_file = geom_view_control_button::makeCustomButton("read_binary_file_with_points");
+	button_random_triangle = geom_view_control_button::makeCustomButton("random_triangle");
 	panel->add(std::static_pointer_cast<geom_view_control>(button));
+	panel->add(std::static_pointer_cast<geom_view_control>(button_for_read_from_file));
+	panel->add(std::static_pointer_cast<geom_view_control>(button_random_triangle));
 	button->callback = [](void* data) {
 		dump();
+	};
+	button_for_read_from_file->callback = [](void* data) {
+		read_binary_data_from_file();
+	};
+	button_random_triangle->callback = [](void* data) {
+		create_random_triangle();
 	};
 
 	std::string cmd;
