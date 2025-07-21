@@ -1,5 +1,7 @@
 #include "Face.h"
 #include <fstream>
+#include <vector>
+#include <array>
 
 float eps = 10e-4;
 
@@ -95,204 +97,329 @@ std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox 
 		// get equations of edges
 		std::vector<std::tuple<float, float, float>> equations_of_edges(edges.size());
 		for (int i = 0; i < edges.size(); ++i) {
-			if (edges[i] != nullptr)
-				equations_of_edges[i] = get_equation_of_line(edges[i]->getPoint(edges[i]->getParams().first), edges[i]->getPoint(edges[i]->getParams().second));
+			equations_of_edges[i] = get_equation_of_line(edges[i]->getPoint(edges[i]->getParams().first), edges[i]->getPoint(edges[i]->getParams().second));
 		}
 		////
 
 		int count_of_intersection_points = 0;
 
-		Point intersection_point;
-		BoundingBox box_of_edge;
-
-		// we have all intersection points in clockwise direction
-		// and now we must to combine this points with points of box
-
-		std::vector<std::pair<float, float>> points_on_box;
-		std::vector<bool> is_visited;
-		std::vector<bool> is_enter;
-		std::vector<bool> is_exit;
-		std::vector<bool> is_intersection;
-		std::vector<int> attachments;
-	
-		int start_index = 0;
-
 		std::vector<std::pair<float, float>> lines_of_box = { std::make_pair(box.m_start_point.getX() , box.m_start_point.getY()), std::make_pair(box.m_start_point.getX(), box.m_start_point.getY() + box.m_height),std::make_pair(box.m_start_point.getX() + box.m_width, box.m_start_point.getY() + box.m_height), std::make_pair(box.m_start_point.getX() + box.m_width,box.m_start_point.getY())};
 
-		Point prev_intersection_point = Point(0,0,0);
+		std::vector<std::array<IntersectionPoint, 4>> intersection_point_on_boxes(edges.size(), std::array<IntersectionPoint, 4>{});
 
-		for (int i = 0; i < equations_of_box.size(); ++i) {
+		for (int i = 0; i < equations_of_edges.size(); ++i) {
+			
+			BoundingBox current_box_of_edge = BoundingBox(edges[i]->getPoint(edges[i]->getParams().first), edges[i]->getPoint(edges[i]->getParams().second));
+			
+			for (int j = 0; j < equations_of_box.size(); ++j) {
+				if (is_line_cross(equations_of_edges[i], equations_of_box[j])) {
 
-			bool is_exist_other_intersection_point_on_this_line = false;
+					Point current_intersection_point = get_intersection_point(equations_of_edges[i], equations_of_box[j]);
 
-			points_on_box.push_back(lines_of_box[i]);
-			is_intersection.push_back(false);
-			is_visited.push_back(false);
-			is_exit.push_back(false);
-			is_enter.push_back(false);
-			attachments.push_back(-1);
+					if (current_box_of_edge.is_point_inside(current_intersection_point) && box.is_point_inside(current_intersection_point)) {
 
-			for (int j = 0; j < equations_of_edges.size(); ++j) {
+						// check corner cases
 
-				if (is_line_cross(equations_of_edges[j], equations_of_box[i])) { // if lines is cross (main determ != 0)
+						// 1. ≈сли уже существет точка на предыдущей стороне BoundingBox провер€ем их рассто€ние, если оно меньше Eps, то скипаем еЄ
+						IntersectionPoint* intersection_point_on_prev_side_of_box_next = &intersection_point_on_boxes[i][((j + 1) + 4) % 4];
+						IntersectionPoint* intersection_point_on_prev_side_of_box_prev = &intersection_point_on_boxes[i][((j - 1) + 4) % 4];
+						if (intersection_point_on_prev_side_of_box_next->m_parent_index_of_box_line != -1) {
+							float distance = std::sqrt(std::pow(current_intersection_point.getX() - intersection_point_on_prev_side_of_box_next->m_point.getX(), 2) + std::pow(current_intersection_point.getY() - intersection_point_on_prev_side_of_box_next->m_point.getY(), 2));
 
-					intersection_point = get_intersection_point(equations_of_edges[j], equations_of_box[i]); // get Point of intersection
-					box_of_edge = BoundingBox(edges[j]->getPoint(edges[j]->getParams().first), edges[j]->getPoint(edges[j]->getParams().second)); // get bounding box of edge
+							if (distance <= eps)
+								continue;
+						}
+						if (intersection_point_on_prev_side_of_box_prev->m_parent_index_of_box_line != -1) {
+							float distance = std::sqrt(std::pow(current_intersection_point.getX() - intersection_point_on_prev_side_of_box_prev->m_point.getX(), 2) + std::pow(current_intersection_point.getY() - intersection_point_on_prev_side_of_box_prev->m_point.getY(), 2));
 
-					if (box_of_edge.is_point_inside(intersection_point) && box.is_point_inside(intersection_point)) { // if intersection point in bounding box of edge
-
-						if (count_of_intersection_points != 0) {
-							if (std::sqrt(std::pow(prev_intersection_point.getX() - intersection_point.getX(), 2) + std::pow(prev_intersection_point.   getY() - intersection_point.getY(), 2)) < eps)
+							if (distance <= eps)
 								continue;
 						}
 
-						points_on_box.push_back(std::make_pair(intersection_point.getX(), intersection_point.getY()));
+						Point vec_of_box = Point(lines_of_box[(j + 1) % 4].first, lines_of_box[(j + 1) % 4].second, 0) - Point(lines_of_box[j].first, lines_of_box[j].second, 0);
+						Point vec_of_edge = edges[i]->getPoint(edges[i]->getParams().second) - edges[i]->getPoint(edges[i]->getParams().first);
+						bool is_current_point_enter = is_enter_point(vec_of_box, vec_of_edge);
+						intersection_point_on_boxes[i][j] = IntersectionPoint(current_intersection_point, j, is_current_point_enter);
+						++count_of_intersection_points;
+					}
+				}
+			}
+		}
 
-						prev_intersection_point = intersection_point;
+		for (int i = 0; i < intersection_point_on_boxes.size(); ++i) {
 
-						Point vec_of_box = Point(lines_of_box[(i + 1) % 4].first, lines_of_box[(i + 1) % 4].second, 0) - Point(lines_of_box[i].first, lines_of_box[i].second, 0);
-						Point vec_of_edge = edges[j]->getPoint(edges[j]->getParams().second) - edges[j]->getPoint(edges[j]->getParams().first);
+			int count_of_intersection_points_for_current_edge = 0;
+			int index_of_intersection_point = -1;
 
-						if (is_enter_point(vec_of_box, vec_of_edge)) {
-							is_enter.push_back(true);
-							is_exit.push_back(false);
-						}
-						else {
-							is_enter.push_back(false);
-							is_exit.push_back(true);
-							//start_index = points_on_box.size() - 1;
-						}
+			for (int j = 0; j < intersection_point_on_boxes[i].size(); ++j) {
+				if (intersection_point_on_boxes[i][j].m_parent_index_of_box_line != -1) {
+					index_of_intersection_point = j;
+					count_of_intersection_points_for_current_edge += 1;
+				}
+			}
 
-						attachments.push_back(j);
+			// 1. ≈сли точки текущего edge'a наход€тс€ за исходным BoungingBox и кол-во точек пересечени€ == 1
+			if (!box.is_point_inside(edges[i]->getPoint(edges[i]->getParams().first)) && !box.is_point_inside(edges[i]->getPoint(edges[i]->getParams().second)) && count_of_intersection_points_for_current_edge == 1) {
+				intersection_point_on_boxes[i].swap(std::array<IntersectionPoint, 4>{});
+				count_of_intersection_points -= count_of_intersection_points_for_current_edge;
+			}
 
-						if (is_exist_other_intersection_point_on_this_line) {
+			// 2. ≈сли точка пересечени€ находитс€ на углу » один их концов edge'a на углу » кол-во точек пересечени€ == 1
+			if (count_of_intersection_points_for_current_edge == 1) {
+				std::pair<float, float>* first_point_of_box = &lines_of_box[intersection_point_on_boxes[i][index_of_intersection_point].m_parent_index_of_box_line];
+				std::pair<float, float>* second_point_of_box = &lines_of_box[(intersection_point_on_boxes[i][index_of_intersection_point].m_parent_index_of_box_line + 1) % 4];
 
-							Point prev_point = Point(points_on_box[points_on_box.size() - 2].first, points_on_box[points_on_box.size() - 2].second, 0);
-							Point vec_of_box = Point(lines_of_box[(i + 1) % 4].first, lines_of_box[(i + 1) % 4].second, 0) - Point(lines_of_box[i].first, lines_of_box[i].second, 0);
+				float dist_from_current_edge_start_to_first_point_of_box = std::sqrt(std::pow(edges[i]->getPoint(edges[i]->getParams().first).getX() - first_point_of_box->first, 2) + std::pow(edges[i]->getPoint(edges[i]->getParams().first).getY() - first_point_of_box->second, 2));
+				float dist_from_current_edge_end_to_first_point_of_box = std::sqrt(std::pow(edges[i]->getPoint(edges[i]->getParams().second).getX() - first_point_of_box->first, 2) + std::pow(edges[i]->getPoint(edges[i]->getParams().second).getY() - first_point_of_box->second, 2));
+				float dist_from_current_edge_start_to_second_point_of_box = std::sqrt(std::pow(edges[i]->getPoint(edges[i]->getParams().first).getX() - second_point_of_box->first, 2) + std::pow(edges[i]->getPoint(edges[i]->getParams().first).getY() - second_point_of_box->second, 2));
+				float dist_from_current_edge_end_to_second_point_of_box = std::sqrt(std::pow(edges[i]->getPoint(edges[i]->getParams().second).getX() - second_point_of_box->first, 2) + std::pow(edges[i]->getPoint(edges[i]->getParams().second).getY() - second_point_of_box->second, 2));
 
-							if (dot((intersection_point - prev_point), vec_of_box) < 0) {
-								std::swap(points_on_box[points_on_box.size() - 2], points_on_box[points_on_box.size() - 1]);
-								is_enter.swap(is_enter[is_enter.size() - 2], is_enter[is_enter.size() - 1]);
-								is_exit.swap(is_exit[is_exit.size() - 2], is_exit[is_exit.size() - 1]);
-								std::swap(attachments[attachments.size() - 2], attachments[attachments.size() - 1]);
-								//start_index = points_on_box.size() - 2;
-							}
+				if (dist_from_current_edge_start_to_first_point_of_box <= eps || dist_from_current_edge_end_to_first_point_of_box <= eps || dist_from_current_edge_start_to_second_point_of_box <= eps || dist_from_current_edge_end_to_second_point_of_box <= eps) {
+					float dist_from_current_intersection_point_to_first_point_of_box = std::sqrt(std::pow(intersection_point_on_boxes[i][index_of_intersection_point].m_point.getX() - first_point_of_box->first, 2) + std::pow(intersection_point_on_boxes[i][index_of_intersection_point].m_point.getY() - first_point_of_box->second, 2));
+					float dist_from_current_intersection_point_to_second_point_of_box = std::sqrt(std::pow(intersection_point_on_boxes[i][index_of_intersection_point].m_point.getX() - second_point_of_box->first, 2) + std::pow(intersection_point_on_boxes[i][index_of_intersection_point].m_point.getY() - second_point_of_box->second, 2));
 
-						}
-						
-						count_of_intersection_points += 1;
-						is_intersection.push_back(true);
-						is_visited.push_back(false);
-
-						is_exist_other_intersection_point_on_this_line = true;
-
+					if (dist_from_current_intersection_point_to_first_point_of_box <= eps || dist_from_current_intersection_point_to_second_point_of_box <= eps) {
+						intersection_point_on_boxes[i].swap(std::array<IntersectionPoint, 4>{});
+						count_of_intersection_points -= count_of_intersection_points_for_current_edge;
 					}
 				}
 
 			}
 		}
 
-		for (int i = 0; i < points_on_box.size(); ++i) {
-			if (is_exit[i]) {
-				start_index = i;
-				break;
-			}
-		}
+	
+		std::vector<IntersectionPoint> points_of_box;
 
-		std::vector<std::pair<float, float>> result_points;
+		for (int i = 0; i < equations_of_box.size(); ++i) {
+			points_of_box.emplace_back(Point(lines_of_box[i].first, lines_of_box[i].second, 0), -1, -1);
 
-		if (count_of_intersection_points == 2 || count_of_intersection_points == 4) {
+			if (edges.size() == 2) {
 
-			if (box.is_point_inside(edges[0]->getPoint(edges[0]->getParams().second))) {
-				result_points.push_back(std::make_pair(edges[0]->getPoint(edges[0]->getParams().second).getX(),
-					edges[0]->getPoint(edges[0]->getParams().second).getY()));
-			}
-			if (box.is_point_inside(edges[0]->getPoint(edges[0]->getParams().first))) {
-				result_points.push_back(std::make_pair(edges[0]->getPoint(edges[0]->getParams().first).getX(),
-					edges[0]->getPoint(edges[0]->getParams().first).getY()));
-			}
+				std::vector<IntersectionPoint*> poins_on_current_side;
 
-			std::vector<std::vector<std::pair<float, float>>> result;
+				for (int j = 0; j < equations_of_edges.size(); ++j) {
+					if (intersection_point_on_boxes[j][i].m_parent_index_of_box_line == -1)
+						continue;
+					poins_on_current_side.emplace_back(&intersection_point_on_boxes[j][i]);
+				}
 
-			int current_index = start_index;
-
-			while (true) {
-
-				if (is_visited[current_index]) {
-				
-					bool is_all_visited = true;
-
-					for (int i = 0; i < is_visited.size(); ++i) {
-						if (!is_visited[i] && is_intersection[i]) {
-							is_all_visited = false;
-							if (is_exit[i]) {
-								current_index = i;
-								break;
-							}
-						}
-					}
-
-					if (is_all_visited) {
-						result.push_back(result_points);
-						break;
+				if (poins_on_current_side.size() == 2) {
+					Point vec_of_box = Point(lines_of_box[(i + 1) % 4].first, lines_of_box[(i + 1) % 4].second, 0) - Point(lines_of_box[i].first, lines_of_box[i].second, 0);
+					if (dot((poins_on_current_side[0]->m_point - poins_on_current_side[1]->m_point), vec_of_box) < 0) {
+						points_of_box.emplace_back(*poins_on_current_side[1]);
+						points_of_box.emplace_back(*poins_on_current_side[0]);
 					}
 					else {
-						result.push_back(result_points);
-						result_points.clear();
-						current_index = start_index;
-					}
-
-				}
-
-				if (is_intersection[current_index]) {
-
-					if (is_exit[current_index]) {
-						result_points.push_back(points_on_box[current_index]);
-						is_visited[current_index] = true;
-					}
-					else {
-						result_points.push_back(points_on_box[current_index]);
-						is_visited[current_index] = true;
-
-						int temp_start_index = current_index;
-
-						int temp_index = (current_index + 1) % points_on_box.size();
-						bool is_meet_attachment_enter_point = false;
-						while (temp_start_index != temp_index) {
-
-							if (is_intersection[temp_index] && is_exit[temp_index] && attachments[current_index] == attachments[temp_index])
-								break;
-							if (is_intersection[temp_index] && is_exit[temp_index]) {
-								is_meet_attachment_enter_point = true;
-								start_index = temp_index;
-							}
-
-							temp_index = (temp_index + 1) % points_on_box.size();
-						}
-
-						if (temp_index == temp_start_index)
-							continue;
-
-						if (is_meet_attachment_enter_point)
-							current_index = temp_index;
-						else
-							current_index = (temp_index - 1) % points_on_box.size();
+						points_of_box.emplace_back(*poins_on_current_side[0]);
+						points_of_box.emplace_back(*poins_on_current_side[1]);
 					}
 				}
-				else {
-					result_points.push_back(points_on_box[current_index]);
-					is_visited[current_index] = true;
+				else if (poins_on_current_side.size() == 1) {
+					points_of_box.emplace_back(*poins_on_current_side[0]);
 				}
-
-				current_index = (current_index + 1) % points_on_box.size();
+			}
+			else {
+				for (int j = 0; j < equations_of_edges.size(); ++j) {
+					if (intersection_point_on_boxes[j][i].m_parent_index_of_box_line == -1)
+						continue;
+					points_of_box.emplace_back(intersection_point_on_boxes[j][i]);
+				}
 			}
 
-			return result;
+		}
 
-		}
-		else {
-			return {};
-		}
+		std::cout << "DASASDASD" << std::endl;
+
+		//std::vector<std::pair<float, float>> points_on_box;
+		//std::vector<bool> is_visited;
+		//std::vector<bool> is_enter;
+		//std::vector<bool> is_exit;
+		//std::vector<bool> is_intersection;
+		//std::vector<int> attachments;
+	
+		//int start_index = 0;
+
+		//std::vector<std::pair<float, float>> lines_of_box = { std::make_pair(box.m_start_point.getX() , box.m_start_point.getY()), std::make_pair(box.m_start_point.getX(), box.m_start_point.getY() + box.m_height),std::make_pair(box.m_start_point.getX() + box.m_width, box.m_start_point.getY() + box.m_height), std::make_pair(box.m_start_point.getX() + box.m_width,box.m_start_point.getY())};
+
+		//Point prev_intersection_point = Point(0,0,0);
+
+		//for (int i = 0; i < equations_of_box.size(); ++i) {
+
+		//	bool is_exist_other_intersection_point_on_this_line = false;
+
+		//	points_on_box.push_back(lines_of_box[i]);
+		//	is_intersection.push_back(false);
+		//	is_visited.push_back(false);
+		//	is_exit.push_back(false);
+		//	is_enter.push_back(false);
+		//	attachments.push_back(-1);
+
+		//	for (int j = 0; j < equations_of_edges.size(); ++j) {
+
+		//		if (is_line_cross(equations_of_edges[j], equations_of_box[i])) { // if lines is cross (main determ != 0)
+
+		//			intersection_point = get_intersection_point(equations_of_edges[j], equations_of_box[i]); // get Point of intersection
+		//			box_of_edge = BoundingBox(edges[j]->getPoint(edges[j]->getParams().first), edges[j]->getPoint(edges[j]->getParams().second)); // get bounding box of edge
+
+		//			if (box_of_edge.is_point_inside(intersection_point) && box.is_point_inside(intersection_point)) { // if intersection point in bounding box of edge
+
+		//				if (count_of_intersection_points != 0) {
+
+		//					bool is_close_to_corner = std::sqrt(std::pow(lines_of_box[i].first - intersection_point.getX(), 2) + std::pow(lines_of_box[i].second - intersection_point.getY(), 2)) < eps;
+
+		//					if (std::sqrt(std::pow(prev_intersection_point.getX() - intersection_point.getX(), 2) + std::pow(prev_intersection_point.   getY() - intersection_point.getY(), 2)) < eps && is_close_to_corner == true)
+		//						continue;
+		//				}
+
+		//				points_on_box.push_back(std::make_pair(intersection_point.getX(), intersection_point.getY()));
+
+		//				prev_intersection_point = intersection_point;
+
+		//				Point vec_of_box = Point(lines_of_box[(i + 1) % 4].first, lines_of_box[(i + 1) % 4].second, 0) - Point(lines_of_box[i].first, lines_of_box[i].second, 0);
+		//				Point vec_of_edge = edges[j]->getPoint(edges[j]->getParams().second) - edges[j]->getPoint(edges[j]->getParams().first);
+
+		//				if (is_enter_point(vec_of_box, vec_of_edge)) {
+		//					is_enter.push_back(true);
+		//					is_exit.push_back(false);
+		//				}
+		//				else {
+		//					is_enter.push_back(false);
+		//					is_exit.push_back(true);
+		//					//start_index = points_on_box.size() - 1;
+		//				}
+
+		//				attachments.push_back(j);
+
+		//				if (is_exist_other_intersection_point_on_this_line) {
+
+		//					Point prev_point = Point(points_on_box[points_on_box.size() - 2].first, points_on_box[points_on_box.size() - 2].second, 0);
+		//					Point vec_of_box = Point(lines_of_box[(i + 1) % 4].first, lines_of_box[(i + 1) % 4].second, 0) - Point(lines_of_box[i].first, lines_of_box[i].second, 0);
+
+		//					if (dot((intersection_point - prev_point), vec_of_box) < 0) {
+		//						std::swap(points_on_box[points_on_box.size() - 2], points_on_box[points_on_box.size() - 1]);
+		//						is_enter.swap(is_enter[is_enter.size() - 2], is_enter[is_enter.size() - 1]);
+		//						is_exit.swap(is_exit[is_exit.size() - 2], is_exit[is_exit.size() - 1]);
+		//						std::swap(attachments[attachments.size() - 2], attachments[attachments.size() - 1]);
+		//						//start_index = points_on_box.size() - 2;
+		//					}
+
+		//				}
+		//				
+		//				count_of_intersection_points += 1;
+		//				is_intersection.push_back(true);
+		//				is_visited.push_back(false);
+
+		//				is_exist_other_intersection_point_on_this_line = true;
+
+		//			}
+		//		}
+
+		//	}
+		//}
+
+		//for (int i = 0; i < points_on_box.size(); ++i) {
+		//	if (is_exit[i]) {
+		//		start_index = i;
+		//		break;
+		//	}
+		//}
+
+		//std::vector<std::pair<float, float>> result_points;
+
+		//if (count_of_intersection_points == 2 || count_of_intersection_points == 4) {
+
+		//	if (box.is_point_inside(edges[0]->getPoint(edges[0]->getParams().second))) {
+		//		result_points.push_back(std::make_pair(edges[0]->getPoint(edges[0]->getParams().second).getX(),
+		//			edges[0]->getPoint(edges[0]->getParams().second).getY()));
+		//	}
+		//	if (box.is_point_inside(edges[0]->getPoint(edges[0]->getParams().first))) {
+		//		result_points.push_back(std::make_pair(edges[0]->getPoint(edges[0]->getParams().first).getX(),
+		//			edges[0]->getPoint(edges[0]->getParams().first).getY()));
+		//	}
+
+		//	std::vector<std::vector<std::pair<float, float>>> result;
+
+		//	int current_index = start_index;
+
+		//	while (true) {
+
+		//		if (is_visited[current_index]) {
+		//		
+		//			bool is_all_visited = true;
+
+		//			for (int i = 0; i < is_visited.size(); ++i) {
+		//				if (!is_visited[i] && is_intersection[i]) {
+		//					is_all_visited = false;
+		//					if (is_exit[i]) {
+		//						current_index = i;
+		//						break;
+		//					}
+		//				}
+		//			}
+
+		//			if (is_all_visited) {
+		//				result.push_back(result_points);
+		//				break;
+		//			}
+		//			else {
+		//				result.push_back(result_points);
+		//				result_points.clear();
+		//				current_index = start_index;
+		//			}
+
+		//		}
+
+		//		if (is_intersection[current_index]) {
+
+		//			if (is_exit[current_index]) {
+		//				result_points.push_back(points_on_box[current_index]);
+		//				is_visited[current_index] = true;
+		//			}
+		//			else {
+		//				result_points.push_back(points_on_box[current_index]);
+		//				is_visited[current_index] = true;
+
+		//				int temp_start_index = current_index;
+
+		//				int temp_index = (current_index + 1) % points_on_box.size();
+		//				bool is_meet_attachment_enter_point = false;
+		//				while (temp_start_index != temp_index) {
+
+		//					if (is_intersection[temp_index] && is_exit[temp_index] && attachments[current_index] == attachments[temp_index])
+		//						break;
+		//					if (is_intersection[temp_index] && is_exit[temp_index]) {
+		//						is_meet_attachment_enter_point = true;
+		//						start_index = temp_index;
+		//					}
+
+		//					temp_index = (temp_index + 1) % points_on_box.size();
+		//				}
+
+		//				if (temp_index == temp_start_index)
+		//					continue;
+
+		//				if (is_meet_attachment_enter_point)
+		//					current_index = temp_index;
+		//				else
+		//					current_index = (temp_index - 1) % points_on_box.size();
+		//			}
+		//		}
+		//		else {
+		//			result_points.push_back(points_on_box[current_index]);
+		//			is_visited[current_index] = true;
+		//		}
+
+		//		current_index = (current_index + 1) % points_on_box.size();
+		//	}
+
+		//	return result;
+
+		//}
+		//else {
+		//	return {};
+		//}
+
+		return {};
 
 	}
 }
