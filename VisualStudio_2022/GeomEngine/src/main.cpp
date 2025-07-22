@@ -394,7 +394,7 @@ void dump() {
 
 void read_binary_data_from_file() {
 
-	std::string file_path = "cases_for_cut_bounding_box\\1753198883114.txt";
+	std::string file_path = "cases_for_cut_bounding_box\\1753201740662.txt";
 
 	std::ifstream file(file_path, std::ios::binary);
 	if (!file.is_open())
@@ -435,7 +435,7 @@ void create_random_triangle() {
 
 	float radius = rand() % 100 + 1;
 
-	int count_of_points = 10;
+	int count_of_points = 20;
 	points.resize(count_of_points);
 
 	std::vector<float> angles(count_of_points);
@@ -449,7 +449,7 @@ void create_random_triangle() {
 
 	for (int i = 0; i < count_of_points; ++i) {
 
-		//float radius = rand() % 10 + 1;
+		float radius = rand() % 10 + 1;
 
 		float current_angle = angles[i] * M_PI / 180;
 

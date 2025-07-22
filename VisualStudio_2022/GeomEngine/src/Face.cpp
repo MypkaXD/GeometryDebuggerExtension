@@ -408,6 +408,9 @@ int condition_that_box_inside(const Node* list, std::tuple<float, float, float>&
 	
 	if (list == nullptr)
 		return -1;
+
+	Point closeset_intersection_point = Point(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), 0);
+	int index_of_edge = -1;
 	
 	for (int i = 0; i < list->m_edges.size(); ++i) {
 		if (list->m_edges[i] == nullptr)
@@ -425,16 +428,24 @@ int condition_that_box_inside(const Node* list, std::tuple<float, float, float>&
 
 			if (current_box_of_edge.is_point_inside(current_intersection_point)) {
 
-				Point dir1 = list->m_box.m_start_point + Point(list->m_box.m_width, list->m_box.m_height / 2, 0) - list->m_box.m_start_point - Point(list->m_box.m_width / 2, list->m_box.m_height / 2, 0);
-				Point dir2 = list->m_edges[i]->getPoint(list->m_edges[i]->getParams().second) - list->m_edges[i]->getPoint(list->m_edges[i]->getParams().first);
-				Point cross = dir1 & dir2;
-
-				return cross.getZ() < 0;
+				if (current_intersection_point.getX() < closeset_intersection_point.getX()) {
+					closeset_intersection_point = current_intersection_point;
+					index_of_edge = i;
+				}
 			}
 		}
 	}
 
-	return -1;
+	if (index_of_edge != -1) {
+		Point dir1 = list->m_box.m_start_point + Point(list->m_box.m_width, list->m_box.m_height / 2, 0) - list->m_box.m_start_point - Point(list->m_box.m_width / 2, list->m_box.m_height / 2, 0);
+		Point dir2 = list->m_edges[index_of_edge]->getPoint(list->m_edges[index_of_edge]->getParams().second) - list->m_edges[index_of_edge]->getPoint(list->m_edges[index_of_edge]->getParams().first);
+		Point cross = dir1 & dir2;
+
+		return cross.getZ() < 0;
+	}
+	else
+		return -1;
+
 }
 
 int func(const Node* list, std::tuple<float, float, float>& equation_of_horizontal_line) {
@@ -469,55 +480,35 @@ bool is_bounding_box_inside(const Node* list, std::tuple<float, float, float>& e
 	if (result == 0 || result == 1)
 		return result;
 
-	Node* parrent = list->m_parent;
-	if (parrent == nullptr)
-		return false;
+	Node* parrent = nullptr;
 
 	int index_of_list = -1;
-	for (int i = 0; i < parrent->m_childrens.size(); ++i) {
-		if (parrent->m_childrens[i] == list) {
-			index_of_list = i;
-			break;
-		}
-	}
 
-	if (index_of_list == -1)
-		return false;
-
-	if (index_of_list == 0)
-		return is_bounding_box_inside(parrent->m_childrens[3]->get_list(), equation_of_horizontal_line);
-	else if (index_of_list == 1)
-		return is_bounding_box_inside(parrent->m_childrens[2]->get_list(), equation_of_horizontal_line);
-	else {
-
-		Node* parrent_of_parrent = nullptr;
-		int index_of_list_parent = -1;
-
-		while (true) {
-			parrent_of_parrent = parrent->m_parent;
-			if (parrent_of_parrent == nullptr)
-				return false;
-			else {
-				for (int i = 0; i < parrent_of_parrent->m_childrens.size(); ++i) {
-					if (parrent_of_parrent->m_childrens[i] == parrent) {
-						index_of_list_parent = i;
-						break;
-					}
-				}
-			}
-
-			if (index_of_list_parent != 0 && index_of_list_parent != 1)
-				parrent = parrent_of_parrent;
-			else {
-				result = func(parrent_of_parrent->m_childrens[index_of_list_parent == 0 ? 3 : 2], equation_of_horizontal_line);
-
-				if (result == 1 || result == 0)
-					return result;
-				else {
-					parrent = parrent_of_parrent;
-					continue;
+	while (true) {
+		parrent = list->m_parent;
+		if (parrent == nullptr)
+			return false;
+		else {
+			for (int i = 0; i < parrent->m_childrens.size(); ++i) {
+				if (parrent->m_childrens[i] == list) {
+					index_of_list = i;
+					break;
 				}
 			}
 		}
+
+		list = parrent;
+
+		if (index_of_list == 0 || index_of_list == 1) {
+			result = func(parrent->m_childrens[index_of_list == 0 ? 3 : 2], equation_of_horizontal_line);
+
+			if (result == 1 || result == 0)
+				return result;
+			else {
+				continue;
+			}
+		}
+		else
+			continue;
 	}
 }
