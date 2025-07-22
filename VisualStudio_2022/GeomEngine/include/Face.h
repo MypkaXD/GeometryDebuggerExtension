@@ -86,30 +86,32 @@ public:
 
 struct Node {
 
-	size_t m_counter = 0;;
 	std::array<Node*, 4> m_childrens;
 	Node* m_parent;
-	bool m_is_list = false;
 
 	BoundingBox m_box;
+	bool m_is_list = false;
 	std::array<Edge*, 2> m_edges;
 
 	Node() {
+
 		m_parent = nullptr;
 
 		for (int i = 0; i < m_childrens.size(); ++i)
 			m_childrens[i] = nullptr;
+		m_edges = {};
 	}
 
 	~Node() {
-
-		//std::cout << "delete child" << std::endl;
 
 		for (int i = 0; i < m_childrens.size(); ++i)
 			delete m_childrens[i];
 	}
 
-	Node* get_list() {
+	const Node* get_list() const{
+
+		if (this->m_is_list)
+			return this;
 
 		for (int i = 0; i < m_childrens.size(); ++i) {
 			if (m_childrens[i] != nullptr) {
@@ -126,13 +128,10 @@ struct Node {
 
 class Tree {
 private:
-
-	BoundingBox* smalles_box = &BoundingBox(Point(0,0,0), Point(10,10,0));
-
-public:
 	Node* m_root;
-
 	int m_max_count_of_edge_in_box = 2;
+public:
+
 
 	Tree(BoundingBox& box, std::vector<Edge*> edges) {
 
@@ -141,25 +140,25 @@ public:
 
 	}
 
+	Tree(){
+		m_root = new Node();
+	}
 
 	~Tree() {
-		//std::cout << "remove root" << std::endl;
 		delete m_root;
+	}
+
+	const Node* get_root() const {
+		return m_root;
 	}
 
 	void create_tree(BoundingBox& box, const std::vector<Edge*>& edges, Node* current_node) {
 
-		if (current_node == nullptr || edges.empty()) {
+		if (edges.empty()) {
 			return;
 		}
 
-		if (box.m_width < smalles_box->m_width || box.m_height < smalles_box->m_height) {
-			smalles_box = &box;
-			eps = std::abs(smalles_box->m_width - smalles_box->m_height) / 10;
-		}
-
 		std::vector<Edge*> edges_in_box;
-		const int sample_points = 20;
 
 		// get equations of bounding box edges
 		std::tuple<float, float, float> equation_of_left = get_equation_of_line(box.m_start_point, box.m_start_point + Point(0, box.m_height, 0));
@@ -173,17 +172,20 @@ public:
 			
 			if (edges[i] == nullptr) 
 				continue;
+			
+			// Получаем точки начала и конца current_edge
+			Point p_start = edges[i]->getPoint(edges[i]->getParams().first);
+			Point p_end = edges[i]->getPoint(edges[i]->getParams().second);
 
-			std::tuple<float, float, float>equations_of_edge = get_equation_of_line(edges[i]->getPoint(edges[i]->getParams().first), edges[i]->getPoint(edges[i]->getParams().second));
+			std::tuple<float, float, float>equations_of_edge = get_equation_of_line(p_start, p_end);
 
-			//BoundingBox current_box_of_edge = BoundingBox(edges[i]->getPoint(edges[i]->getParams().first), edges[i]->getPoint(edges[i]->getParams().second));
+			BoundingBox current_box_of_edge = BoundingBox(p_start, p_end);
 
 			for (int j = 0; j < equations_of_box.size(); ++j) {
 				if (is_line_cross(equations_of_edge, equations_of_box[j])) {
-
 					Point current_intersection_point = get_intersection_point(equations_of_edge, equations_of_box[j]);
-
-					if (box.is_point_inside(current_intersection_point)) {
+					if (box.is_point_inside(current_intersection_point) && (box.is_point_inside(p_start) || box.is_point_inside(p_end) || current_box_of_edge.is_point_inside(current_intersection_point))) // edge пересекает bounding box, если точка пересечения принадлежит исходному BoundingBox И (либо один из концов edge лежит внутри BoundingBox'a или точка пересечения принадлежит BoundingBox'y edge'a)
+					{
 						edges_in_box.emplace_back(edges[i]);
 						break;
 					}
@@ -204,15 +206,15 @@ public:
 			};
 
 			for (int i = 0; i < 4; ++i) {
-				current_node->m_childrens[i] = new Node();
-				current_node->m_childrens[i]->m_box = child_boxes[i];
-				current_node->m_childrens[i]->m_parent = current_node;
-				create_tree(child_boxes[i], edges_in_box, current_node->m_childrens[i]);
+				Node* child = new Node();
+				child->m_box = child_boxes[i];
+				child->m_parent = current_node;
+				current_node->m_childrens[i] = child;
+				create_tree(child->m_box, edges_in_box, child);
 			}
 		}
 		else {
 
-			current_node->m_box = box;
 			current_node->m_is_list = true;
 
 			if (edges_in_box.size() == 2 && edges_in_box[0] && edges_in_box[1]) {
@@ -244,6 +246,8 @@ public:
 		return false;
 	}
 };
+
+bool is_bounding_box_inside(const Node* list, std::tuple<float, float, float>& equation_of_horizontal_line);
 
 struct IntersectionPoint {
 	Point m_point = Point(0,0,0);

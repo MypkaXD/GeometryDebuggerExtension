@@ -297,6 +297,43 @@ std::string serialize(std::vector<Plate>* value, std::string variableName, float
 	return data + "\n";
 }
 
+std::string serialize(Node* value, std::string variableName, float r, float g, float b) {
+	std::string data = "";
+
+	if (value == nullptr)
+		return "";
+	if (value->m_is_list) {
+		data += serialize(&value->m_box, variableName + "_box", r, g, b);
+		for (int i = 0; i < value->m_edges.size(); ++i) {
+			if (value->m_edges[i] != nullptr)
+				data += serialize(value->m_edges[i], variableName + "_edges_" + std::to_string(i), r, g, b);
+		}
+	}
+	else {
+		for (int i = 0; i < value->m_childrens.size(); ++i) {
+			if (value->m_childrens[i] != nullptr)
+				data += serialize(value->m_childrens[i], variableName + "_" + std::to_string(i), r, g, b);
+		}
+	}
+
+	return data + "\n";
+}
+
+std::string serialize(Tree* value, std::string variableName, float r, float g, float b) {
+	
+	std::string data = "";
+
+	for (int i = 0; i < value->get_root()->m_childrens.size(); ++i)
+		data += serialize((value->get_root()->m_childrens[i]), variableName + "_" + std::to_string(i), r, g, b);
+
+	return data + "\n";
+}
+
+std::string serialize(Tree** value, std::string variableName, float r, float g, float b) {
+
+	return serialize(*value, variableName, r, g, b);
+}
+
 //
 //std::string serialize(Sphere* value, std::string variableName, float r, float g, float b) {
 //

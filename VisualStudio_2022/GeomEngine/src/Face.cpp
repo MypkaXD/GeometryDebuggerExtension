@@ -25,7 +25,7 @@ Point get_intersection_point(std::tuple<float, float, float> first, std::tuple<f
 
 bool is_line_cross(std::tuple<float, float, float> first, std::tuple<float, float, float> second) {
 
-	float determ = std::get<0>(first) * std::get<1>(second) - std::get<1>(first)*std::get<0>(first);
+	float determ = std::get<0>(first) * std::get<1>(second) - std::get<1>(first)*std::get<0>(second);
 
 	if (determ == 0)
 		return false;
@@ -189,9 +189,44 @@ std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox 
 		}
 
 
-		if (edges.size() == 2 && (count_of_intersection_points == 2 || count_of_intersection_points == 4)) {
+		//if (edges.size() == 2 && (count_of_intersection_points == 2 || count_of_intersection_points == 4)) {
+		if (edges.size() == 2) {
 
-			for (int i = 0; i < 4; ++i) {
+			float dist_between_first_end_and_second_start = std::pow(edges[0]->getPoint(edges[0]->getParams().second).getX() - edges[1]->getPoint(edges[1]->getParams().first).getX(), 2) + std::pow(edges[0]->getPoint(edges[0]->getParams().second).getY() - edges[1]->getPoint(edges[1]->getParams().first).getY(), 2);
+			float dist_between_first_start_and_second_end = std::pow(edges[0]->getPoint(edges[0]->getParams().first).getX() - edges[1]->getPoint(edges[1]->getParams().second).getX(), 2) + std::pow(edges[0]->getPoint(edges[0]->getParams().first).getY() - edges[1]->getPoint(edges[1]->getParams().second).getY(), 2);
+
+			Point* point_of_box = nullptr;
+
+			if (dist_between_first_end_and_second_start < eps * eps) {
+				if (box.is_point_inside(edges[0]->getPoint(edges[0]->getParams().second))) {
+					point_of_box = &edges[0]->getPoint(edges[0]->getParams().second);
+				}
+			}
+			else if (dist_between_first_start_and_second_end < eps * eps) {
+				if (box.is_point_inside(edges[0]->getPoint(edges[0]->getParams().first))) {
+					point_of_box = &edges[0]->getPoint(edges[0]->getParams().first);
+				}
+			}
+			
+			if (point_of_box != nullptr) {
+				for (int i = 0; i < intersection_point_on_boxes.size(); ++i) {
+					for (int j = 0; j < intersection_point_on_boxes[i].size(); ++j) {
+
+						if (intersection_point_on_boxes[i][j].m_parent_index_of_box_line == -1)
+							continue;
+
+						float current_dist = std::pow(point_of_box->getX() - intersection_point_on_boxes[i][j].m_point.getX(), 2) + std::pow(point_of_box->getY() - intersection_point_on_boxes[i][j].m_point.getY(),2);
+
+						if (current_dist < eps * eps) {
+							intersection_point_on_boxes[i][j] = IntersectionPoint();
+							count_of_intersection_points -= 1;
+						}
+					}
+				}
+			}
+
+
+			/*for (int i = 0; i < 4; ++i) {
 				IntersectionPoint* first_point = &intersection_point_on_boxes[0][i];
 				IntersectionPoint* second_point = &intersection_point_on_boxes[1][i];
 
@@ -199,14 +234,17 @@ std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox 
 					continue;
 				else {
 					float dist_between_points = std::pow(first_point->m_point.getX() - second_point->m_point.getX(), 2) + std::pow(first_point->m_point.getY() - second_point->m_point.getY(), 2);
-					if (dist_between_points < eps * eps) {
+					float dist_between_edges_first = std::pow(edges[0]->getPoint(edges[0]->getParams().second).getX() - edges[1]->getPoint(edges[1]->getParams().first).getX(), 2) + std::pow(edges[0]->getPoint(edges[0]->getParams().second).getY() - edges[1]->getPoint(edges[1]->getParams().first).getY(), 2);
+					float dist_between_edges_second = std::pow(edges[0]->getPoint(edges[0]->getParams().first).getX() - edges[1]->getPoint(edges[1]->getParams().second).getX(), 2) + std::pow(edges[0]->getPoint(edges[0]->getParams().first).getY() - edges[1]->getPoint(edges[1]->getParams().second).getY(), 2);
+					if (dist_between_points < eps * eps || dist_between_edges_first < eps * eps || dist_between_edges_second < eps * eps) {
 						intersection_point_on_boxes[0][i] = IntersectionPoint();
 						intersection_point_on_boxes[1][i] = IntersectionPoint();
 						count_of_intersection_points -= 2;
 					}
 				}
-
 			}
+			*/
+
 
 		}
 
@@ -260,6 +298,9 @@ std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox 
 				break;
 			}
 		}
+
+		if (start_index == -1)
+			return {};
 
 		std::vector<std::pair<float, float>> result_points;
 
@@ -360,5 +401,123 @@ std::vector<std::vector<std::pair<float, float>>> get_cut_of_figure(BoundingBox 
 
 		return {};
 
+	}
+}
+
+int condition_that_box_inside(const Node* list, std::tuple<float, float, float>& equation_of_horizontal_line) {
+	
+	if (list == nullptr)
+		return -1;
+	
+	for (int i = 0; i < list->m_edges.size(); ++i) {
+		if (list->m_edges[i] == nullptr)
+			continue;
+		std::tuple<float, float, float> equation_of_current_edge = get_equation_of_line(list->m_edges[i]->getPoint(list->m_edges[i]->getParams().first), list->m_edges[i]->getPoint(list->m_edges[i]->getParams().second));
+
+		if (is_line_cross(equation_of_horizontal_line, equation_of_current_edge)) {
+
+			BoundingBox current_box_of_edge = BoundingBox(list->m_edges[i]->getPoint(list->m_edges[i]->getParams().first), list->m_edges[i]->getPoint(list->m_edges[i]->getParams().second));
+
+			Point current_intersection_point = get_intersection_point(equation_of_horizontal_line, equation_of_current_edge);
+
+			if (current_intersection_point.getX() <= list->m_box.m_start_point.getX())
+				continue;
+
+			if (current_box_of_edge.is_point_inside(current_intersection_point)) {
+
+				Point dir1 = list->m_box.m_start_point + Point(list->m_box.m_width, list->m_box.m_height / 2, 0) - list->m_box.m_start_point - Point(list->m_box.m_width / 2, list->m_box.m_height / 2, 0);
+				Point dir2 = list->m_edges[i]->getPoint(list->m_edges[i]->getParams().second) - list->m_edges[i]->getPoint(list->m_edges[i]->getParams().first);
+				Point cross = dir1 & dir2;
+
+				return cross.getZ() < 0;
+			}
+		}
+	}
+
+	return -1;
+}
+
+int func(const Node* list, std::tuple<float, float, float>& equation_of_horizontal_line) {
+
+	if (list == nullptr)
+		return false;
+
+	int result = condition_that_box_inside(list, equation_of_horizontal_line);
+
+	if (result == 0 || result == 1)
+		return result;
+
+	for (int i = 0; i < list->m_childrens.size(); ++i) {
+		if (list->m_childrens[i] == nullptr)
+			continue;
+		int current_result = func(list->m_childrens[i], equation_of_horizontal_line);
+
+		if (current_result == 0 || current_result == 1)
+			return current_result;
+	}
+
+	return -1;
+}
+
+bool is_bounding_box_inside(const Node* list, std::tuple<float, float, float>& equation_of_horizontal_line) {
+
+	if (list == nullptr)
+		return false;
+
+	int result = condition_that_box_inside(list, equation_of_horizontal_line);
+
+	if (result == 0 || result == 1)
+		return result;
+
+	Node* parrent = list->m_parent;
+	if (parrent == nullptr)
+		return false;
+
+	int index_of_list = -1;
+	for (int i = 0; i < parrent->m_childrens.size(); ++i) {
+		if (parrent->m_childrens[i] == list) {
+			index_of_list = i;
+			break;
+		}
+	}
+
+	if (index_of_list == -1)
+		return false;
+
+	if (index_of_list == 0)
+		return is_bounding_box_inside(parrent->m_childrens[3]->get_list(), equation_of_horizontal_line);
+	else if (index_of_list == 1)
+		return is_bounding_box_inside(parrent->m_childrens[2]->get_list(), equation_of_horizontal_line);
+	else {
+
+		Node* parrent_of_parrent = nullptr;
+		int index_of_list_parent = -1;
+
+		while (true) {
+			parrent_of_parrent = parrent->m_parent;
+			if (parrent_of_parrent == nullptr)
+				return false;
+			else {
+				for (int i = 0; i < parrent_of_parrent->m_childrens.size(); ++i) {
+					if (parrent_of_parrent->m_childrens[i] == parrent) {
+						index_of_list_parent = i;
+						break;
+					}
+				}
+			}
+
+			if (index_of_list_parent != 0 && index_of_list_parent != 1)
+				parrent = parrent_of_parrent;
+			else {
+				result = func(parrent_of_parrent->m_childrens[index_of_list_parent == 0 ? 3 : 2], equation_of_horizontal_line);
+
+				if (result == 1 || result == 0)
+					return result;
+				else {
+					parrent = parrent_of_parrent;
+					continue;
+				}
+			}
+		}
 	}
 }

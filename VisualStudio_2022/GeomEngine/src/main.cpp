@@ -27,6 +27,7 @@
 
 #include <geom_view.h>
 geom_view gv;
+Tree* tree;
 
 //std::vector<Point> points = {
 //	Point(1, 5, 0), Point(5, 10, 0), Point(7, 7, 0), Point(6, 2, 0), Point(4,6, 0), Point(2, 3, 0)
@@ -204,13 +205,13 @@ std::string serialize_tree(Tree* value, std::string variableName, float r, float
 
 	std::string data = "";
 
-	for (int i = 0; i < value->m_root->m_childrens.size(); ++i)
-		data += serialize_node(value->m_root->m_childrens[i], variableName + "_" + std::to_string(i), r, g, b);
+	for (int i = 0; i < value->get_root()->m_childrens.size(); ++i)
+		data += serialize_node(value->get_root()->m_childrens[i], variableName + "_" + std::to_string(i), r, g, b);
 
 	return data + "\n";
 }
 
-void draw_current_node(Node* current_node, std::vector<Plate>& plates) {
+void draw_current_node(const Node* current_node, std::vector<Plate>& plates) {
 
 	if (current_node != nullptr) {
 		if (current_node->m_is_list) {
@@ -233,7 +234,18 @@ void draw_current_node(Node* current_node, std::vector<Plate>& plates) {
 				points_cuts.push_back(points);
 			}
 
-			plates.emplace_back(points_cuts);
+			if (points_cuts.size() == 0) {
+				if (is_bounding_box_inside(current_node, get_equation_of_line(current_node->m_box.m_start_point + Point(current_node->m_box.m_width / 2, current_node->m_box.m_height / 2, 0), current_node->m_box.m_start_point + Point(current_node->m_box.m_width, current_node->m_box.m_height / 2, 0)))) {
+					plates.emplace_back(Plate(
+						{
+							{ current_node->m_box.m_start_point, current_node->m_box.m_start_point + Point(0,current_node->m_box.m_height,0), current_node->m_box.m_end_point,current_node->m_box.m_start_point + Point(current_node->m_box.m_width,0,0)
+							}
+						}
+					));
+				}
+			}
+			else
+				plates.emplace_back(points_cuts);
 		}
 	}
 }
@@ -248,7 +260,7 @@ void draw_subtree(Node* current_node, std::vector<Plate>& plates) {
 		draw_subtree(child, plates);
 }
 
-void draw(Node* current_node, std::vector<Plate>& plates) {
+void draw(const Node* current_node, std::vector<Plate>& plates) {
 
 	if (current_node == nullptr)
 		return;
@@ -345,13 +357,20 @@ void dump() {
 
 	std::vector<Plate> plates;
 
-	Tree tree = Tree(box, edges_in_tree);
+	auto start_time = std::chrono::steady_clock::now();
 
-	Node* list = tree.m_root->get_list();
+	tree = new Tree(box, edges_in_tree);
+
+	const Node* list = tree->get_root()->get_list();
 
 	if (list != nullptr) {
 		draw(list, plates);
 	}
+	
+	auto duration = std::chrono::steady_clock::now() - start_time;
+	std::cout << "Time for creating tree: "
+		<< std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()
+		<< " ms" << std::endl;
 
 	//std::cout << "end" << std::endl;
 	//std::cout << "end" << std::endl;
@@ -363,7 +382,7 @@ void dump() {
 	if (file.is_open()) {
 		file << serialize_box(&box, "box", 1, 1, 1);
 		file << serialize_edges(&edges, "edges", 1, 1, 1);
-		file << serialize_tree(&tree, "tree", 1, 1, 1);
+		file << serialize_tree(tree, "tree", 1, 1, 1);
 		for (int i = 0; i < plates.size(); ++i)
 			file << serialize_plate(&plates[i], "plates_" + std::to_string(i), 1, 1, 1);
 		for (int i = 0; i < points.size(); ++i)
@@ -375,7 +394,7 @@ void dump() {
 
 void read_binary_data_from_file() {
 
-	std::string file_path = "cases_for_cut_bounding_box\\1753114243749.txt";
+	std::string file_path = "cases_for_cut_bounding_box\\1753198883114.txt";
 
 	std::ifstream file(file_path, std::ios::binary);
 	if (!file.is_open())
@@ -411,13 +430,12 @@ void read_binary_data_from_file() {
 
 void create_random_triangle() {
 
-
-	float radius = rand() % 10 + 1;
-
 	float x_cener = rand() % 10;
 	float y_cener = rand() % 10;
 
-	int count_of_points = 20;
+	float radius = rand() % 100 + 1;
+
+	int count_of_points = 10;
 	points.resize(count_of_points);
 
 	std::vector<float> angles(count_of_points);
@@ -430,6 +448,8 @@ void create_random_triangle() {
 	std::sort(angles.begin(), angles.end(), std::greater<float>());
 
 	for (int i = 0; i < count_of_points; ++i) {
+
+		//float radius = rand() % 10 + 1;
 
 		float current_angle = angles[i] * M_PI / 180;
 
@@ -455,7 +475,7 @@ int main() {
 	Vector oy = Vector(origin, y);
 	Vector oz = Vector(origin, z);
 
-	dump();
+	//dump();
 
 	
 
@@ -488,6 +508,8 @@ int main() {
 	while (cmd != "exit") {
 		std::cin >> cmd;
 	}
+
+	delete tree;
 
 	return 0;
 

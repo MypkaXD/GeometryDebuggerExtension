@@ -310,6 +310,9 @@ std::string SerializeObjects(const std::vector<Variable>& objects) {
 		isSerialized |= RegisterType<Vector>(object);
 		isSerialized |= RegisterType<CustomPlane>(object);
 		isSerialized |= RegisterType<Plate>(object);
+		isSerialized |= RegisterType<Tree>(object);
+		isSerialized |= RegisterType<Tree*>(object);
+		isSerialized |= RegisterType<Node>(object);
 		isSerialized |= RegisterType<std::vector<Plate>>(object);
 		//isSerialized |= RegisterType<Sphere>(object);
 		//isSerialized |= RegisterType<Cylinder>(object);
