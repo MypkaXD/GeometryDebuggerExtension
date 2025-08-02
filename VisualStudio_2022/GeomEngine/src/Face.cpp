@@ -423,6 +423,8 @@ int condition_that_box_inside(const Node* list, std::tuple<float, float, float>&
 
 			Point current_intersection_point = get_intersection_point(equation_of_horizontal_line, equation_of_current_edge);
 
+			BoundingBox box_with_eps = BoundingBox(current_box_of_edge.m_start_point + Point(eps, eps, 0), current_box_of_edge.m_end_point - Point(eps, eps,0));
+
 			if (current_intersection_point.getX() <= list->m_box.m_start_point.getX())
 				continue;
 
@@ -453,6 +455,10 @@ int func(const Node* list, std::tuple<float, float, float>& equation_of_horizont
 	if (list == nullptr)
 		return false;
 
+	float y_of_line = -std::get<2>(equation_of_horizontal_line) / std::get<1>(equation_of_horizontal_line);
+	if (y_of_line < list->m_box.m_start_point.getY() || y_of_line > list->m_box.m_end_point.getY())
+		return -1;
+
 	int result = condition_that_box_inside(list, equation_of_horizontal_line);
 
 	if (result == 0 || result == 1)
@@ -461,6 +467,7 @@ int func(const Node* list, std::tuple<float, float, float>& equation_of_horizont
 	for (int i = 0; i < list->m_childrens.size(); ++i) {
 		if (list->m_childrens[i] == nullptr)
 			continue;
+
 		int current_result = func(list->m_childrens[i], equation_of_horizontal_line);
 
 		if (current_result == 0 || current_result == 1)

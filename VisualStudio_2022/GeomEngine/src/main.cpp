@@ -435,14 +435,14 @@ void create_random_triangle() {
 
 	float radius = rand() % 100 + 1;
 
-	int count_of_points = 20;
+	int count_of_points = 100;
 	points.resize(count_of_points);
 
 	std::vector<float> angles(count_of_points);
 
 	for (int i = 0; i < count_of_points; ++i) {
 		angles[i] = rand() % 360;
-		std::cout << angles[i] << std::endl;
+		//std::cout << angles[i] << std::endl;
 	}
 
 	std::sort(angles.begin(), angles.end(), std::greater<float>());
