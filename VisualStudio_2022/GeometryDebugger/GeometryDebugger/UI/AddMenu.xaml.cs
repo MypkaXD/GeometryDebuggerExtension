@@ -211,7 +211,9 @@ namespace GeometryDebugger.UI
         {
             if (this.WL.IsChecked == true) // если стоит флаг на доблавение переменных из WL
             {
-                m_DGV_debugger.GetVariablesFromWatchList(ref m_OBOV_variablesFromWathList);
+                int result = m_DGV_debugger.GetVariablesFromWatchList(ref m_OBOV_variablesFromWathList);
+                if (result == -1)
+                    this.WL.IsChecked = false;
             }
             else // иначе просто обнуляем
             {

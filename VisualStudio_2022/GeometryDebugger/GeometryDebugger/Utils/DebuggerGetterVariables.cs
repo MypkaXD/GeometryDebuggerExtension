@@ -123,7 +123,7 @@ namespace GeometryDebugger.Utils
         ////////////////////////////////////////////////////////////
         //////////
         // method for get variables from WatchWindow
-        public void GetVariablesFromWatchList(ref ObservableCollection<Variable> variables)
+        public int GetVariablesFromWatchList(ref ObservableCollection<Variable> variables)
         {
             variables = new ObservableCollection<Variable>();
 
@@ -136,15 +136,21 @@ namespace GeometryDebugger.Utils
             catch (Exception ex)
             {
                 MessageBox.Show($"ERROR: \"Watch 1\" window didn't find. Try to open window \"Watch 1\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                return -1;
             }
 
             AutomationElement mainWindow = AutomationElement.FromHandle(customToolWindow.HWnd);
 
             if (mainWindow == null)
+            {
                 MessageBox.Show($"ERROR: Treegrid wasn't find in window \"Watch 1\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return -1;
+            }
             else
+            {
                 GetChildrenFromAutomationElement(mainWindow, ref variables);
+                return 0;
+            }
         }
         void GetChildrenFromAutomationElement(AutomationElement element, ref ObservableCollection<Variable> variables)
         {

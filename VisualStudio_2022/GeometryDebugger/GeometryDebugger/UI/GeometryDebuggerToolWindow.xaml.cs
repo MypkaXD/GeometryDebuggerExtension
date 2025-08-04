@@ -1,20 +1,22 @@
 ﻿using EnvDTE;
+using GeometryDebugger.Utils;
+using Microsoft.VisualStudio.Debugger.Interop;
+using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using GeometryDebugger.Utils;
-using System.Collections.Specialized;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.PlatformUI;
 using System.Windows.Media.Imaging;
-using System.Threading;
+using System.Windows.Shapes;
 
 namespace GeometryDebugger.UI
 {
@@ -1098,12 +1100,15 @@ namespace GeometryDebugger.UI
 
             ++variable.m_i_NumberOfChilds;
 
+            string name_of_prev_children = m_S_GlobalPath + "\\\\" + m_S_PathForFile + Util.SanitizeFileName(variable.m_S_Name) + "_" + variable.m_S_Source + "_" + variable.m_S_Addres + "_depth" + (variable.m_i_NumberOfChilds - 1) + ".txt";
+            m_CH_Host.highlightGeomView(new List<Tuple<string, bool>>() { Tuple.Create(name_of_prev_children, false) });
+
             HSL hslColor = GeometryDebugger.UI.ColorPicker.GetHSLFromRGB((byte)variable.m_C_Color.m_i_R, (byte)variable.m_C_Color.m_i_G, (byte)variable.m_C_Color.m_i_B);
             hslColor.m_Hue += ((float)360 / m_i_count_of_element_in_history * (variable.m_i_NumberOfChilds)) % 360;
             RGB rgbColor = GeometryDebugger.UI.ColorPicker.GetRGBFromHSL(hslColor);
             variable.m_C_Color = new Utils.Color(rgbColor.m_Byte_R, rgbColor.m_Byte_G, rgbColor.m_Byte_B);
 
-            dgObjects.Items.Refresh();
+            //dgObjects.Items.Refresh();
         }
 
         private void ShowHistoryBtn_Click(object sender, RoutedEventArgs e)

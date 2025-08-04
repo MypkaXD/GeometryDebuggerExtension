@@ -32,7 +32,7 @@ namespace GeometryDebugger.Utils
                 return false;
         }
 
-        static string SanitizeFileName(string name)
+        static public string SanitizeFileName(string name)
         {
             List<string> forbiddenChars = new List<string>() { "<", ">", ":", "\\", "/", "|", "?", "*", "&" };
 
